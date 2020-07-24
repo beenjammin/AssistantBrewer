@@ -47,8 +47,8 @@ class TabWidget(QTabWidget):
     def __init__(self, *args, **kwargs):
         QTabWidget.__init__(self, *args, **kwargs)
         stylesheet = """ 
-                    QTabBar::tab:selected {background: #383838;color: white}
-                    QTabWidget>QWidget>QWidget{background: #383838}
+                    QTabBar::tab:selected {background: black;color: white}
+                    QTabWidget>QWidget>QWidget{background: black}
                     """
 
         self.setStyleSheet(stylesheet)

@@ -15,8 +15,8 @@ class Parameters():
         #Add hardware to dictionary to populate GUI     
         self.hardware = {'tempHardware':['HLT','Mash','Boil'],
                          'otherHardware':['Pump 1','Pump 2']}
-
-        self.colours = {'black':'#000000','grey1':'#383838','grey2':'#616161','grey3':'#999999','white':'#ffffff'}
+        self.colour = 'grey'
+        # self.colours = {'black':'#000000','grey1':'#383838','grey2':'#616161','grey3':'#999999','white':'#ffffff','darkGreen':'#33524c'}
         #Dictionaries for GUI
         #user inputs as a dictionary{hardware: Status, Target tempature, Temperature tolerance, Actor}
         self.userInputs={}
@@ -41,46 +41,11 @@ class Parameters():
         
         #Actor inputs as a dictionary{hardware: tgtTemp, tgtTolerance, tempReading, on/off switch,}
         self.hardwareDict={}
-        
-class groupBox(QGroupBox):
-    def __init__(self, *args, **kwargs):
-        QGroupBox.__init__(self, *args, **kwargs)
-        stylesheet = """ 
-                    QGroupBox {border: 1px solid black;
-                    border-radius: 9px;
-                    margin-top: 0.5em}
-                    QGroupBox::title {subcontrol-origin: margin;
-                    left: 10px;
-                    padding: 0 3px 0 3px;
-                    }
-                    """
-        self.setStyleSheet(stylesheet)
-        
-        
-class bodyLabel(QLabel):
-    def __init__(self, *args, **kwargs):
-        QLabel.__init__(self, *args, **kwargs)
-        stylesheet = """ 
-                    QLabel {color : #999999}
-                    """
-        self.setStyleSheet(stylesheet)
+
+        self._DOCK_OPTS = QMainWindow.AnimatedDocks
+        self._DOCK_OPTS |= QMainWindow.AllowNestedDocks
+        self._DOCK_OPTS |= QMainWindow.AllowTabbedDocks
         
 
-class bodyButton(QPushButton):
-    def __init__(self, *args, **kwargs):
-        QPushButton.__init__(self, *args, **kwargs)
-        stylesheet = """ 
-                    QPushButton {background-color: #616161; border: none; color : #999999}
-                    QPushButton:checked {background-color: #33524c; border: none;color: white}
-                    """
-        self.setStyleSheet(stylesheet)
-        
-class dockable(QDockWidget):
-    def __init__(self, *args, **kwargs):
-        QDockWidget.__init__(self, *args, **kwargs)
-        stylesheet = """ 
-                    QDockWidget::title {background: black; color : white}
-                    """
-        self.setStyleSheet(stylesheet)
 
 
