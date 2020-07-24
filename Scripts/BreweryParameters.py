@@ -41,6 +41,7 @@ class Parameters():
         
         #Actor inputs as a dictionary{hardware: tgtTemp, tgtTolerance, tempReading, on/off switch,}
         self.hardwareDict={}
+        self.wDict = {}
 
         self._DOCK_OPTS = QMainWindow.AnimatedDocks
         self._DOCK_OPTS |= QMainWindow.AllowNestedDocks

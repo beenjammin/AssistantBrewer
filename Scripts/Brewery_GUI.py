@@ -23,7 +23,9 @@ class BreweryGUI(QMainWindow):
         VLayoutP = QVBoxLayout()       
         for tempHardware in self.parameters.hardware['tempHardware']:
             self.parameters.hardwareDict[tempHardware]=[]
-
+            
+            dock = dockable(tempHardware)  
+            gb = groupBox('Temperature')
             VLayout = QVBoxLayout()
             HLayout = QHBoxLayout()
             label = bodyLabel('Target temperature:')
@@ -45,6 +47,7 @@ class BreweryGUI(QMainWindow):
             VLayout.addLayout(HLayout)
             HLayout = QHBoxLayout()
             currentTemp = bodyLabel('Current temperature --> no reading')
+            currentPins = bodyLabel('Relay pins attached --> no relays attached')
             self.parameters.hardwareDict[tempHardware].append(currentTemp)
             HLayout.addWidget(currentTemp)        
             switch = bodyButton()
@@ -55,9 +58,7 @@ class BreweryGUI(QMainWindow):
             HLayout.addWidget(self.parameters.hardwareDict[tempHardware][3])
             VLayout.addLayout(HLayout)
 
-            gb = groupBox('Temperature')
-            gb.setLayout(VLayout)
-            dock = dockable(tempHardware)            
+            gb.setLayout(VLayout)          
             dock.setThisWidget(gb)
             self.addDockWidget(Qt.RightDockWidgetArea,dock)
       
