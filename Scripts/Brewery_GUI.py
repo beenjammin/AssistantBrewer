@@ -11,12 +11,15 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import json, ast
 
-from BreweryParameters import Parameters, groupBox, bodyLabel, bodyButton, dockable
+from BreweryParameters import Parameters
+from Widget_Styles import *
 
 class BreweryGUI(QMainWindow):
     def __init__(self,parameters):
         super().__init__()
         self.parameters=parameters
+        self.parameters.colour = 'grey'
+        # self.setDockOptions(self.parameters._DOCK_OPTS)
         VLayoutP = QVBoxLayout()       
         for tempHardware in self.parameters.hardware['tempHardware']:
             self.parameters.hardwareDict[tempHardware]=[]
@@ -29,8 +32,8 @@ class BreweryGUI(QMainWindow):
             VLayout.addWidget(label2)
             HLayout.addLayout(VLayout)
 
-            tgtMashTemp = QLineEdit ()
-            tempMashTolerance = QLineEdit ()
+            tgtMashTemp = bodyLineEdit()
+            tempMashTolerance = bodyLineEdit()
             self.parameters.hardwareDict[tempHardware].append(tgtMashTemp)
             self.parameters.hardwareDict[tempHardware].append(tempMashTolerance)
             VLayout = QVBoxLayout()
@@ -55,7 +58,7 @@ class BreweryGUI(QMainWindow):
             gb = groupBox('Temperature')
             gb.setLayout(VLayout)
             dock = dockable(tempHardware)            
-            dock.setWidget(gb)
+            dock.setThisWidget(gb)
             self.addDockWidget(Qt.RightDockWidgetArea,dock)
       
         #Add other hardware
@@ -72,7 +75,7 @@ class BreweryGUI(QMainWindow):
 
         pumps.setLayout(HLayout)
         dock = dockable('Other Hardware')            
-        dock.setWidget(pumps)
+        dock.setThisWidget(pumps)
         self.addDockWidget(Qt.RightDockWidgetArea,dock)
         
     def whichbtn(self,hardware):
