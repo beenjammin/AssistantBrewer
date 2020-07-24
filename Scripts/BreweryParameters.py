@@ -12,9 +12,15 @@ class Parameters():
     def __init__(self):
         #{pin:last state} 
         self.activePins = {17:False,22:False,23:False,27:False}
-        #Add hardware to dictionary to populate GUI     
-        self.hardware = {'tempHardware':['HLT','Mash','Boil'],
-                         'otherHardware':['Pump 1','Pump 2']}
+        #Add hardware to dictionary to populate GUI {hardware:Temperature,Relays,Timer}
+
+        self.hardware = {   
+                            'HLT':[True,True,True],
+                            'Mash':[True,True,True],
+                            'Boil':[True,True,True],
+                            'Pump 1':[False,True,False],
+                            'Pump 2':[False,True,False]
+                         }
         self.colour = 'grey'
         # self.colours = {'black':'#000000','grey1':'#383838','grey2':'#616161','grey3':'#999999','white':'#ffffff','darkGreen':'#33524c'}
         #Dictionaries for GUI
@@ -41,7 +47,8 @@ class Parameters():
         
         #Actor inputs as a dictionary{hardware: tgtTemp, tgtTolerance, tempReading, on/off switch,}
         self.hardwareDict={}
-        self.wDict = {}
+        self.brewGUI = {}
+        self.settingsGUI = {}
 
         self._DOCK_OPTS = QMainWindow.AnimatedDocks
         self._DOCK_OPTS |= QMainWindow.AllowNestedDocks

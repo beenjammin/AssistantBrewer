@@ -18,17 +18,6 @@ def colourPick(colour,shade):
                     }
 
     return colourDict[colour][shade]
-    # if colour == 'grey':
-    #     shadeDict = {   'light': [0,255],
-    #                         'medium' : [0,200],
-    #                         'dark' : [0,100]}
-    # else:
-    #     shadeDict = {   'light': [50,255],
-    #                     'medium' : [200,200],
-    #                     'dark' : [255,100]}
-    # colourDict = {'yellow':60,'red':0,'purple':300,'blue':240,'green':60,'grey':60}
-
-    # return QColor.fromHsv(colourDict[colour],shadeDict[shade][0],shadeDict[shade][1]).name()
 
 
 class dockable(QDockWidget):
@@ -37,6 +26,7 @@ class dockable(QDockWidget):
         self.colour = Parameters().colour
 
         self.sub = QMainWindow()
+        self.layout = QVBoxLayout()
         self.sub.setWindowFlags(Qt.Widget)
         self.sub.setDockOptions(Parameters()._DOCK_OPTS)
         self.setWidget(self.sub)
@@ -59,8 +49,14 @@ class dockable(QDockWidget):
                
         self.setStyleSheet(stylesheet)
 
-    def setThisWidget(self,widget):
-        self.sub.setCentralWidget(widget)
+    def addThisWidget(self,widget):
+        self.layout.addWidget(widget)
+
+    def setCentralWidget(self):
+        # self.sub.addWidget(widget)
+        centralWidget = QWidget()
+        centralWidget.setLayout(self.layout)
+        self.sub.setCentralWidget(centralWidget)
 
     # def addDockWidget(self,dock,window)
 
@@ -80,10 +76,10 @@ class groupBox(QGroupBox):
                     QGroupBox {border: 1px solid black;
                                 border-radius: 9px;
                                 margin-top: .5em;
-                                margin-bottom: .5em;
+                                margin-bottom: .0em;
                                 margin-left: .25em;
                                 margin-right: .25em;
-                                padding: 3px 3px 3px 3px}
+                                padding: 1px 1px 1px 1px}
                     QGroupBox::title {subcontrol-origin: margin;
                                         left: 10px;
                                         padding: 0 3px 0 3px;}

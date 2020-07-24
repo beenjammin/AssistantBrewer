@@ -21,66 +21,102 @@ class BreweryGUI(QMainWindow):
         self.parameters.colour = 'grey'
         # self.setDockOptions(self.parameters._DOCK_OPTS)
         VLayoutP = QVBoxLayout()       
-        for tempHardware in self.parameters.hardware['tempHardware']:
-            self.parameters.hardwareDict[tempHardware]=[]
-            
-            dock = dockable(tempHardware)  
-            gb = groupBox('Temperature')
-            VLayout = QVBoxLayout()
-            HLayout = QHBoxLayout()
-            label = bodyLabel('Target temperature:')
-            label2 = bodyLabel('Temperature tolerance:')
-            VLayout.addWidget(label)
-            VLayout.addWidget(label2)
-            HLayout.addLayout(VLayout)
+        for key, value in self.parameters.hardware.items():
+            self.parameters.hardwareDict[key] = []
+            self.parameters.brewGUI[key] = {}
+            self.key = key
 
-            tgtMashTemp = bodyLineEdit()
-            tempMashTolerance = bodyLineEdit()
-            self.parameters.hardwareDict[tempHardware].append(tgtMashTemp)
-            self.parameters.hardwareDict[tempHardware].append(tempMashTolerance)
-            VLayout = QVBoxLayout()
-            VLayout.addWidget(tgtMashTemp)
-            VLayout.addWidget(tempMashTolerance)
-            HLayout.addLayout(VLayout)
-            
-            VLayout = QVBoxLayout()
-            VLayout.addLayout(HLayout)
-            HLayout = QHBoxLayout()
-            currentTemp = bodyLabel('Current temperature --> no reading')
-            currentPins = bodyLabel('Relay pins attached --> no relays attached')
-            self.parameters.hardwareDict[tempHardware].append(currentTemp)
-            HLayout.addWidget(currentTemp)        
-            switch = bodyButton()
-            switch.setText(tempHardware+' - Off')
-            switch.setCheckable(True)
-            switch.clicked.connect(lambda ignore, a=tempHardware:self.whichbtn(a))
-            self.parameters.hardwareDict[tempHardware].append(switch)
-            HLayout.addWidget(self.parameters.hardwareDict[tempHardware][3])
-            VLayout.addLayout(HLayout)
+            #create a dockable widget which will contain child widgets only if at least one vlau
+            if any(value):
+                self.dock = dockable(key)
+                self.parameters.brewGUI[key]['dockwidget']=[self.dock]
 
-            gb.setLayout(VLayout)          
-            dock.setThisWidget(gb)
-            self.addDockWidget(Qt.RightDockWidgetArea,dock)
-      
-        #Add other hardware
+            #check if we are adding temperature functionality to the hardware
+            if value[0]:
+                self.addTemperature()
+            else:
+                self.parameters.hardwareDict[key]=[False,False,False]
+
+            #check if we are adding relay functionality to the hardware
+            if value[1]:
+                self.addRelay()
+
+            #check if we are adding timer functionality to the hardware
+            if value[2]:pass 
+
+            self.dock.setCentralWidget()
+            self.addDockWidget(Qt.RightDockWidgetArea,self.dock)
+        # print (self.parameters.brewGUI)
+
+
+    #adding the temperature funcitonality
+    def addTemperature(self):
+        gb = groupBox('Temperature')
+
+        VLayout = QVBoxLayout()
         HLayout = QHBoxLayout()
-        pumps = groupBox("Pumps")
-        for otherHardware in self.parameters.hardware['otherHardware']:
-            self.parameters.hardwareDict[otherHardware]=[False,False,False]
-            button = bodyButton()
-            button.setText(otherHardware+' - Off')
-            button.setCheckable(True)
-            button.clicked.connect(lambda ignore, a=otherHardware:self.whichbtn(a))
-            self.parameters.hardwareDict[otherHardware].append(button)
-            HLayout.addWidget(button)
+        tgtTemp = bodyLabel('Target temperature:')
+        tgtLineTemp = bodyLineEdit()
+        HLayout.addWidget(tgtTemp)
+        HLayout.addWidget(tgtLineTemp)
+        VLayout.addLayout(HLayout)
 
-        pumps.setLayout(HLayout)
-        dock = dockable('Other Hardware')            
-        dock.setThisWidget(pumps)
-        self.addDockWidget(Qt.RightDockWidgetArea,dock)
+        HLayout = QHBoxLayout()
+        tempTol = bodyLabel('Temperature tolerance:')
+        tempLineTolerance = bodyLineEdit()
+        HLayout.addWidget(tempTol)
+        HLayout.addWidget(tempLineTolerance)
+        VLayout.addLayout(HLayout)
+
+        currentTemp = bodyLabel('Current temperature --> no reading')
+        VLayout.addWidget(currentTemp)
+              
+        self.parameters.hardwareDict[self.key].append(tgtLineTemp)
+        self.parameters.hardwareDict[self.key].append(tempLineTolerance)
+        self.parameters.hardwareDict[self.key].append(currentTemp) 
         
+        gb.setLayout(VLayout)          
+        self.dock.addThisWidget(gb)
+
+        #update widget dictionary with all widgets we created
+        tempGroupBox = {'widget':gb,
+                        'QLabelTgtTemp':{'widget':tgtTemp},
+                        'QLabelTempTol':{'widget':tempTol},
+                        'QLabelCurrentTemp':{'widget':currentTemp,'value':'no reading'},
+                        'QLineEditTgtTemp':{'widget':tgtLineTemp,'value':None},
+                        'QLineEditTempTol':{'widget':tempLineTolerance,'value':None}
+                        }
+        self.parameters.brewGUI[self.key]['tempGroupBox'] = tempGroupBox
+        
+
+    #adding the relay funcitonality
+    def addRelay(self):
+        gb = groupBox('Relay')
+        # VLayout = QVBoxLayout()
+        HLayout = QHBoxLayout()
+        currentPins = bodyLabel('Relay pins attached --> no relays attached')
+        HLayout.addWidget(currentPins)       
+        switch = bodyButton()
+        switch.setText(self.key+' - Off')
+        switch.setCheckable(True)
+        switch.clicked.connect(lambda ignore, a=self.key:self.whichbtn(a))
+        self.parameters.hardwareDict[self.key].append(switch)
+        HLayout.addWidget(self.parameters.hardwareDict[self.key][3])
+        # VLayout.addLayout(HLayout)
+
+        gb.setLayout(HLayout)          
+        self.dock.addThisWidget(gb)
+
+        #update widget dictionary with all widgets we created
+        relayGroupBox = {'widget':gb,
+                        'QLabelCurrentPins':{'widget':currentPins,'value':'no relays attached'},
+                        'QPushButton':{'widget':switch,'value':False}
+                        }
+        self.parameters.brewGUI[self.key]['relayGroupBox'] = relayGroupBox
+
+
     def whichbtn(self,hardware):
-        b = self.parameters.hardwareDict[hardware][3]
+        b = self.parameters.brewGUI[hardware]['relayGroupBox']['QPushButton']['widget']
         hardwareName = b.text()[:b.text().find('-')-1]
 #        print(hardwareName)
         if b.isChecked():

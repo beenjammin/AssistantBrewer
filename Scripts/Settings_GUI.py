@@ -12,6 +12,8 @@ from PyQt5.QtWidgets import *
 import json, ast
 
 from BreweryParameters import Parameters
+from Widget_Styles import *
+
 
 class SettingsGUI(QMainWindow):
     def __init__(self,parameters):
@@ -21,42 +23,50 @@ class SettingsGUI(QMainWindow):
         #Give user the option to set connections for relays
         VLayoutP = QVBoxLayout()  
         VLayout = QVBoxLayout()       
-        relays = QGroupBox("Relays")
-        
+        relays = groupBox("Relays")
+
+        relayDict = {}
         for relay in self.parameters.activePins:
             HLayout = QHBoxLayout()
-            relayLabel = QLabel()
+            relayLabel = bodyLabel()
             relayLabel.setText('Select control for pin {}'.format(relay))
             cb = QComboBox()
-            cb.addItems(['None']+self.parameters.hardware['tempHardware']+self.parameters.hardware['otherHardware'])
+            cb.addItems(['None']+list(self.parameters.hardware))
             self.parameters.relayComboBoxes.append(cb)
             HLayout.addWidget(relayLabel)
             HLayout.addWidget(cb)
             VLayout.addLayout(HLayout)
+            relayDict[relay]={  'QLabelRelay':{'widget':relayLabel},
+                                'QCBRelay':{'widget':cb,'value':None}}
         relays.setLayout(VLayout)
         VLayoutP.addWidget(relays)
-        
-        
+             
         VLayout = QVBoxLayout()
-        Actors = QGroupBox("Actors")
-        
-        for probe in self.parameters.hardware['tempHardware']:
-            HLayout = QHBoxLayout()
-            probeLabel = QLabel()
-            probeLabel.setText('Select actor for the {}'.format(probe))
-            cb = QComboBox()
-            cb.addItems(['None']+(self.parameters.actors))
-            self.parameters.actorComboBoxes.append(cb)
-            HLayout.addWidget(probeLabel)
-            HLayout.addWidget(cb)
-            VLayout.addLayout(HLayout)
+        Actors = groupBox("Actors")
+        actorDict = {}
+        for key, value in list(self.parameters.hardware.items()):
+            if value[0]:
+                print(key)
+                HLayout = QHBoxLayout()
+                hwLabel = bodyLabel()
+                hwLabel.setText('Select actor for the {}'.format(key))
+                cb = QComboBox()
+                cb.addItems(['None']+(self.parameters.actors))
+                self.parameters.actorComboBoxes.append(cb)
+                HLayout.addWidget(hwLabel)
+                HLayout.addWidget(cb)
+                VLayout.addLayout(HLayout)
+                actorDict[key]={    'QLabelActor':{'widget':hwLabel},
+                                    'QCBActor':{'widget':cb,'value':None}}
+
+        self.parameters.settingsGUI = {'relayDict':relayDict,'actorDict':actorDict}
         
         #load the actors
         HLayout = QHBoxLayout()    
-        actorHeader = QLabel()
+        actorHeader = bodyLabel()
         actorHeader.setText('Actor')   
         actorHeader.setFont(self.parameters.headerFont)
-        rawOutput = QLabel()
+        rawOutput = bodyLabel()
         rawOutput.setText('Raw Reading')   
         rawOutput.setFont(self.parameters.headerFont)
         HLayout.addWidget(actorHeader)
@@ -67,9 +77,9 @@ class SettingsGUI(QMainWindow):
         self.rawOutput_list = []   
         for count, actor in enumerate(self.parameters.actors):
             HLayout = QHBoxLayout()  
-            actorLabel = QLabel()
+            actorLabel = bodyLabel()
             actorLabel.setText(actor)   
-            rawReading = QLabel()
+            rawReading = bodyLabel()
             rawReading.setText('none')   
             self.rawOutput_list.append(rawReading)
             HLayout.addWidget(actorLabel)
@@ -77,18 +87,20 @@ class SettingsGUI(QMainWindow):
             VLayout.addLayout(HLayout)
         self.clickedUpdateReadings()
         
-        updateReadings = QPushButton('Update Readings')
+        updateReadings = bodyButton('Update Readings')
         updateReadings.clicked.connect(self.clickedUpdateReadings)
         VLayout.addWidget(updateReadings,alignment=Qt.AlignRight)   
         Actors.setLayout(VLayout)
         VLayoutP.addWidget(Actors)
 
-        connections = QGroupBox("Connections") 
+        connections = groupBox("Connections") 
         connections.setLayout(VLayoutP)
-        dockSetting = QDockWidget('Settings')            
-        dockSetting.setWidget(connections)
-        self.addDockWidget(Qt.RightDockWidgetArea,dockSetting)
+        dock = dockable('Settings')            
+        dock.addThisWidget(connections)
+        dock.setCentralWidget()
+        self.addDockWidget(Qt.RightDockWidgetArea,dock)
         
+
     def clickedUpdateReadings(self):
         rawReadings = [10,25,30]#[actor_read_raw(a+'/w1_slave') for a in self.actors]
         for count, a in enumerate(self.parameters.actors):
