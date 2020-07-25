@@ -11,14 +11,13 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import json, ast
 
-from BreweryParameters import Parameters
 from Widget_Styles import *
 
 class BreweryGUI(QMainWindow):
     def __init__(self,parameters):
         super().__init__()
         self.parameters=parameters
-        self.parameters.colour = 'grey'
+        # self.parameters.colour = 'blue'
         # self.setDockOptions(self.parameters._DOCK_OPTS)
         VLayoutP = QVBoxLayout()       
         for key, value in self.parameters.hardware.items():
@@ -70,10 +69,6 @@ class BreweryGUI(QMainWindow):
 
         currentTemp = bodyLabel('Current temperature --> no reading')
         VLayout.addWidget(currentTemp)
-              
-        self.parameters.hardwareDict[self.key].append(tgtLineTemp)
-        self.parameters.hardwareDict[self.key].append(tempLineTolerance)
-        self.parameters.hardwareDict[self.key].append(currentTemp) 
         
         gb.setLayout(VLayout)          
         self.dock.addThisWidget(gb)
@@ -100,8 +95,7 @@ class BreweryGUI(QMainWindow):
         switch.setText(self.key+' - Off')
         switch.setCheckable(True)
         switch.clicked.connect(lambda ignore, a=self.key:self.whichbtn(a))
-        self.parameters.hardwareDict[self.key].append(switch)
-        HLayout.addWidget(self.parameters.hardwareDict[self.key][3])
+        HLayout.addWidget(switch)
         # VLayout.addLayout(HLayout)
 
         gb.setLayout(HLayout)          
@@ -117,7 +111,7 @@ class BreweryGUI(QMainWindow):
 
     def whichbtn(self,hardware):
         b = self.parameters.brewGUI[hardware]['relayGroupBox']['QPushButton']['widget']
-        hardwareName = b.text()[:b.text().find('-')-1]
+        hw = b.text()[:b.text().find('-')-1]
 #        print(hardwareName)
         if b.isChecked():
             b.setText(b.text()[:-6]+' - On')
@@ -125,44 +119,36 @@ class BreweryGUI(QMainWindow):
         else:
             b.setText(b.text()[:-5]+' - Off')
             switch = False
-        print('Trying to switch {}{}'.format(hardwareName,b.text()[b.text().find('-')+1:]))
-        self.updatePins()
-        if not self.parameters.allHardware[hardwareName]:
+        print('Trying to switch {}{}'.format(hw,b.text()[b.text().find('-')+1:]))
+
+        #check to see if any pins are connected to the hardware
+        if self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['value']=='no relays attached':
             print('Warning, no relays connected')
-        for pin in self.parameters.allHardware[hardwareName]:
-            #check status of pin and switch relay on or off
-            self.relay(pin,switch)
+        else:
+            #now loop through the pins and switch as necessary
+            for pin in self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['value']:
+                #check status of pin and switch relay on or off
+                self.relay(pin,switch,hw)
             
-#        if switch and not self.allHardware[hardwareName][0]:pass
-#            #hardware is off an we need to switch it on
-#        elif not switch and self.allHardware[hardwareName][0]:pass
-            #hardware is on an we need to switch it off
-    def relay(self,pin,switch):
+
+    def relay(self,pin,switch,hw):
         # GPIO.setmode(GPIO.BCM) 
         # RELAIS_1_GPIO = pin
         # GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
+        text=self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].text()
+        print(text)
         if switch and not self.parameters.activePins[pin]:
-            print('switching on {}'.format(pin))
+            print('switching on relay connected to pin {}'.format(pin))
             self.parameters.activePins[pin]=True
+            text = text.replace(str(pin),'<a style="color:red;"><strong>{}</strong></a>'.format(pin))
             # GPIO.output(RELAIS_1_GPIO, GPIO.LOW) # turn on
         elif not switch and self.parameters.activePins[pin]:
-            print('switching off {}'.format(pin))
+            print('switching off relay connected to pin {}'.format(pin))
             self.parameters.activePins[pin]=False
-            # GPIO.output(RELAIS_1_GPIO, GPIO.HIGH) # turn on        
+            text = text.replace('<a style="color:red;"><strong>'+str(pin)+'</strong></a>','{}'.format(pin))
+            # GPIO.output(RELAIS_1_GPIO, GPIO.HIGH) # turn on
+        self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].setText(text)
         
-        
-    def updatePins(self):
-        #reset pins
-        for hw in self.parameters.allHardware:
-            self.parameters.allHardware[hw]=[]
-        
-        for count, pin in enumerate(self.parameters.activePins):
-            a=self.parameters.relayComboBoxes[count].currentText()
-            try:
-                # print (pin)
-                # print(self.relayComboBoxes[count].currentText())
-                self.parameters.allHardware[self.parameters.relayComboBoxes[count].currentText()].append(pin)
-            except: pass
                 
 def main():
     

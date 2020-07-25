@@ -10,7 +10,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import json, ast
 
-from BreweryParameters import Parameters
+from Brewery_Parameters import Parameters
 from Brewery_GUI import BreweryGUI
 from Settings_GUI import SettingsGUI
 
@@ -66,44 +66,46 @@ class ProxyStyle(QProxyStyle):
             opt.rect = r
         QProxyStyle.drawControl(self, element, opt, painter, widget)
 
+class Main():
+    def __init__(self,parameters):
+        self.parameters = parameters
+        app = QApplication(sys.argv)
+        QApplication.setStyle(ProxyStyle())
+        w = TabWidget()
+        label = QLabel('hi')
+        label2 = QLabel('so')
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(label) 
+        vlayout.addWidget(label2)
+        theCrush = QWidget()
+        theCrush.setLayout(vlayout)
+        
+        docks = BreweryGUI(self.parameters)
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(docks) 
+        brewDay = QWidget()
+        brewDay.setLayout(vlayout)
+        
+        setting = SettingsGUI(self.parameters)
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(setting) 
+        settingW = QWidget()
+        settingW.setLayout(vlayout)
+        
+        w.addTab(brewDay,QIcon("beer.png"), "Brew Day")
+        w.addTab(theCrush,QIcon("crush.png"), "The Crush")
+        w.addTab(QWidget(),QIcon("mash.png"), "The Mash")
+        w.addTab(QWidget(),QIcon("hops.png"), "The Boil")
+        w.addTab(settingW,QIcon("settings.png"), "Settings")
+    #    w.addTab(QWidget(), QIcon("zoom-out.png"), "XYZ")
+        w.setWindowTitle("Assistant to the Regional Brewer")
+        w.resize(1200, 800)
+        w.show()
 
+        sys.exit(app.exec_())   
 
 if __name__ == '__main__':
     import sys
-
-    app = QApplication(sys.argv)
-    QApplication.setStyle(ProxyStyle())
-    w = TabWidget()
     parameters = Parameters()
+    a =Main(parameters)
     
-    label = QLabel('hi')
-    label2 = QLabel('so')
-    vlayout = QVBoxLayout()
-    vlayout.addWidget(label) 
-    vlayout.addWidget(label2)
-    theCrush = QWidget()
-    theCrush.setLayout(vlayout)
-    
-    docks = BreweryGUI(parameters)
-    vlayout = QVBoxLayout()
-    vlayout.addWidget(docks) 
-    brewDay = QWidget()
-    brewDay.setLayout(vlayout)
-    
-    setting = SettingsGUI(parameters)
-    vlayout = QVBoxLayout()
-    vlayout.addWidget(setting) 
-    settingW = QWidget()
-    settingW.setLayout(vlayout)
-    
-    w.addTab(brewDay,QIcon("beer.png"), "Brew Day")
-    w.addTab(theCrush,QIcon("crush.png"), "The Crush")
-    w.addTab(QWidget(),QIcon("mash.png"), "The Mash")
-    w.addTab(QWidget(),QIcon("hops.png"), "The Boil")
-    w.addTab(settingW,QIcon("settings.png"), "Settings")
-#    w.addTab(QWidget(), QIcon("zoom-out.png"), "XYZ")
-    w.setWindowTitle("Assistant to the Regional Brewer")
-    w.resize(1200, 800)
-    w.show()
-
-    sys.exit(app.exec_())

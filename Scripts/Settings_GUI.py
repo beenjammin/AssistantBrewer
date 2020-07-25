@@ -11,55 +11,57 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import json, ast
 
-from BreweryParameters import Parameters
 from Widget_Styles import *
-
+from Event_Functions import *
 
 class SettingsGUI(QMainWindow):
     def __init__(self,parameters):
         super().__init__()
         self.parameters=parameters
+
         #Settings
         #Give user the option to set connections for relays
         VLayoutP = QVBoxLayout()  
         VLayout = QVBoxLayout()       
         relays = groupBox("Relays")
 
-        relayDict = {}
+        self.parameters.settingsGUI['relayDict'] = {}
         for relay in self.parameters.activePins:
             HLayout = QHBoxLayout()
             relayLabel = bodyLabel()
             relayLabel.setText('Select control for pin {}'.format(relay))
-            cb = QComboBox()
+            cb = bodyComboBox()
             cb.addItems(['None']+list(self.parameters.hardware))
             self.parameters.relayComboBoxes.append(cb)
+            self.parameters.settingsGUI ['relayDict'][relay]={  'QLabelRelay':{'widget':relayLabel},
+                                                                'QCBRelay':{'widget':cb,'value':None}}
+            a = EventFunctions(self.parameters)
+            cb.activated.connect(lambda:a.updatePins())
             HLayout.addWidget(relayLabel)
             HLayout.addWidget(cb)
             VLayout.addLayout(HLayout)
-            relayDict[relay]={  'QLabelRelay':{'widget':relayLabel},
-                                'QCBRelay':{'widget':cb,'value':None}}
         relays.setLayout(VLayout)
         VLayoutP.addWidget(relays)
              
         VLayout = QVBoxLayout()
         Actors = groupBox("Actors")
-        actorDict = {}
+        self.parameters.settingsGUI['actorDict'] = {}
         for key, value in list(self.parameters.hardware.items()):
             if value[0]:
                 print(key)
                 HLayout = QHBoxLayout()
                 hwLabel = bodyLabel()
                 hwLabel.setText('Select actor for the {}'.format(key))
-                cb = QComboBox()
+                cb = bodyComboBox()
                 cb.addItems(['None']+(self.parameters.actors))
                 self.parameters.actorComboBoxes.append(cb)
                 HLayout.addWidget(hwLabel)
                 HLayout.addWidget(cb)
                 VLayout.addLayout(HLayout)
-                actorDict[key]={    'QLabelActor':{'widget':hwLabel},
-                                    'QCBActor':{'widget':cb,'value':None}}
+                self.parameters.settingsGUI['actorDict'][key]={    'QLabelActor':{'widget':hwLabel},
+                                                                    'QCBActor':{'widget':cb,'value':None}}
 
-        self.parameters.settingsGUI = {'relayDict':relayDict,'actorDict':actorDict}
+        # self.parameters.settingsGUI = {'relayDict':relayDict,'actorDict':actorDict}
         
         #load the actors
         HLayout = QHBoxLayout()    

@@ -2,7 +2,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from BreweryParameters import Parameters
+from Brewery_Parameters import Parameters
 
 # QColor.fromHsv(60,50,255).name()
 # QColor.fromHsv(60,200,200).name()
@@ -34,6 +34,7 @@ class dockable(QDockWidget):
         label.setAlignment(Qt.AlignCenter)
         stylesheet = """ 
                     QLabel {color : %s;
+                            font-weight: bold;
                             background: %s}"""%('white',colourPick(self.colour,'medium'))                  
         label.setStyleSheet(stylesheet)
         self.setTitleBarWidget(label)
@@ -42,10 +43,10 @@ class dockable(QDockWidget):
         self.applyStyle(self.colour)
 
     def applyStyle(self,colour):
-        stylesheet = """QDockWidget>QWidget{background:%s}"""%(colourPick(colour,'dark'))
-                    # QDockWidget {background: %s}"""%(colourPick(colour,'medium'))+"""
-                    # QDockWidget::title {text-align: center; 
-                    #                     color : white}
+        stylesheet = """QDockWidget>QWidget{background:%s}"""%(colourPick(colour,'dark'))+"""
+                    QDockWidget::tab:selected {background: %s;color: white}"""%(colourPick(colour,'medium'))+"""
+                    QDockWidget::tab {background: %s;color: white}"""%(colourPick(colour,'dark'))
+                    # wont apply as styling specified for qtab on vertical_tabs.py               color : white}
                
         self.setStyleSheet(stylesheet)
 
@@ -116,7 +117,7 @@ class bodyButton(QPushButton):
                                 border-radius: 4px; color : %s}"""%(colourPick(colour,'light'),'black')+"""
                     QPushButton:checked {background-color: %s; 
                                         border: 1px solid black;
-                                        border-radius: 4px;color: white}"""%(colourPick(colour,'medium'))                
+                                        border-radius: 4px;color: %s}"""%(colourPick(colour,'medium'),colourPick(self.colour,'light'))                
         self.setStyleSheet(stylesheet)
 
 
@@ -132,6 +133,21 @@ class bodyLineEdit(QLineEdit):
         stylesheet = """ 
                     QLineEdit {background-color:  %s;
                                 border: 1px solid black; 
-                                color: white}"""%(colourPick(colour,'light'))             
+                                color: %s}"""%(colourPick(colour,'light'),colourPick(self.colour,'dark'))             
         self.setStyleSheet(stylesheet)
 
+
+class bodyComboBox(QComboBox):
+    def __init__(self, *args, **kwargs):
+        QComboBox.__init__(self, *args, **kwargs)
+        
+        #Styling
+        self.colour = Parameters().colour
+        self.applyStyle(self.colour)
+
+    def applyStyle(self,colour):
+        stylesheet = """ 
+                    QComboBox {background-color:  %s;
+                                border: 1px solid black; 
+                                color: black}"""%(colourPick(colour,'light'))          
+        self.setStyleSheet(stylesheet)

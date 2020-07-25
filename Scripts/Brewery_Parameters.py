@@ -21,7 +21,7 @@ class Parameters():
                             'Pump 1':[False,True,False],
                             'Pump 2':[False,True,False]
                          }
-        self.colour = 'grey'
+        self.colour = 'green' #options are green, blue, orange, yellow, grey
         # self.colours = {'black':'#000000','grey1':'#383838','grey2':'#616161','grey3':'#999999','white':'#ffffff','darkGreen':'#33524c'}
         #Dictionaries for GUI
         #user inputs as a dictionary{hardware: Status, Target tempature, Temperature tolerance, Actor}
