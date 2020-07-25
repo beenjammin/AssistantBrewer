@@ -18,7 +18,7 @@ class SettingsGUI(QMainWindow):
     def __init__(self,parameters):
         super().__init__()
         self.parameters=parameters
-
+        eF = EventFunctions(self.parameters)
         #Settings
         #Give user the option to set connections for relays
         VLayoutP = QVBoxLayout()  
@@ -35,8 +35,8 @@ class SettingsGUI(QMainWindow):
             self.parameters.relayComboBoxes.append(cb)
             self.parameters.settingsGUI ['relayDict'][relay]={  'QLabelRelay':{'widget':relayLabel},
                                                                 'QCBRelay':{'widget':cb,'value':None}}
-            a = EventFunctions(self.parameters)
-            cb.activated.connect(lambda:a.updatePins())
+            
+            cb.activated.connect(lambda:eF.updatePins())
             HLayout.addWidget(relayLabel)
             HLayout.addWidget(cb)
             VLayout.addLayout(HLayout)

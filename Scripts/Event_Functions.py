@@ -13,6 +13,8 @@ class EventFunctions():
 		for key, value in self.parameters.brewGUI.items():
 			try:
 				value['relayGroupBox']
+				text = 'Relay pins attached --> no relays attached'
+				self.parameters.brewGUI[key]['relayGroupBox']['QLabelCurrentPins']['widget'].setText(text)
 				self.parameters.brewGUI[key]['relayGroupBox']['QLabelCurrentPins']['value']='no relays attached' 
 			except:
 				print("Unexpected error:", sys.exc_info()[0])
@@ -31,7 +33,7 @@ class EventFunctions():
 			value['QCBRelay']['value'] = hw
 			#going to try and add the associate the pin with the hardware
 			try:
-				#check if hw is in the list, if not, we do nothing
+				#check if hw is in the list, if not, display default text
 				if hw in list(self.parameters.hardware):
 					if self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['value'] == 'no relays attached':
 						self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['value'] = []
@@ -41,8 +43,8 @@ class EventFunctions():
 					self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['value'].append(pin)
 					#updating the GUI with hardware connected pins
 					text +=' {}'.format(pin)
-					self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].setText(text)
+					self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].setText(text)						
 			except:
 				print("Unexpected error:", sys.exc_info()[0])
 				raise
-
+			

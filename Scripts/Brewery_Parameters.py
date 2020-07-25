@@ -12,8 +12,8 @@ class Parameters():
     def __init__(self):
         #{pin:last state} 
         self.activePins = {17:False,22:False,23:False,27:False}
-        #Add hardware to dictionary to populate GUI {hardware:Temperature,Relays,Timer}
-
+        #For relays, we have three types [heat,cool,binary]
+        #Add hardware to dictionary to populate GUI {hardware:SimpleTemp,TempTgt,TempTimer,Relays}
         self.hardware = {   
                             'HLT':[True,True,True],
                             'Mash':[True,True,True],
@@ -22,7 +22,6 @@ class Parameters():
                             'Pump 2':[False,True,False]
                          }
         self.colour = 'green' #options are green, blue, orange, yellow, grey
-        # self.colours = {'black':'#000000','grey1':'#383838','grey2':'#616161','grey3':'#999999','white':'#ffffff','darkGreen':'#33524c'}
         #Dictionaries for GUI
         #user inputs as a dictionary{hardware: Status, Target tempature, Temperature tolerance, Actor}
         self.userInputs={}

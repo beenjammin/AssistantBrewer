@@ -3,6 +3,8 @@
 Created on Thu Jul 23 14:23:31 2020
 
 @author: BTHRO
+Relays are wired for off as default position.  Code switches them on
+To turn on a relay, all constrainsts must be satisfied.  If you switch the button on but your temps are not within targets, it will remain off.
 """
 import sys
 from PyQt5.QtCore import *
@@ -13,6 +15,7 @@ import json, ast
 from Brewery_Parameters import Parameters
 from Brewery_GUI import BreweryGUI
 from Settings_GUI import SettingsGUI
+from Matplotlib_Plotting import TempProbe
 
 
 class TabBar(QTabBar):
@@ -91,11 +94,19 @@ class Main():
         vlayout.addWidget(setting) 
         settingW = QWidget()
         settingW.setLayout(vlayout)
+
+        tempPlot =  TempProbe('Temperatures',self.parameters)
+        tempPlot.plot()
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(tempPlot) 
+        plotW = QWidget()
+        plotW.setLayout(vlayout)      
         
         w.addTab(brewDay,QIcon("beer.png"), "Brew Day")
         w.addTab(theCrush,QIcon("crush.png"), "The Crush")
         w.addTab(QWidget(),QIcon("mash.png"), "The Mash")
         w.addTab(QWidget(),QIcon("hops.png"), "The Boil")
+        w.addTab(plotW,QIcon("plot.png"), "Plots")        
         w.addTab(settingW,QIcon("settings.png"), "Settings")
     #    w.addTab(QWidget(), QIcon("zoom-out.png"), "XYZ")
         w.setWindowTitle("Assistant to the Regional Brewer")

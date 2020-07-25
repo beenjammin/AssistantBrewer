@@ -49,6 +49,8 @@ class BreweryGUI(QMainWindow):
 
 
     #adding the temperature funcitonality
+    #multiple probes connected to one hardware item - use min, max or average of readings
+
     def addTemperature(self):
         gb = groupBox('Temperature')
 
@@ -110,6 +112,7 @@ class BreweryGUI(QMainWindow):
 
 
     def whichbtn(self,hardware):
+
         b = self.parameters.brewGUI[hardware]['relayGroupBox']['QPushButton']['widget']
         hw = b.text()[:b.text().find('-')-1]
 #        print(hardwareName)
@@ -138,6 +141,7 @@ class BreweryGUI(QMainWindow):
         text=self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].text()
         print(text)
         if switch and not self.parameters.activePins[pin]:
+            #check for other dependencies and only switch on if these are also true
             print('switching on relay connected to pin {}'.format(pin))
             self.parameters.activePins[pin]=True
             text = text.replace(str(pin),'<a style="color:red;"><strong>{}</strong></a>'.format(pin))
