@@ -54,11 +54,9 @@ class BreweryGUI(QMainWindow):
 class Temperature():
     def __init__(self, parameters):
         self.parameters = parameters
-        #Heat, cool, do nothing
-        self.status = 'do nothing'
         self.hwTemp = ''
 
-
+    #update the set of hardware with temperature properties
     def __updateTempHardware(self):
         try:
             self.parameters.tempHardware
@@ -66,7 +64,7 @@ class Temperature():
             self.parameters.tempHardware = set()
         self.parameters.tempHardware.add(self.name)
 
-
+    #get the temperature of the hardware
     def getTemp(self):
         if self.actorList:
             indices = [self.parameters.actors['actors'].index(b) for b in self.actorList]
@@ -83,10 +81,9 @@ class Temperature():
         else:
             self.hwTemp = ''
 
-
     # add a simple temp widget to the GUI            
     def addSimpleTemp(self,dock):
-        self.__updateTempHardware()
+        # self.__updateTempHardware()
         gb = groupBox('Temperature')
         HLayout = QHBoxLayout()
         currentTemp = bodyLabel('Current temperature --> no reading')
@@ -99,9 +96,31 @@ class Temperature():
                         }
         self.parameters.brewGUI[self.name]['tempGroupBox'] = tempGroupBox
 
+    #update the status (on/off) for the TempTgt widget
+    def updateTempTgtStatus(self):
+        try:
+            tgtTemp = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemp']['widget'].text())
+            tempTol = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTempTol']['widget'].text())
+            currentTemp = float(self.hwTemp)
+            pinStatus = all([self.parameters.activePins[a] for a in self.pinList])
+            if currentTemp < tgtTemp - tempTol:
+                self.hwStatus['TempTgt']=True
+            elif currentTemp < tgtTemp and pinStatus:
+                self.hwStatus['TempTgt']=True
+            else:
+                self.hwStatus['TempTgt']=False
+        # except: ValueError pass
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            raise 
+
+
+
+
     # add a target temperature widget to the GUI
     def addTempTgt(self,dock):
         self.__updateTempHardware()
+        self.hwStatus['TempTgt']=False
         gb = groupBox('Temperature')
 
         VLayout = QVBoxLayout()
@@ -141,8 +160,7 @@ class Temperature():
 class Relay():
     def __init__(self, parameters):
         self.parameters = parameters
-        #Relay can be on or off
-        self.status = False
+
 
     def __updateRelayHardware(self):
         try:
@@ -152,9 +170,10 @@ class Relay():
         self.parameters.relayHardware.add(self.name)
 
 
-
+    #adds basic relay to the GUI
     def addRelay(self,dock):
         self.__updateRelayHardware()
+        self.hwStatus['relay']=False
         gb = groupBox('Relay')
         # VLayout = QVBoxLayout()
         HLayout = QHBoxLayout()
@@ -177,7 +196,7 @@ class Relay():
                         }
         self.parameters.brewGUI[self.name]['relayGroupBox'] = relayGroupBox
 
-
+    #handles the QPushButton click event
     def whichbtn(self,hardware):
         b = self.parameters.brewGUI[hardware]['relayGroupBox']['QPushButton']['widget']
         hw = b.text()[:b.text().find('-')-1]
@@ -187,6 +206,8 @@ class Relay():
         else:
             b.setText(b.text()[:-5]+' - Off')
             switch = False
+        #updating the status dictionary
+        self.parameters.brewGUI[hw]['object'].hwStatus['relay']=switch
         print('Trying to switch {}{}'.format(hw,b.text()[b.text().find('-')+1:]))
 
         #check to see if any pins are connected to the hardware
@@ -198,14 +219,15 @@ class Relay():
                 #check status of pin and switch relay on or off
                 self.relay(pin,switch,hw)
             
-
+    #toggle the relay on or off
     def relay(self,pin,switch,hw):
         # GPIO.setmode(GPIO.BCM) 
         # RELAIS_1_GPIO = pin
         # GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
         text=self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].text()
-        print(text)
-        if switch and not self.parameters.activePins[pin]:
+        # print(text)
+        self.parameters.brewGUI[hw]['object'].updateStatus()
+        if switch and not self.parameters.activePins[pin] and self.parameters.brewGUI[hw]['object'].status:
             #check for other dependencies and only switch on if these are also true
             print('switching on relay connected to pin {}'.format(pin))
             self.parameters.activePins[pin]=True
@@ -218,15 +240,18 @@ class Relay():
             # GPIO.output(RELAIS_1_GPIO, GPIO.HIGH) # turn on
         self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].setText(text)
 
-#A super class that will inherit all properties of probes and relays    
+#a super class that will inherit all properties of probes and relays    
 class Hardware(Temperature,Relay):
     def __init__(self,parameters,name):
         Temperature.__init__(self,parameters)
         Relay.__init__(self,parameters)
         self.name = name
         self.actorList = []
-        self.pins = []
+        self.pinList = []
+        self.hwStatus={}
+        self.status = False
 
+    #function to update the temp label associated with the hardware class
     def updateTempLabel(self):
         self.getTemp()
         if self.hwTemp:
@@ -236,6 +261,13 @@ class Hardware(Temperature,Relay):
         else:
             text = 'Current temperature --> no reading'
             self.parameters.brewGUI[self.name]['tempGroupBox']['QLabelCurrentTemp']['widget'].setText(text)
+
+    #function to determine if relay connected to HW should be switched on - it will always be switched off if an off signal is recieved.
+    def updateStatus(self):
+        if 'TempTgt' in self.hwStatus:
+            self.updateTempTgtStatus()
+        self.status=all(list(self.hwStatus.values()))
+
 
 
 

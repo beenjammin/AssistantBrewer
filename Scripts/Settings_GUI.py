@@ -119,6 +119,7 @@ class SettingsGUI(QMainWindow):
             try:
                 value['relayGroupBox']
                 text = 'Relay pins attached --> no relays attached'
+                self.parameters.brewGUI[key]['object'].pinList=[]
                 self.parameters.brewGUI[key]['relayGroupBox']['QLabelCurrentPins']['widget'].setText(text)
                 self.parameters.brewGUI[key]['relayGroupBox']['QLabelCurrentPins']['value']='no relays attached' 
             #This hardware has no relay attached so we ignore it
@@ -142,6 +143,7 @@ class SettingsGUI(QMainWindow):
             try:
                 #check if hw is in the list, if not, display default text
                 if hw in list(self.parameters.hardware):
+                    self.parameters.brewGUI[hw]['object'].pinList.append(pin)
                     if self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['value'] == 'no relays attached':
                         self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['value'] = []
                         self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].setText('Relay pins attached -->')
