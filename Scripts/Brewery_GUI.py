@@ -21,27 +21,28 @@ class BreweryGUI(QMainWindow):
         # self.setDockOptions(self.parameters._DOCK_OPTS)
         VLayoutP = QVBoxLayout()       
         for key, value in self.parameters.hardware.items():
-            self.parameters.hardwareDict[key] = []
             self.parameters.brewGUI[key] = {}
-            self.key = key
+            self.parameters.brewGUI[key]['object'] = Hardware(self.parameters,key)
 
             #create a dockable widget which will contain child widgets only if at least one vlau
             if any(value):
                 self.dock = dockable(key)
                 self.parameters.brewGUI[key]['dockwidget']=[self.dock]
 
-            #check if we are adding temperature functionality to the hardware
-            if value[0]:
-                self.addTemperature()
-            else:
-                self.parameters.hardwareDict[key]=[False,False,False]
+            #check if we are adding simple temperature functionality to the hardware
+            if value['widgets'][0]:
+                self.parameters.brewGUI[key]['object'].addSimpleTemp(self.dock)
+
+            #check if we are adding targer temperature functionality to the hardware
+            if value['widgets'][1]:
+                self.parameters.brewGUI[key]['object'].addTempTgt(self.dock)
+
+            #check if we are adding temperature timer functionality to the hardware
+            if value['widgets'][2]:pass
 
             #check if we are adding relay functionality to the hardware
-            if value[1]:
-                self.addRelay()
-
-            #check if we are adding timer functionality to the hardware
-            if value[2]:pass 
+            if value['widgets'][3]:
+                self.parameters.brewGUI[key]['object'].addRelay(self.dock)
 
             self.dock.setCentralWidget()
             self.addDockWidget(Qt.RightDockWidgetArea,self.dock)
@@ -50,8 +51,57 @@ class BreweryGUI(QMainWindow):
 
     #adding the temperature funcitonality
     #multiple probes connected to one hardware item - use min, max or average of readings
+class Temperature():
+    def __init__(self, parameters):
+        self.parameters = parameters
+        #Heat, cool, do nothing
+        self.status = 'do nothing'
+        self.hwTemp = ''
 
-    def addTemperature(self):
+
+    def __updateTempHardware(self):
+        try:
+            self.parameters.tempHardware
+        except:
+            self.parameters.tempHardware = set()
+        self.parameters.tempHardware.add(self.name)
+
+
+    def getTemp(self):
+        if self.actorList:
+            indices = [self.parameters.actors['actors'].index(b) for b in self.actorList]
+            temps = [float(self.parameters.actors['readings'][b]) for b in indices]
+            print('temps for {} is {}'.format(self.name,temps))
+            self.tempCalc = 'max'
+            if self.tempCalc == 'max':
+                self.hwTemp = max(temps)
+                print(self.hwTemp)
+            elif self.tempCalc == 'min':
+                self.hwTemp = min(temps)
+            else:
+                self.hwTemp = average(temps)
+        else:
+            self.hwTemp = ''
+
+
+    # add a simple temp widget to the GUI            
+    def addSimpleTemp(self,dock):
+        self.__updateTempHardware()
+        gb = groupBox('Temperature')
+        HLayout = QHBoxLayout()
+        currentTemp = bodyLabel('Current temperature --> no reading')
+        HLayout.addWidget(currentTemp)
+        gb.setLayout(HLayout)          
+        dock.addThisWidget(gb)
+
+        tempGroupBox = {'widget':gb,
+                        'QLabelCurrentTemp':{'widget':currentTemp,'value':'no reading'},
+                        }
+        self.parameters.brewGUI[self.name]['tempGroupBox'] = tempGroupBox
+
+    # add a target temperature widget to the GUI
+    def addTempTgt(self,dock):
+        self.__updateTempHardware()
         gb = groupBox('Temperature')
 
         VLayout = QVBoxLayout()
@@ -73,7 +123,7 @@ class BreweryGUI(QMainWindow):
         VLayout.addWidget(currentTemp)
         
         gb.setLayout(VLayout)          
-        self.dock.addThisWidget(gb)
+        dock.addThisWidget(gb)
 
         #update widget dictionary with all widgets we created
         tempGroupBox = {'widget':gb,
@@ -83,39 +133,54 @@ class BreweryGUI(QMainWindow):
                         'QLineEditTgtTemp':{'widget':tgtLineTemp,'value':None},
                         'QLineEditTempTol':{'widget':tempLineTolerance,'value':None}
                         }
-        self.parameters.brewGUI[self.key]['tempGroupBox'] = tempGroupBox
-        
+        self.parameters.brewGUI[self.name]['tempGroupBox'] = tempGroupBox
+    
+     # add a temperature timer widget to the GUI    
+    def addTempTimer(self):pass
 
-    #adding the relay funcitonality
-    def addRelay(self):
+class Relay():
+    def __init__(self, parameters):
+        self.parameters = parameters
+        #Relay can be on or off
+        self.status = False
+
+    def __updateRelayHardware(self):
+        try:
+            self.parameters.relayHardware
+        except:
+            self.parameters.relayHardware = set()
+        self.parameters.relayHardware.add(self.name)
+
+
+
+    def addRelay(self,dock):
+        self.__updateRelayHardware()
         gb = groupBox('Relay')
         # VLayout = QVBoxLayout()
         HLayout = QHBoxLayout()
         currentPins = bodyLabel('Relay pins attached --> no relays attached')
         HLayout.addWidget(currentPins)       
         switch = bodyButton()
-        switch.setText(self.key+' - Off')
+        switch.setText(self.name+' - Off')
         switch.setCheckable(True)
-        switch.clicked.connect(lambda ignore, a=self.key:self.whichbtn(a))
+        switch.clicked.connect(lambda ignore, a=self.name:self.whichbtn(a))
         HLayout.addWidget(switch)
         # VLayout.addLayout(HLayout)
 
         gb.setLayout(HLayout)          
-        self.dock.addThisWidget(gb)
+        dock.addThisWidget(gb)
 
         #update widget dictionary with all widgets we created
         relayGroupBox = {'widget':gb,
                         'QLabelCurrentPins':{'widget':currentPins,'value':'no relays attached'},
                         'QPushButton':{'widget':switch,'value':False}
                         }
-        self.parameters.brewGUI[self.key]['relayGroupBox'] = relayGroupBox
+        self.parameters.brewGUI[self.name]['relayGroupBox'] = relayGroupBox
 
 
     def whichbtn(self,hardware):
-
         b = self.parameters.brewGUI[hardware]['relayGroupBox']['QPushButton']['widget']
         hw = b.text()[:b.text().find('-')-1]
-#        print(hardwareName)
         if b.isChecked():
             b.setText(b.text()[:-6]+' - On')
             switch = True
@@ -152,10 +217,30 @@ class BreweryGUI(QMainWindow):
             text = text.replace('<a style="color:red;"><strong>'+str(pin)+'</strong></a>','{}'.format(pin))
             # GPIO.output(RELAIS_1_GPIO, GPIO.HIGH) # turn on
         self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].setText(text)
-        
-                
-def main():
-    
+
+#A super class that will inherit all properties of probes and relays    
+class Hardware(Temperature,Relay):
+    def __init__(self,parameters,name):
+        Temperature.__init__(self,parameters)
+        Relay.__init__(self,parameters)
+        self.name = name
+        self.actorList = []
+        self.pins = []
+
+    def updateTempLabel(self):
+        self.getTemp()
+        if self.hwTemp:
+            text = self.parameters.brewGUI[self.name]['tempGroupBox']['QLabelCurrentTemp']['widget'].text()
+            text = text[:text.find('-->')+4]+'{}'.format(round(self.hwTemp,1))
+            self.parameters.brewGUI[self.name]['tempGroupBox']['QLabelCurrentTemp']['widget'].setText(text)
+        else:
+            text = 'Current temperature --> no reading'
+            self.parameters.brewGUI[self.name]['tempGroupBox']['QLabelCurrentTemp']['widget'].setText(text)
+
+
+
+
+def main():   
     app = QApplication(sys.argv)
     parameters = Parameters()
     controller = BreweryGUI(parameters)

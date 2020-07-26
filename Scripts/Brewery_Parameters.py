@@ -15,11 +15,11 @@ class Parameters():
         #For relays, we have three types [heat,cool,binary]
         #Add hardware to dictionary to populate GUI {hardware:SimpleTemp,TempTgt,TempTimer,Relays}
         self.hardware = {   
-                            'HLT':[True,True,True],
-                            'Mash':[True,True,True],
-                            'Boil':[True,True,True],
-                            'Pump 1':[False,True,False],
-                            'Pump 2':[False,True,False]
+                            'HLT':{'widgets':[False,True,False,True],'relayPins':[],'actors':[]},
+                            'Mash':{'widgets':[False,True,False,True],'relayPins':[],'actors':[]},
+                            'Boil':{'widgets':[True,False,False,False],'relayPins':[],'actors':[]},
+                            'Pump 1':{'widgets':[False,False,False,True],'relayPins':[],'actors':[]},
+                            'Pump 2':{'widgets':[False,False,False,True],'relayPins':[],'actors':[]},
                          }
         self.colour = 'green' #options are green, blue, orange, yellow, grey
         #Dictionaries for GUI
@@ -40,12 +40,9 @@ class Parameters():
         self.bodyFont = QFont()
         self.bodyFont.setPointSize(10)
         
-        self.relayComboBoxes = []
-        self.actorComboBoxes = []
-        self.actors = ['1','2','3']#getActors()
+        self.actors = {'actors':['1','2','3'],'readings':[]}#getActors()
         
         #Actor inputs as a dictionary{hardware: tgtTemp, tgtTolerance, tempReading, on/off switch,}
-        self.hardwareDict={}
         self.brewGUI = {}
         self.settingsGUI = {}
 

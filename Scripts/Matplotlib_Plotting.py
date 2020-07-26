@@ -88,7 +88,7 @@ class PlotWindow(QDialog):
 
 class ProbeData:
     def updateDataFrame(self):
-        print('updateDataFrame')
+        # print('updateDataFrame')
         self.df = pd.read_csv(self.fp)
         self.df_columns = list(self.df)
         self.df_lastRow = self.df.iloc[[-1]]

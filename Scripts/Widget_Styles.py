@@ -72,7 +72,7 @@ class groupBox(QGroupBox):
         self.colour = Parameters().colour
         self.applyStyle(self.colour)
 
-    def applyStyle(self,colours):
+    def applyStyle(self,colour):
         stylesheet = """ 
                     QGroupBox {border: 1px solid black;
                                 border-radius: 9px;
