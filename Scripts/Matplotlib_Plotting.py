@@ -8,9 +8,9 @@ from matplotlib.widgets import CheckButtons
 import pandas as pd
 
 
+from Brewery_Parameters import colourPick
 
 class PlotWindow(QDialog):
-    closePlotWindow = pyqtSignal(list)
     def __init__(self, parent=None):
         super(PlotWindow, self).__init__(parent)
         self._want_to_close = False
@@ -74,6 +74,7 @@ class PlotWindow(QDialog):
             # print('less than 1, connecting function')
             self.count += 1
             self.check.on_clicked(self.func)
+        self.plotFormat()
         self.canvas.draw()
 
     def func(self,label):
@@ -92,9 +93,7 @@ class ProbeData:
         self.df = pd.read_csv(self.fp)
         self.df_columns = list(self.df)
         self.df_lastRow = self.df.iloc[[-1]]
-##
-##
-##
+
 ##class PHProbe:
 ##    def __init__(self):
 ##        #do some stuff
@@ -116,16 +115,21 @@ class ProbeData:
 class TempProbe(ProbeData,PlotWindow):
     def __init__(self,name,parameters):
         super(TempProbe, self).__init__()
+        self.parameters = parameters
         self.name = name
         self.fp = self.name + '.csv'
         self.count = 0
 
     def plotFormat(self):
-        self.ax.set_xlabel('Time')
-        self.ax.set_ylabel('Temp (°C)')
-        self.ax.set_title(label = self.name + ' probes')
-        self.ax.set_facecolor('black')
-        self.canvas.figure.patch.set_facecolor('xkcd:bluish grey')
+        colour = self.parameters.colour
+        self.ax.set_xlabel('Time', color=colourPick(colour,'dark'),fontweight='bold')
+        self.ax.set_ylabel('Temp (°{})'.format(self.parameters.tempUnit), color=colourPick(colour,'dark'),fontweight='bold')
+        self.ax.set_title(label = self.name + ' probes', color=colourPick(colour,'dark'),fontweight='bold')
+        self.ax.set_facecolor(colourPick(colour,'dark'))
+        self.canvas.figure.patch.set_facecolor(colourPick(colour,'light'))
+        self.ax.tick_params(color=colourPick(colour,'dark'))
+        # self.canvas.rc('grid', linestyle="-", color=colourPick(colour,'light'))
+        self.ax.grid(b=True, which='major', color=colourPick(colour,'light'), linestyle='-')
 
 
 if __name__ == '__main__':

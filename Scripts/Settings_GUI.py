@@ -75,17 +75,19 @@ class SettingsGUI(QMainWindow):
         VLayout.addLayout(HLayout)
         
         #load the raw output of each actor
-        self.rawOutput_list = []   
+        self.parameters.settingsGUI['actorReadingDict'] = {}
         for count, actor in enumerate(self.parameters.actors['actors']):
             HLayout = QHBoxLayout()  
             actorLabel = bodyLabel()
             actorLabel.setText(actor)   
             rawReading = bodyLabel()
-            rawReading.setText('none')   
-            self.rawOutput_list.append(rawReading)
+            rawReading.setText('none')
             HLayout.addWidget(actorLabel)
             HLayout.addWidget(rawReading)
             VLayout.addLayout(HLayout)
+            self.parameters.settingsGUI['actorReadingDict'][actor]={    'QLabelActor':{'widget':actorLabel},
+                                                                        'QLabelReading':{'widget':rawReading,'value':'none'}
+                                                                        }
         self.clickedUpdateReadings()
         
         updateReadings = bodyButton('Update Readings')
@@ -103,11 +105,11 @@ class SettingsGUI(QMainWindow):
         
 
     def clickedUpdateReadings(self):
-        self.parameters.actors['readings'] = [10,25,30]#[actor_read_raw(a+'/w1_slave') for a in self.actors]
-        for count, a in enumerate(self.parameters.actors['actors']):
-            self.parameters.actorTemps[a]=self.parameters.actors['readings'][count]
-        for count, label in enumerate(self.rawOutput_list):
-            label.setText(str(self.parameters.actors['readings'][count]))
+        if not self.parameters.test:
+            self.parameters.actors['readings'] = [actor_read_raw(a+'/w1_slave') for a in self.actors]
+        for actor in self.parameters.actors['actors']:
+            text = str(self.parameters.actors['readings'][self.parameters.actors['actors'].index(actor)])
+            self.parameters.settingsGUI['actorReadingDict'][actor]['QLabelReading']['widget'].setText(text)
     
 
     def updatePins(self):

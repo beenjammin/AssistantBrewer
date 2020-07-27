@@ -95,6 +95,7 @@ class Main():
         settingW = QWidget()
         settingW.setLayout(vlayout)
 
+        #Work to do, add a combo box so user can select different plots, maybe put into dockable widgets so the plots can be added and removed as necessary
         tempPlot =  TempProbe('Temperatures',self.parameters)
         tempPlot.plot()
         vlayout = QVBoxLayout()

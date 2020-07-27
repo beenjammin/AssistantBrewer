@@ -83,7 +83,7 @@ class Temperature():
 
     # add a simple temp widget to the GUI            
     def addSimpleTemp(self,dock):
-        # self.__updateTempHardware()
+        self.__updateTempHardware()
         gb = groupBox('Temperature')
         HLayout = QHBoxLayout()
         currentTemp = bodyLabel('Current temperature --> no reading')
@@ -109,10 +109,11 @@ class Temperature():
                 self.hwStatus['TempTgt']=True
             else:
                 self.hwStatus['TempTgt']=False
-        # except: ValueError pass
+        except ValueError: pass
         except:
             print("Unexpected error:", sys.exc_info()[0])
             raise 
+
 
 
 
@@ -246,8 +247,11 @@ class Hardware(Temperature,Relay):
         Temperature.__init__(self,parameters)
         Relay.__init__(self,parameters)
         self.name = name
+        #list of actors connected to hw
         self.actorList = []
+        #list of pins connected to hw
         self.pinList = []
+        #staus of hw controls (boolean)
         self.hwStatus={}
         self.status = False
 

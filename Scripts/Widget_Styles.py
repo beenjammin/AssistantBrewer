@@ -2,22 +2,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from Brewery_Parameters import Parameters
-
-# QColor.fromHsv(60,50,255).name()
-# QColor.fromHsv(60,200,200).name()
-# QColor.fromHsv(60,255,100).name()
-
-
-def colourPick(colour,shade):
-    colourDict = {  'green':{'light':'#a9d08e','medium':'#548235','dark':'#375623'},
-                    'blue':{'light':'#9bc2e6','medium':'#2f75b5','dark':'#203764'},
-                    'orange':{'light':'#f4b084','medium':'#c65911','dark':'#833c0c'},
-                    'yellow':{'light':'#ffd966','medium':'#bf8f00','dark':'#806000'},
-                    'grey':{'light':'#999999','medium':'#616161','dark':'#383838'}
-                    }
-
-    return colourDict[colour][shade]
+from Brewery_Parameters import *
 
 
 class dockable(QDockWidget):
