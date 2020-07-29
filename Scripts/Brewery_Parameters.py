@@ -13,7 +13,7 @@ from Actor_Classes import getActors
 
 class Parameters():
     def __init__(self):
-        self.test = False
+        self.test = True
         #{pin:last state} 
         self.activePins = {17:False,22:False,23:False,27:False}
         #For relays, we have three types [heat,cool,binary]
@@ -51,6 +51,7 @@ class Parameters():
         
         self.brewGUI = {}
         self.settingsGUI = {}
+        self.plotGUI = {}
 
         self._DOCK_OPTS = QMainWindow.AnimatedDocks
         self._DOCK_OPTS |= QMainWindow.AllowNestedDocks

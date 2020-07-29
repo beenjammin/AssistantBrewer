@@ -28,9 +28,9 @@ class dockable(QDockWidget):
         self.applyStyle(self.colour)
 
     def applyStyle(self,colour):
-        stylesheet = """QDockWidget>QWidget{background:%s}"""%(colourPick(colour,'dark'))+"""
-                    QDockWidget::tab:selected {background: %s;color: white}"""%(colourPick(colour,'medium'))+"""
-                    QDockWidget::tab {background: %s;color: white}"""%(colourPick(colour,'dark'))
+        stylesheet = """QDockWidget#childTab>QWidget{background:%s}"""%(colourPick(colour,'dark'))+"""
+                        QDockWidget#childTab>QTabBar::tab:selected {background: %s;color: red}"""%(colourPick(colour,'medium'))+"""
+                        QDockWidget#childTab::tab {background: %s;color: red}"""%(colourPick(colour,'dark'))
                     # wont apply as styling specified for qtab on vertical_tabs.py               color : white}
                
         self.setStyleSheet(stylesheet)
@@ -134,5 +134,19 @@ class bodyComboBox(QComboBox):
         stylesheet = """ 
                     QComboBox {background-color:  %s;
                                 border: 1px solid black; 
+                                color: black}"""%(colourPick(colour,'light'))          
+        self.setStyleSheet(stylesheet)
+
+class bodyCheckBox(QCheckBox):
+    def __init__(self, *args, **kwargs):
+        QCheckBox.__init__(self, *args, **kwargs)
+        
+        #Styling
+        self.colour = Parameters().colour
+        self.applyStyle(self.colour)
+
+    def applyStyle(self,colour):
+        stylesheet = """ 
+                    QCheckBox {background-color:  %s; 
                                 color: black}"""%(colourPick(colour,'light'))          
         self.setStyleSheet(stylesheet)

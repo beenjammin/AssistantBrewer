@@ -190,6 +190,12 @@ class SettingsGUI(QMainWindow):
             except:
                 print("Unexpected error:", sys.exc_info()[0])
                 raise 
+            try:
+                self.parameters.plotGUI['checkBoxes'][actor]['widget'].setText(hw)
+                self.parameters.plotGUI['checkBoxes'][actor]['hw']=hw
+            except:
+                print("Unexpected error:", sys.exc_info()[0])
+                raise 
 
         
 def main():

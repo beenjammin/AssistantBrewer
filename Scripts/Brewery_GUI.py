@@ -26,7 +26,7 @@ class BreweryGUI(QMainWindow):
 
             #create a dockable widget which will contain child widgets only if at least one vlau
             if any(value):
-                self.dock = dockable(key)
+                self.dock = dockable(key,objectName = 'childTab')
                 self.parameters.brewGUI[key]['dockwidget']=[self.dock]
 
             #check if we are adding simple temperature functionality to the hardware
