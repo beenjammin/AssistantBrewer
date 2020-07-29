@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import *
 import json, ast
 
 from Widget_Styles import *
+from Actor_Classes import *
 # from Event_Functions import *
 
 class SettingsGUI(QMainWindow):
@@ -106,7 +107,7 @@ class SettingsGUI(QMainWindow):
 
     def clickedUpdateReadings(self):
         if not self.parameters.test:
-            self.parameters.actors['readings'] = [actor_read_raw(a+'/w1_slave') for a in self.actors]
+            self.parameters.actors['readings'] = [actor_read_raw(a+'/w1_slave') for a in self.parameters.actors['actors']]
         for actor in self.parameters.actors['actors']:
             text = str(self.parameters.actors['readings'][self.parameters.actors['actors'].index(actor)])
             self.parameters.settingsGUI['actorReadingDict'][actor]['QLabelReading']['widget'].setText(text)

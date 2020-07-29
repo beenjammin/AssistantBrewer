@@ -39,7 +39,7 @@ class PlotWindow(QDialog):
         # now we add checkboxes, one for each series
         self.check = CheckButtons(self.rax, (self.df_columns[1:]), (len(self.df_columns)-1)*[True])
         self.checkButtons_value = (len(self.df_columns)-1)*[True]
-        self.canvas.figure.subplots_adjust(left=max(len(i) for i in self.df_columns)/50)
+#        self.canvas.figure.subplots_adjust(left=max(len(i) for i in self.df_columns)/50)
         self.plotFormat()
         # this is the Navigation widget
         # it takes the Canvas widget and a parent
@@ -50,10 +50,10 @@ class PlotWindow(QDialog):
         layout.addWidget(self.canvas)
         self.setLayout(layout)
 
-        self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(1000)
-        self.timer.timeout.connect(self.updatePlot)
-        self.timer.start()
+#        self.timer = QtCore.QTimer(self)
+#        self.timer.setInterval(1000)
+#        self.timer.timeout.connect(self.updatePlot)
+#        self.timer.start()
         self.canvas.draw()
 
     def updatePlot(self):
@@ -90,9 +90,11 @@ class PlotWindow(QDialog):
 class ProbeData:
     def updateDataFrame(self):
         # print('updateDataFrame')
-        self.df = pd.read_csv(self.fp)
-        self.df_columns = list(self.df)
-        self.df_lastRow = self.df.iloc[[-1]]
+        try:
+            self.df = pd.read_csv(self.fp)
+            self.df_columns = list(self.df)
+            self.df_lastRow = self.df.iloc[[-1]]
+        except: pass
 
 ##class PHProbe:
 ##    def __init__(self):
@@ -113,18 +115,19 @@ class ProbeData:
 
 
 class TempProbe(ProbeData,PlotWindow):
-    def __init__(self,name,parameters):
+    def __init__(self,parameters):
         super(TempProbe, self).__init__()
         self.parameters = parameters
-        self.name = name
-        self.fp = self.name + '.csv'
+        if self.parameters.test:
+            self.name = 'Temperatures'
+        self.fp = self.parameters.tempDatabaseFP 
         self.count = 0
 
     def plotFormat(self):
         colour = self.parameters.colour
         self.ax.set_xlabel('Time', color=colourPick(colour,'dark'),fontweight='bold')
         self.ax.set_ylabel('Temp (°{})'.format(self.parameters.tempUnit), color=colourPick(colour,'dark'),fontweight='bold')
-        self.ax.set_title(label = self.name + ' probes', color=colourPick(colour,'dark'),fontweight='bold')
+        self.ax.set_title(label = 'Temperature probes', color=colourPick(colour,'dark'),fontweight='bold')
         self.ax.set_facecolor(colourPick(colour,'dark'))
         self.canvas.figure.patch.set_facecolor(colourPick(colour,'light'))
         self.ax.tick_params(color=colourPick(colour,'dark'))
