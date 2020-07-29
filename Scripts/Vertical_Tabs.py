@@ -50,10 +50,8 @@ class TabBar(QTabBar):
 class TabWidget(QTabWidget):
     def __init__(self, *args, **kwargs):
         QTabWidget.__init__(self, *args, **kwargs)
-        stylesheet = """ 
-                    QTabBar::tab:selected {background: black;color: white}
-                    QTabWidget>QWidget>QWidget{background: black}
-                    """
+        stylesheet = """QTabWidget>QWidget>QWidget{background: black}
+                        QTabBar::tab:selected {background: black;color: white}"""
 
         self.setStyleSheet(stylesheet)
         self.setTabBar(TabBar(self))
@@ -101,11 +99,12 @@ class Main():
         tempPlot =  TempProbe(self.parameters)
         tempPlot.plot()
         vlayout = QVBoxLayout()
-        vlayout.addWidget(tempPlot) 
+        vlayout.addWidget(tempPlot)
         plotW = QWidget()
         plotW.setLayout(vlayout)
-        
+
         w.addTab(brewDay,QIcon("beer.png"), "Brew Day")
+        
         w.setIconSize(QSize(40, 40))
         w.addTab(theCrush,QIcon("crush.png"), "The Crush")
         w.addTab(QWidget(),QIcon("mash.png"), "The Mash")

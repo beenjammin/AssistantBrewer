@@ -7,7 +7,7 @@ from matplotlib.figure import Figure
 from matplotlib.widgets import CheckButtons
 import pandas as pd
 
-
+from Widget_Styles import *
 from Brewery_Parameters import colourPick
 
 class PlotWindow(QDialog):
@@ -35,61 +35,52 @@ class PlotWindow(QDialog):
         self.count = 0
         self.updateDataFrame()
 
-        self.rax = self.canvas.figure.add_axes([0.02, 0.2, max(len(i) for i in self.df_columns)/85, (len(self.df_columns)-1)*0.04])
-        # now we add checkboxes, one for each series
-        self.check = CheckButtons(self.rax, (self.df_columns[1:]), (len(self.df_columns)-1)*[True])
-        self.checkButtons_value = (len(self.df_columns)-1)*[True]
-#        self.canvas.figure.subplots_adjust(left=max(len(i) for i in self.df_columns)/50)
-        self.plotFormat()
-        # this is the Navigation widget
-        # it takes the Canvas widget and a parent
-##        self.toolbar = NavigationToolbar(self.canvas, self)
-        # set the layout
-        layout = QVBoxLayout()
-##        layout.addWidget(self.toolbar)
-        layout.addWidget(self.canvas)
-        self.setLayout(layout)
 
-#        self.timer = QtCore.QTimer(self)
-#        self.timer.setInterval(1000)
-#        self.timer.timeout.connect(self.updatePlot)
-#        self.timer.start()
+        self.plotFormat()
+        self.layout = QVBoxLayout()
+##        layout.addWidget(self.toolbar)
+        self.layout.addWidget(self.canvas)
+        self.addCheckBoxes()
+        self.setLayout(self.layout)
+
         self.canvas.draw()
 
     def updatePlot(self):
         self.updateDataFrame()
-        color = ['blue','green','red','cyan','magenta','yellow','black']
+        colour = ['blue','green','red','cyan','magenta','yellow','black']
         self.seriesList = []
         self.ax.clear()
 
         # this plots our series from the dataframe
         for count,col in enumerate(self.df_columns[1:]):
-            self.seriesList.append(self.ax.plot(self.df_columns[0], col,data=self.df, label=col, color = color[count]))
-        for count,self.series in enumerate(self.seriesList):
-            self.series[0].set_visible(self.checkButtons_value[count])
-
-        # bindings for checkboxes
-        # we only want the bindings to happen once but the series has to be generated first
-        if self.count < 1:
-            # print('less than 1, connecting function')
-            self.count += 1
-            self.check.on_clicked(self.func)
+            if col in self.plotSeries:
+                self.seriesList.append(self.ax.plot(self.df_columns[0], col,data=self.df, label=col, color = colour[count]))
         self.plotFormat()
         self.canvas.draw()
 
-    def func(self,label):
-        # print('clicked on, {}'.format(label))
-        for count,self.series in enumerate(self.seriesList):
-            if label == self.df_columns[1:][count]:
-                self.series[0].set_visible(not self.series[0].get_visible())
-                self.checkButtons_value[count] = self.series[0].get_visible()
-        self.canvas.draw()
-
+    def addCheckBoxes(self):
+        self.parameters.plotGUI['checkBoxes']={}
+        hlayout = QHBoxLayout()
+        for actor in self.parameters.actors['actors']:
+            cb = bodyCheckBox(actor[-8:])
+            cb.setChecked(True)
+            cb.stateChanged.connect(lambda:self.btnState())
+            hlayout.addWidget(cb)
+            self.parameters.plotGUI['checkBoxes'][actor]={'hw':actor,'widget':cb,'state':True}
+        self.layout.addLayout(hlayout)
+        
+    def btnState(self):
+        self.plotSeries=['Time']
+        for actor in self.parameters.actors['actors']:
+            state = self.parameters.plotGUI['checkBoxes'][actor]['widget'].isChecked()
+            self.parameters.plotGUI['checkBoxes'][actor]['state'] = state
+            if state:
+                self.plotSeries.append(actor)
+        self.updatePlot()
 
 
 class ProbeData:
-    def updateDataFrame(self):
-        # print('updateDataFrame')
+    def updateDataFrame(self):       
         try:
             self.df = pd.read_csv(self.fp)
             self.df_columns = list(self.df)
@@ -121,7 +112,8 @@ class TempProbe(ProbeData,PlotWindow):
         if self.parameters.test:
             self.name = 'Temperatures'
         self.fp = self.parameters.tempDatabaseFP 
-        self.count = 0
+        # self.count = 0
+        self.plotSeries=['Time']+self.parameters.actors['actors']
 
     def plotFormat(self):
         colour = self.parameters.colour
