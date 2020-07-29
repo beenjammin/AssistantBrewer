@@ -7,10 +7,13 @@ Created on Thu Jul 23 15:34:55 2020
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+import os
+
+from Actor_Classes import getActors
 
 class Parameters():
     def __init__(self):
-        self.test = True
+        self.test = False
         #{pin:last state} 
         self.activePins = {17:False,22:False,23:False,27:False}
         #For relays, we have three types [heat,cool,binary]
@@ -53,7 +56,12 @@ class Parameters():
         self._DOCK_OPTS |= QMainWindow.AllowNestedDocks
         self._DOCK_OPTS |= QMainWindow.AllowTabbedDocks
 
+        self.cwd = os.getcwd()
+#        print(self.cwd)
+        
+        self.tempDatabaseFP = ''
         self.units()
+        
 
     def units(self):
         self.tempUnit = 'C'

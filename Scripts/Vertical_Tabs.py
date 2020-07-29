@@ -16,7 +16,8 @@ from Brewery_Parameters import Parameters
 from Brewery_GUI import BreweryGUI
 from Settings_GUI import SettingsGUI
 from Matplotlib_Plotting import TempProbe
-
+from Actor_Classes import csvFunctions
+from Timer import MyTimer
 
 class TabBar(QTabBar):
     def tabSizeHint(self, index):
@@ -94,16 +95,18 @@ class Main():
         vlayout.addWidget(setting) 
         settingW = QWidget()
         settingW.setLayout(vlayout)
-
+        
+        tempDatabase = csvFunctions(header = self.parameters.actors['actors'],parameters = self.parameters)
         #Work to do, add a combo box so user can select different plots, maybe put into dockable widgets so the plots can be added and removed as necessary
-        tempPlot =  TempProbe('Temperatures',self.parameters)
+        tempPlot =  TempProbe(self.parameters)
         tempPlot.plot()
         vlayout = QVBoxLayout()
         vlayout.addWidget(tempPlot) 
         plotW = QWidget()
-        plotW.setLayout(vlayout)      
+        plotW.setLayout(vlayout)
         
         w.addTab(brewDay,QIcon("beer.png"), "Brew Day")
+        w.setIconSize(QSize(40, 40))
         w.addTab(theCrush,QIcon("crush.png"), "The Crush")
         w.addTab(QWidget(),QIcon("mash.png"), "The Mash")
         w.addTab(QWidget(),QIcon("hops.png"), "The Boil")
@@ -113,7 +116,10 @@ class Main():
         w.setWindowTitle("Assistant to the Regional Brewer")
         w.resize(1200, 800)
         w.show()
-
+        
+        #lets start a timer.
+        guiTimer = MyTimer(self.parameters,tempPlot,tempDatabase)
+        guiTimer.startTimer()
         sys.exit(app.exec_())   
 
 if __name__ == '__main__':
