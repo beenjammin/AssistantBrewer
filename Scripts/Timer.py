@@ -10,7 +10,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from Actor_Classes import *
-try import daemon
 
 class MyTimer():
     def __init__(self,parameters,plot,tempDatabase):
@@ -18,18 +17,11 @@ class MyTimer():
         self.plot = plot
         self.tempDatabase = tempDatabase
         
-    def startTimer(self):
-        try:
-            with daemon.DaemonContext()
-                self.timer = QTimer()
-                self.timer.setInterval(5000)
-                self.timer.timeout.connect(self.runFunctions)
-                self.timer.start()
-        except:
-            self.timer = QTimer()
-            self.timer.setInterval(5000)
-            self.timer.timeout.connect(self.runFunctions)
-            self.timer.start()
+    def startTimer(self):   
+        self.timer = QTimer()
+        self.timer.setInterval(5000)
+        self.timer.timeout.connect(self.runFunctions)
+        self.timer.start()
     
     def runFunctions(self):
         if not self.parameters.test:
