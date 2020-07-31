@@ -58,12 +58,12 @@ class ReadDevice():
 
 
 class csvFunctions():
-    def __init__(self,header,parameters):
+    def __init__(self,parameters):
         today = date.today()
         self.parameters = parameters
         self.name = 'brew_'+str(today).replace('-','_')
         print(header)
-        self.header = ['Time'] +header
+        self.header = ['Time']+self.parameters.actors['actors']
         print(self.header)
         self.home = self.parameters.cwd
         self.startTime = time.time()
@@ -85,10 +85,11 @@ class csvFunctions():
         f.close()
         self.appendRow(self.parameters.actors['readings'])
         self.appendRow(self.parameters.actors['readings'])
-      
+    
         
     def appendRow(self,write_data):
         f = open(self.parameters.tempDatabaseFP, "a")
+        self.parameters.actors['readings'] = write_data
         timeElapsed = time.time()-self.startTime
         write_data = [timeElapsed]+write_data
         with f:

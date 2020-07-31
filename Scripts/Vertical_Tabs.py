@@ -68,7 +68,7 @@ class ProxyStyle(QProxyStyle):
             opt.rect = r
         QProxyStyle.drawControl(self, element, opt, painter, widget)
 
-class Main():
+class mainGUI():
     def __init__(self,parameters):
         self.parameters = parameters
         app = QApplication(sys.argv)
@@ -124,5 +124,5 @@ class Main():
 if __name__ == '__main__':
     import sys
     parameters = Parameters()
-    a =Main(parameters)
+    a =mainGUI(parameters)
     
