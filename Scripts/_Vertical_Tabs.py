@@ -68,23 +68,12 @@ class ProxyStyle(QProxyStyle):
             opt.rect = r
         QProxyStyle.drawControl(self, element, opt, painter, widget)
 
-class mainGUI():
+class Main():
     def __init__(self,parameters):
         self.parameters = parameters
         app = QApplication(sys.argv)
         QApplication.setStyle(ProxyStyle())
         w = TabWidget()
-#        tempDatabase = csvFunctions(header = self.parameters.actors['actors'],parameters = self.parameters)
-        #Work to do, add a combo box so user can select different plots, maybe put into dockable widgets so the plots can be added and removed as necessary
-        tempPlot =  TempProbe(self.parameters)
-        tempPlot.plot()
-        vlayout = QVBoxLayout()
-        vlayout.addWidget(tempPlot)
-        plotW = QWidget()
-        plotW.setLayout(vlayout)
-        guiTimer = MyTimer(self.parameters,tempPlot)
-        guiTimer.runFunctions()
-        
         label = QLabel('hi')
         label2 = QLabel('so')
         vlayout = QVBoxLayout()
@@ -105,6 +94,14 @@ class mainGUI():
         settingW = QWidget()
         settingW.setLayout(vlayout)
         
+        tempDatabase = csvFunctions(header = self.parameters.actors['actors'],parameters = self.parameters)
+        #Work to do, add a combo box so user can select different plots, maybe put into dockable widgets so the plots can be added and removed as necessary
+        tempPlot =  TempProbe(parameters=self.parameters)
+        tempPlot.plot()
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(tempPlot)
+        plotW = QWidget()
+        plotW.setLayout(vlayout)
 
         w.addTab(brewDay,QIcon("beer.png"), "Brew Day")
         
@@ -120,12 +117,12 @@ class mainGUI():
         w.show()
         
         #lets start a timer.
-        guiTimer = MyTimer(self.parameters,tempPlot)
+        guiTimer = MyTimer(self.parameters,tempPlot,tempDatabase)
         guiTimer.startTimer()
         sys.exit(app.exec_())   
 
 if __name__ == '__main__':
     import sys
     parameters = Parameters()
-    a =mainGUI(parameters)
+    a =Main(parameters)
     

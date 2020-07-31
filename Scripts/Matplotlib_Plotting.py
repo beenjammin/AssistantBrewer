@@ -47,6 +47,7 @@ class PlotWindow(QDialog):
 
     def updatePlot(self):
         self.updateDataFrame()
+#        print(self.df)
         colour = ['blue','green','red','cyan','magenta','yellow','black']
         self.seriesList = []
         self.ax.clear()

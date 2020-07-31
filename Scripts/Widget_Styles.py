@@ -28,9 +28,9 @@ class dockable(QDockWidget):
         self.applyStyle(self.colour)
 
     def applyStyle(self,colour):
-        stylesheet = """QDockWidget#childTab>QWidget{background:%s}"""%(colourPick(colour,'dark'))+"""
-                        QDockWidget#childTab>QTabBar::tab:selected {background: %s;color: red}"""%(colourPick(colour,'medium'))+"""
-                        QDockWidget#childTab::tab {background: %s;color: red}"""%(colourPick(colour,'dark'))
+        stylesheet = """QDockWidget>QWidget{background:%s}"""%(colourPick(colour,'dark'))+"""
+                        QDockWidget>QTabBar::tab:selected {background: %s;color: red}"""%(colourPick(colour,'medium'))+"""
+                        QDockWidget::tab {background: %s;color: red}"""%(colourPick(colour,'dark'))
                     # wont apply as styling specified for qtab on vertical_tabs.py               color : white}
                
         self.setStyleSheet(stylesheet)
@@ -68,6 +68,7 @@ class groupBox(QGroupBox):
                                 padding: 1px 1px 1px 1px}
                     QGroupBox::title {subcontrol-origin: margin;
                                         left: 10px;
+                                        color: black;
                                         padding: 0 3px 0 3px;}
                     """
         self.setStyleSheet(stylesheet)

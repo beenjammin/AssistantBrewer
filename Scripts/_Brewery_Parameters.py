@@ -13,6 +13,7 @@ from Actor_Classes import getActors
 
 class Parameters():
     def __init__(self):
+        self.test = False
         #{pin:last state} 
         self.activePins = {17:False,22:False,23:False,27:False}
         #For relays, we have three types [heat,cool,binary]
@@ -24,19 +25,8 @@ class Parameters():
                             'Pump 1':{'widgets':[False,False,False,True],'relayPins':[],'actors':[]},
                             'Pump 2':{'widgets':[False,False,False,True],'relayPins':[],'actors':[]},
                          }
-        self.colour = 'grey' #options are green, blue, orange, yellow, grey
+        self.colour = 'green' #options are green, blue, orange, yellow, grey
         
-        #go into test mode if we cannot find any actors
-        try:
-            if getActors():
-#                print('found {} actors'.format(len(getActors())))
-                self.test = False
-            else:
-                self.test = True
-        except:
-            self.test = True
-#        print('Assitant to the brewer is running in {} mode'.format(['test','live'][self.test]))
-             
         #Dictionaries for GUI
         #user inputs as a dictionary{hardware: Status, Target tempature, Temperature tolerance, Actor}
         # self.userInputs={}

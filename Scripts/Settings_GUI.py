@@ -106,10 +106,14 @@ class SettingsGUI(QMainWindow):
         
 
     def clickedUpdateReadings(self):
-        if not self.parameters.test:
-            self.parameters.actors['readings'] = [actor_read_raw(a+'/w1_slave') for a in self.parameters.actors['actors']]
+#        if not self.parameters.test:
+#            self.parameters.actors['readings'] = [actor_read_raw(a+'/w1_slave') for a in self.parameters.actors['actors']]
         for actor in self.parameters.actors['actors']:
-            text = str(self.parameters.actors['readings'][self.parameters.actors['actors'].index(actor)])
+            print(self.parameters.actors['readings'])
+            if not self.parameters.actors['readings']:
+                text = 'none'
+            else:
+                text = str(self.parameters.actors['readings'][self.parameters.actors['actors'].index(actor)])
             self.parameters.settingsGUI['actorReadingDict'][actor]['QLabelReading']['widget'].setText(text)
     
 

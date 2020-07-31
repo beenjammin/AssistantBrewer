@@ -9,13 +9,14 @@ Created on Tue Jul 28 20:57:29 2020
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from Actor_Classes import *
+from Actor_Classes import csvFunctions
 
 class MyTimer():
-    def __init__(self,parameters,plot,tempDatabase):
+    def __init__(self,parameters,plot):
+        print('timer started')
         self.parameters = parameters
         self.plot = plot
-        self.tempDatabase = tempDatabase
+        self.database = csvFunctions(self.parameters)
         
     def startTimer(self):   
         self.timer = QTimer()
@@ -25,8 +26,10 @@ class MyTimer():
     
     def runFunctions(self):
         #this whole function can in a process
-        if not self.parameters.test:
-            self.parameters.actors['readings'] = [actor_read_raw(a+'/w1_slave') for a in self.parameters.actors['actors']]
+#        if not self.parameters.test:
+#            self.parameters.actors['readings'] = [actor_read_raw(a+'/w1_slave') for a in self.parameters.actors['actors']]
+        self.database.readLastRow()
         self.plot.updatePlot()
+#        self.paramaters.settingsGUI['object'].clickedUpdateReadings()
         
         
