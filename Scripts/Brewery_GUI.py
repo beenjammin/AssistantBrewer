@@ -10,6 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import json, ast
+import RPi.GPIO as GPIO
 
 from Widget_Styles import *
 
@@ -222,9 +223,9 @@ class Relay():
             
     #toggle the relay on or off
     def relay(self,pin,switch,hw):
-        # GPIO.setmode(GPIO.BCM) 
-        # RELAIS_1_GPIO = pin
-        # GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
+        GPIO.setmode(GPIO.BCM) 
+        RELAIS_1_GPIO = pin
+        GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
         text=self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].text()
         # print(text)
         self.parameters.brewGUI[hw]['object'].updateStatus()
@@ -233,12 +234,12 @@ class Relay():
             print('switching on relay connected to pin {}'.format(pin))
             self.parameters.activePins[pin]=True
             text = text.replace(str(pin),'<a style="color:red;"><strong>{}</strong></a>'.format(pin))
-            # GPIO.output(RELAIS_1_GPIO, GPIO.LOW) # turn on
+            GPIO.output(RELAIS_1_GPIO, GPIO.LOW) # turn on
         elif not switch and self.parameters.activePins[pin]:
             print('switching off relay connected to pin {}'.format(pin))
             self.parameters.activePins[pin]=False
             text = text.replace('<a style="color:red;"><strong>'+str(pin)+'</strong></a>','{}'.format(pin))
-            # GPIO.output(RELAIS_1_GPIO, GPIO.HIGH) # turn on
+            GPIO.output(RELAIS_1_GPIO, GPIO.HIGH) # turn on
         self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].setText(text)
 
 #a super class that will inherit all properties of probes and relays    
