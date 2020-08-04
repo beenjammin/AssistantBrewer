@@ -10,7 +10,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import json, ast
-import RPi.GPIO as GPIO
+try:
+    import RPi.GPIO as GPIO #incase we are in test mode
+except: 
+    print('could not import RPi.GPIO')
 
 from Widget_Styles import *
 

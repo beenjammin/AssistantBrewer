@@ -13,7 +13,7 @@ class dockable(QDockWidget):
         self.sub = QMainWindow()
         self.layout = QVBoxLayout()
         self.sub.setWindowFlags(Qt.Widget)
-        self.sub.setDockOptions(Parameters()._DOCK_OPTS)
+        # self.sub.setDockOptions(Parameters()._DOCK_OPTS)
         self.setWidget(self.sub)
         label = QLabel(args[0])
         label.setAlignment(Qt.AlignCenter)
