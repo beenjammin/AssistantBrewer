@@ -25,6 +25,10 @@ class SettingsGUI(QMainWindow):
         VLayoutP = QVBoxLayout()  
         VLayout = QVBoxLayout()       
         relays = groupBox("Relays")
+        self.headerFont = QFont()
+        self.headerFont.setPointSize(14) 
+        self.bodyFont = QFont()
+        self.bodyFont.setPointSize(10)
 
         self.parameters.settingsGUI['relayDict'] = {}
         for relay in self.parameters.activePins:
@@ -67,10 +71,10 @@ class SettingsGUI(QMainWindow):
         HLayout = QHBoxLayout()    
         actorHeader = bodyLabel()
         actorHeader.setText('Actor')   
-        actorHeader.setFont(self.parameters.headerFont)
+        actorHeader.setFont(self.headerFont)
         rawOutput = bodyLabel()
         rawOutput.setText('Raw Reading')   
-        rawOutput.setFont(self.parameters.headerFont)
+        rawOutput.setFont(self.headerFont)
         HLayout.addWidget(actorHeader)
         HLayout.addWidget(rawOutput)
         VLayout.addLayout(HLayout)

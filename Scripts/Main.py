@@ -2,7 +2,8 @@ from Vertical_Tabs import mainGUI
 from Brewery_Parameters import Parameters
 from Actor_Classes import csvFunctions, actor_read_raw
 from time import sleep
-from multiprocessing import Process
+import random
+from threading import Thread
 
 
 
@@ -14,12 +15,17 @@ class intialiseBrewery():
         self.dataWrite = csvFunctions(self.parameters)
         self.dataWrite.createFile()
         if not self.parameters.test:
-            p1 = Process(target=self.outputData)
-        # else: 
-        #     p1 = Process(target=self.outputDataTest)
-        # p1.start()
+            p1 = Thread(target=self.outputData)
+        else: 
+            p1 = Thread(target=self.outputDataTest)
+        try:
+            p1.start()
+        except:
+            print('starting process failed')
         print('loading GUI')
         b = mainGUI(self.parameters)
+        print('done')
+        p1.join()   
 
     def outputData(self):
         while True:
@@ -28,9 +34,10 @@ class intialiseBrewery():
             self.dataWrite.appendRow(readings)
     
     def outputDataTest(self):
+        print('writing data')
         while True:
-            print('writing data')
             readings = [random.randint(30,55) for a in self.parameters.actors['actors']]
+            print('writing data --> {}'.format(readings))
             self.dataWrite.appendRow(readings)
             sleep(5)
 

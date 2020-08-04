@@ -53,10 +53,10 @@ class Parameters():
         #     for hw in self.hardware[key]:
         #          self.allHardware[hw] = []
         
-        self.headerFont = QFont()
-        self.headerFont.setPointSize(14)     
-        self.bodyFont = QFont()
-        self.bodyFont.setPointSize(10)
+        # self.headerFont = QFont()
+        # self.headerFont.setPointSize(14)     
+        # self.bodyFont = QFont()
+        # self.bodyFont.setPointSize(10)
 
         if self.test:
             self.actors = {'actors':['1','2','3'],'readings':[10,25,30]}
@@ -67,9 +67,9 @@ class Parameters():
         self.settingsGUI = {}
         self.plotGUI = {}
 
-        self._DOCK_OPTS = QMainWindow.AnimatedDocks
-        self._DOCK_OPTS |= QMainWindow.AllowNestedDocks
-        self._DOCK_OPTS |= QMainWindow.AllowTabbedDocks
+        # self._DOCK_OPTS = QMainWindow.AnimatedDocks
+        # self._DOCK_OPTS |= QMainWindow.AllowNestedDocks
+        # self._DOCK_OPTS |= QMainWindow.AllowTabbedDocks
 
         self.cwd = os.getcwd()
 #        print(self.cwd)
