@@ -101,14 +101,14 @@ class csvFunctions():
     def readLastRow(self):
 #        f = open(self.parameters.tempDatabaseFP, "a")
         data = self.import_csv(self.parameters.tempDatabaseFP,)
-        last_row = data[-2]
+        last_row = data[-1]
         self.parameters.actors['readings'] = last_row[1:]
         print('the last row is {}'.format(last_row[1:]))
 #        f.close()    
         
         
     def appendRow(self,write_data):
-        f = open(self.parameters.tempDatabaseFP, "a")
+        f = open(self.parameters.tempDatabaseFP, "a",newline='')
 #        self.parameters.actors['readings'] = write_data
         timeElapsed = time.time()-self.startTime
         write_data = [timeElapsed]+write_data

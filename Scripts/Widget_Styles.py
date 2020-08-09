@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 
 from Brewery_Parameters import *
 
+       
 
 class dockable(QDockWidget):
     def __init__(self, *args, **kwargs):
@@ -13,7 +14,7 @@ class dockable(QDockWidget):
         self.sub = QMainWindow()
         self.layout = QVBoxLayout()
         self.sub.setWindowFlags(Qt.Widget)
-        self.sub.setDockOptions(Parameters()._DOCK_OPTS)
+        # self.sub.setDockOptions(Parameters()._DOCK_OPTS)
         self.setWidget(self.sub)
         label = QLabel(args[0])
         label.setAlignment(Qt.AlignCenter)

@@ -123,9 +123,4 @@ class mainGUI():
         guiTimer = MyTimer(self.parameters,tempPlot)
         guiTimer.startTimer()
         sys.exit(app.exec_())   
-
-if __name__ == '__main__':
-    import sys
-    parameters = Parameters()
-    a =mainGUI(parameters)
-    
+  
