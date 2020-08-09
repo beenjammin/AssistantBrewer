@@ -13,9 +13,12 @@ from Actor_Classes import getActors
 
 class Parameters():
     def __init__(self):
-        self.test = True
-        #{pin:last state} 
-        self.activePins = {17:False,22:False,23:False,27:False}
+        self.colour = 'grey' #options are green, blue, orange, yellow, grey
+        
+
+    def initialise(self):
+        #{pin:last state, Parent} The pin state is boolean and each pin can only have one parent which is the hardware
+        self.activePins = {17:[False,None],22:[False,None],23:[False,None],27:[False,None]}
         #For relays, we have three types [heat,cool,binary]
         #Add hardware to dictionary to populate GUI {hardware:SimpleTemp,TempTgt,TempTimer,Relays}
         self.hardware = {   
@@ -25,8 +28,19 @@ class Parameters():
                             'Pump 1':{'widgets':[False,False,False,True],'relayPins':[],'actors':[]},
                             'Pump 2':{'widgets':[False,False,False,True],'relayPins':[],'actors':[]},
                          }
-        self.colour = 'green' #options are green, blue, orange, yellow, grey
         
+        
+        #go into test mode if we cannot find any actors
+        try:
+            if getActors():
+#                print('found {} actors'.format(len(getActors())))
+                self.test = False
+            else:
+                self.test = True
+        except:
+            self.test = True
+        print('Assitant to the brewer is running in {} mode'.format(['live','test'][self.test]))
+             
         #Dictionaries for GUI
         #user inputs as a dictionary{hardware: Status, Target tempature, Temperature tolerance, Actor}
         # self.userInputs={}
@@ -39,11 +53,12 @@ class Parameters():
         #     for hw in self.hardware[key]:
         #          self.allHardware[hw] = []
         
-        self.headerFont = QFont()
-        self.headerFont.setPointSize(14)     
-        self.bodyFont = QFont()
-        self.bodyFont.setPointSize(10)
-
+        # self.headerFont = QFont()
+        # self.headerFont.setPointSize(14)     
+        # self.bodyFont = QFont()
+        # self.bodyFont.setPointSize(10)
+        self.hwList = list(self.hardware)
+        
         if self.test:
             self.actors = {'actors':['1','2','3'],'readings':[10,25,30]}
         else:
@@ -53,9 +68,9 @@ class Parameters():
         self.settingsGUI = {}
         self.plotGUI = {}
 
-        self._DOCK_OPTS = QMainWindow.AnimatedDocks
-        self._DOCK_OPTS |= QMainWindow.AllowNestedDocks
-        self._DOCK_OPTS |= QMainWindow.AllowTabbedDocks
+        # self._DOCK_OPTS = QMainWindow.AnimatedDocks
+        # self._DOCK_OPTS |= QMainWindow.AllowNestedDocks
+        # self._DOCK_OPTS |= QMainWindow.AllowTabbedDocks
 
         self.cwd = os.getcwd()
 #        print(self.cwd)

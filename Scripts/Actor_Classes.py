@@ -58,17 +58,15 @@ class ReadDevice():
 
 
 class csvFunctions():
-    def __init__(self,header,parameters):
+    def __init__(self,parameters):
         today = date.today()
         self.parameters = parameters
         self.name = 'brew_'+str(today).replace('-','_')
-        print(header)
-        self.header = ['Time'] +header
-        print(self.header)
+        self.header = ['Time']+self.parameters.actors['actors']
         self.home = self.parameters.cwd
         self.startTime = time.time()
 
-        self.createFile()
+#        self.createFile()
         
         
     def createFile(self):
@@ -77,18 +75,41 @@ class csvFunctions():
             i += 1
         self.csv_fp = self.home+'/'+self.name+'_%s.csv' % i
         self.parameters.tempDatabaseFP = self.csv_fp
-        print (self.csv_fp)
+#        print (self.csv_fp)
         f = open(self.csv_fp, "w")
         with f:
             writer = csv.writer(f)
             writer.writerow(self.header)
         f.close()
+        print('created new file --> {}'.format(self.csv_fp))
         self.appendRow(self.parameters.actors['readings'])
         self.appendRow(self.parameters.actors['readings'])
-      
+
+    
+    def import_csv(self,csvfilename):
+        data = []
+        with open(csvfilename, "r", encoding="utf-8", errors="ignore") as scraped:
+            reader = csv.reader(scraped, delimiter=',')
+            for row in reader:
+                if row:  # avoid blank lines
+#                    row_index += 1
+                    columns = row
+                    data.append(columns)
+        return data
+    
+
+    def readLastRow(self):
+#        f = open(self.parameters.tempDatabaseFP, "a")
+        data = self.import_csv(self.parameters.tempDatabaseFP,)
+        last_row = data[-1]
+        self.parameters.actors['readings'] = last_row[1:]
+        print('the last row is {}'.format(last_row[1:]))
+#        f.close()    
+        
         
     def appendRow(self,write_data):
-        f = open(self.parameters.tempDatabaseFP, "a")
+        f = open(self.parameters.tempDatabaseFP, "a",newline='')
+#        self.parameters.actors['readings'] = write_data
         timeElapsed = time.time()-self.startTime
         write_data = [timeElapsed]+write_data
         with f:

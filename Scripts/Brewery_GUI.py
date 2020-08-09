@@ -11,7 +11,13 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import json, ast
 
+try:
+    import RPi.GPIO as GPIO #incase we are in test mode
+except: 
+    print('could not import RPi.GPIO')
+
 from Widget_Styles import *
+from Event_Functions import EventFunctions
 
 class BreweryGUI(QMainWindow):
     def __init__(self,parameters):
@@ -102,7 +108,7 @@ class Temperature():
             tgtTemp = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemp']['widget'].text())
             tempTol = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTempTol']['widget'].text())
             currentTemp = float(self.hwTemp)
-            pinStatus = all([self.parameters.activePins[a] for a in self.pinList])
+            pinStatus = all([self.parameters.activePins[a[0]] for a in self.pinList])
             if currentTemp < tgtTemp - tempTol:
                 self.hwStatus['TempTgt']=True
             elif currentTemp < tgtTemp and pinStatus:
@@ -158,10 +164,10 @@ class Temperature():
      # add a temperature timer widget to the GUI    
     def addTempTimer(self):pass
 
-class Relay():
+class Relay(EventFunctions):
     def __init__(self, parameters):
+        EventFunctions.__init__(self,parameters)
         self.parameters = parameters
-
 
     def __updateRelayHardware(self):
         try:
@@ -169,7 +175,6 @@ class Relay():
         except:
             self.parameters.relayHardware = set()
         self.parameters.relayHardware.add(self.name)
-
 
     #adds basic relay to the GUI
     def addRelay(self,dock):
@@ -210,36 +215,15 @@ class Relay():
         #updating the status dictionary
         self.parameters.brewGUI[hw]['object'].hwStatus['relay']=switch
         print('Trying to switch {}{}'.format(hw,b.text()[b.text().find('-')+1:]))
-
         #check to see if any pins are connected to the hardware
-        if self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['value']=='no relays attached':
+        pins = self.parameters.brewGUI[hw]['object'].pinList
+        print(pins)
+        if not pins:
             print('Warning, no relays connected')
         else:
-            #now loop through the pins and switch as necessary
-            for pin in self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['value']:
-                #check status of pin and switch relay on or off
-                self.relay(pin,switch,hw)
-            
-    #toggle the relay on or off
-    def relay(self,pin,switch,hw):
-        # GPIO.setmode(GPIO.BCM) 
-        # RELAIS_1_GPIO = pin
-        # GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
-        text=self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].text()
-        # print(text)
-        self.parameters.brewGUI[hw]['object'].updateStatus()
-        if switch and not self.parameters.activePins[pin] and self.parameters.brewGUI[hw]['object'].status:
-            #check for other dependencies and only switch on if these are also true
-            print('switching on relay connected to pin {}'.format(pin))
-            self.parameters.activePins[pin]=True
-            text = text.replace(str(pin),'<a style="color:red;"><strong>{}</strong></a>'.format(pin))
-            # GPIO.output(RELAIS_1_GPIO, GPIO.LOW) # turn on
-        elif not switch and self.parameters.activePins[pin]:
-            print('switching off relay connected to pin {}'.format(pin))
-            self.parameters.activePins[pin]=False
-            text = text.replace('<a style="color:red;"><strong>'+str(pin)+'</strong></a>','{}'.format(pin))
-            # GPIO.output(RELAIS_1_GPIO, GPIO.HIGH) # turn on
-        self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].setText(text)
+            self.checkPinStatus(pins)
+
+
 
 #a super class that will inherit all properties of probes and relays    
 class Hardware(Temperature,Relay):
@@ -271,7 +255,12 @@ class Hardware(Temperature,Relay):
         if 'TempTgt' in self.hwStatus:
             self.updateTempTgtStatus()
         self.status=all(list(self.hwStatus.values()))
+        self.setPinStatus()
 
+    #function to set status of pins
+    def setPinStatus(self):
+        for pin in self.pinList:
+            self.parameters.activePins[pin][0] = self.status
 
 
 

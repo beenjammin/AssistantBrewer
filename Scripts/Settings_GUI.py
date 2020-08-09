@@ -25,6 +25,10 @@ class SettingsGUI(QMainWindow):
         VLayoutP = QVBoxLayout()  
         VLayout = QVBoxLayout()       
         relays = groupBox("Relays")
+        self.headerFont = QFont()
+        self.headerFont.setPointSize(14) 
+        self.bodyFont = QFont()
+        self.bodyFont.setPointSize(10)
 
         self.parameters.settingsGUI['relayDict'] = {}
         for relay in self.parameters.activePins:
@@ -67,10 +71,10 @@ class SettingsGUI(QMainWindow):
         HLayout = QHBoxLayout()    
         actorHeader = bodyLabel()
         actorHeader.setText('Actor')   
-        actorHeader.setFont(self.parameters.headerFont)
+        actorHeader.setFont(self.headerFont)
         rawOutput = bodyLabel()
         rawOutput.setText('Raw Reading')   
-        rawOutput.setFont(self.parameters.headerFont)
+        rawOutput.setFont(self.headerFont)
         HLayout.addWidget(actorHeader)
         HLayout.addWidget(rawOutput)
         VLayout.addLayout(HLayout)
@@ -106,10 +110,14 @@ class SettingsGUI(QMainWindow):
         
 
     def clickedUpdateReadings(self):
-        if not self.parameters.test:
-            self.parameters.actors['readings'] = [actor_read_raw(a+'/w1_slave') for a in self.parameters.actors['actors']]
+#        if not self.parameters.test:
+#            self.parameters.actors['readings'] = [actor_read_raw(a+'/w1_slave') for a in self.parameters.actors['actors']]
         for actor in self.parameters.actors['actors']:
-            text = str(self.parameters.actors['readings'][self.parameters.actors['actors'].index(actor)])
+            print(self.parameters.actors['readings'])
+            if not self.parameters.actors['readings']:
+                text = 'none'
+            else:
+                text = str(self.parameters.actors['readings'][self.parameters.actors['actors'].index(actor)])
             self.parameters.settingsGUI['actorReadingDict'][actor]['QLabelReading']['widget'].setText(text)
     
 
@@ -124,7 +132,7 @@ class SettingsGUI(QMainWindow):
                 text = 'Relay pins attached --> no relays attached'
                 self.parameters.brewGUI[key]['object'].pinList=[]
                 self.parameters.brewGUI[key]['relayGroupBox']['QLabelCurrentPins']['widget'].setText(text)
-                self.parameters.brewGUI[key]['relayGroupBox']['QLabelCurrentPins']['value']='no relays attached' 
+                self.parameters.brewGUI[key]['relayGroupBox']['QLabelCurrentPins']['value']='no relays attached'
             #This hardware has no relay attached so we ignore it
             except KeyError:
                 print('{} has no relay'.format(key))        
@@ -143,6 +151,7 @@ class SettingsGUI(QMainWindow):
             #update the dictionary, adding the selected combobox value for the pin
             value['QCBRelay']['value'] = hw
             #going to try and add the associate the pin with the hardware
+            self.parameters.activePins[pin][1] = hw
             try:
                 #check if hw is in the list, if not, display default text
                 if hw in list(self.parameters.hardware):
