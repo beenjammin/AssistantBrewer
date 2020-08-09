@@ -17,8 +17,8 @@ class Parameters():
         
 
     def initialise(self):
-        #{pin:last state} 
-        self.activePins = {17:False,22:False,23:False,27:False}
+        #{pin:last state, Parent} The pin state is boolean and each pin can only have one parent which is the hardware
+        self.activePins = {17:[False,None],22:[False,None],23:[False,None],27:[False,None]}
         #For relays, we have three types [heat,cool,binary]
         #Add hardware to dictionary to populate GUI {hardware:SimpleTemp,TempTgt,TempTimer,Relays}
         self.hardware = {   
@@ -57,7 +57,8 @@ class Parameters():
         # self.headerFont.setPointSize(14)     
         # self.bodyFont = QFont()
         # self.bodyFont.setPointSize(10)
-
+        self.hwList = list(self.hardware)
+        
         if self.test:
             self.actors = {'actors':['1','2','3'],'readings':[10,25,30]}
         else:
