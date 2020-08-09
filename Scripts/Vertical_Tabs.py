@@ -74,16 +74,8 @@ class mainGUI():
         app = QApplication(sys.argv)
         QApplication.setStyle(ProxyStyle())
         w = TabWidget()
-#        tempDatabase = csvFunctions(header = self.parameters.actors['actors'],parameters = self.parameters)
-        #Work to do, add a combo box so user can select different plots, maybe put into dockable widgets so the plots can be added and removed as necessary
-        tempPlot =  TempProbe(self.parameters)
-        tempPlot.plot()
-        vlayout = QVBoxLayout()
-        vlayout.addWidget(tempPlot)
-        plotW = QWidget()
-        plotW.setLayout(vlayout)
-        guiTimer = MyTimer(self.parameters,tempPlot)
-        guiTimer.runFunctions()
+
+
         
         label = QLabel('hi')
         label2 = QLabel('so')
@@ -105,6 +97,14 @@ class mainGUI():
         settingW = QWidget()
         settingW.setLayout(vlayout)
         
+        tempPlot =  TempProbe(self.parameters)
+        tempPlot.plot()
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(tempPlot)
+        plotW = QWidget()
+        plotW.setLayout(vlayout)
+        guiTimer = MyTimer(self.parameters,tempPlot)
+        guiTimer.runFunctions()
 
         w.addTab(brewDay,QIcon("beer.png"), "Brew Day")
         
@@ -113,7 +113,7 @@ class mainGUI():
         w.addTab(QWidget(),QIcon("mash.png"), "The Mash")
         w.addTab(QWidget(),QIcon("hops.png"), "The Boil")
         w.addTab(plotW,QIcon("plot.png"), "Plots")        
-        w.addTab(settingW,QIcon("settings.png"), "Settings")
+        w.addTab(settingW,QIcon("settings.png"), "Connections")
     #    w.addTab(QWidget(), QIcon("zoom-out.png"), "XYZ")
         w.setWindowTitle("Assistant to the Regional Brewer")
         w.resize(1200, 800)

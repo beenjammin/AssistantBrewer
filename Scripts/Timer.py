@@ -10,10 +10,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from Actor_Classes import csvFunctions
+from Event_Functions import EventFunctions
 
-class MyTimer():
+class MyTimer(EventFunctions):
     def __init__(self,parameters,plot):
         print('timer started')
+        EventFunctions.__init__(self,parameters)
         self.parameters = parameters
         self.plot = plot
         self.database = csvFunctions(self.parameters)
@@ -30,6 +32,7 @@ class MyTimer():
 #            self.parameters.actors['readings'] = [actor_read_raw(a+'/w1_slave') for a in self.parameters.actors['actors']]
         self.database.readLastRow()
         self.plot.updatePlot()
+        self.updateReadings()
 #        self.paramaters.settingsGUI['object'].clickedUpdateReadings()
         
         

@@ -58,6 +58,8 @@ class Parameters():
         # self.bodyFont = QFont()
         # self.bodyFont.setPointSize(10)
         self.hwList = list(self.hardware)
+        self.tempHardware = set()
+        self.relayHardware = set()
         
         if self.test:
             self.actors = {'actors':['1','2','3'],'readings':[10,25,30]}

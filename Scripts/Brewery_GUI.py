@@ -21,6 +21,7 @@ from Event_Functions import EventFunctions
 
 class BreweryGUI(QMainWindow):
     def __init__(self,parameters):
+        print('initiating brewery GUI')
         super().__init__()
         self.parameters=parameters
         # self.parameters.colour = 'blue'
@@ -119,9 +120,6 @@ class Temperature():
         except:
             print("Unexpected error:", sys.exc_info()[0])
             raise 
-
-
-
 
 
     # add a target temperature widget to the GUI

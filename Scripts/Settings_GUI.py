@@ -13,11 +13,13 @@ import json, ast
 
 from Widget_Styles import *
 from Actor_Classes import *
-# from Event_Functions import *
+from Event_Functions import EventFunctions
 
-class SettingsGUI(QMainWindow):
+class SettingsGUI(QMainWindow,EventFunctions):
     def __init__(self,parameters):
-        super().__init__()
+        print('initiating settings GUI')
+        EventFunctions.__init__(self,parameters)
+        QMainWindow.__init__(self,parameters=None)
         self.parameters=parameters
         # eF = EventFunctions(self.parameters)
         #Settings
@@ -93,11 +95,8 @@ class SettingsGUI(QMainWindow):
             self.parameters.settingsGUI['actorReadingDict'][actor]={    'QLabelActor':{'widget':actorLabel},
                                                                         'QLabelReading':{'widget':rawReading,'value':'none'}
                                                                         }
-        self.clickedUpdateReadings()
-        
-        updateReadings = bodyButton('Update Readings')
-        updateReadings.clicked.connect(self.clickedUpdateReadings)
-        VLayout.addWidget(updateReadings,alignment=Qt.AlignRight)   
+        self.updateReadings()
+           
         Actors.setLayout(VLayout)
         VLayoutP.addWidget(Actors)
 
@@ -107,18 +106,6 @@ class SettingsGUI(QMainWindow):
         dock.addThisWidget(connections)
         dock.setCentralWidget()
         self.addDockWidget(Qt.RightDockWidgetArea,dock)
-        
-
-    def clickedUpdateReadings(self):
-#        if not self.parameters.test:
-#            self.parameters.actors['readings'] = [actor_read_raw(a+'/w1_slave') for a in self.parameters.actors['actors']]
-        for actor in self.parameters.actors['actors']:
-            print(self.parameters.actors['readings'])
-            if not self.parameters.actors['readings']:
-                text = 'none'
-            else:
-                text = str(self.parameters.actors['readings'][self.parameters.actors['actors'].index(actor)])
-            self.parameters.settingsGUI['actorReadingDict'][actor]['QLabelReading']['widget'].setText(text)
     
 
     def updatePins(self):
