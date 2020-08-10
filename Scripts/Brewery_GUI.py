@@ -163,26 +163,49 @@ class Temperature():
      # add a temperature timer widget to the GUI    
     def addTempTimer(self,dock):
         #initialise set-up
-        self.populateWidgets([1],[1],dock)
+        self.plotPoints = 0
+        self.populateWidgets(dock)
 
     def addDataPoint(self,hardware):
-        print('adding')
-
+        #need to handle the addition of specific point - which one was clicked?
+        self.clearLayout(self.parameters.brewGUI[self.name]['tempGroupBox']['Layout'])
+        self.plotPoints += 1
+        self.populateWidgets()
+        
     def removeDataPoint(self,hardware):
-        print('removing')
+        #need to handle the removal of specific point - which one was clicked?
+        self.clearLayout(self.parameters.brewGUI[self.name]['tempGroupBox']['Layout'])
+        self.plotPoints -= 1
+        self.populateWidgets()
 
     def updateDict(self):
-        print('you changed somehting')
+        print('you changed something')
+        ls_1, ls_2, = [], []
+        for count in range(self.plotPoints+2):
+            ls_1.append(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['widgets'][count].text())
+            if count == self.plotPoints+1:
+                ls_2.append(None)
+            else:
+                ls_2.append(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['widgets'][count].text())
+        self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['value'] = ls_1
+        self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['value'] = ls_2
 
-    def populateWidgets(self,timeList,tempList,dock):
+    def populateWidgets(self,dock=None):
         #initialise, this always happens
-        gb = groupBox('Temperature')
+        try:
+            gb = self.parameters.brewGUI[self.name]['tempGroupBox']['widget']
+            startTempVal = self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['value'][0]
+            endTimeVal = self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['value'][-1]
+        except:
+            gb = groupBox('Temperature')
+            startTempVal = None
+            endTimeVal = None
         tempGroupBox = {}
         startLabel = bodyLabel('Time (min)')
         startLabel2 = bodyLabel('Temp (°{})'.format(self.parameters.units('temperature')))
         startTime = bodyLabel('0')
-        startTemp = bodyLineEdit()
-        startTemp.textEdited .connect(self.updateDict)
+        startTemp = bodyLineEdit(startTempVal)
+        startTemp.textEdited.connect(self.updateDict)
 
         HLayout = QHBoxLayout()
         VLayout = QVBoxLayout()
@@ -197,14 +220,14 @@ class Temperature():
 
         tempGroupBox = {'widget':gb,
                         'QLineEditTgtTimes':{'widgets':[startTime],'value':[0]},
-                        'QLineEditTgtTemps':{'widgets':[startTemp],'value':[None]},
+                        'QLineEditTgtTemps':{'widgets':[startTemp],'value':[startTempVal]},
                         'QButtonAdd':{'widgets':[None]},
                         'QButtonRemove':{'widgets':[None]},
                         }
 
 
         #now we add the intermediary steps
-        for count, item in enumerate(tempList):
+        for count in range(self.plotPoints):
             VLayout = QVBoxLayout()
             addButton = bodyButton('+')
             addButton.clicked.connect(lambda ignore, a=self.name:self.addDataPoint(a))
@@ -213,11 +236,16 @@ class Temperature():
             VLayout.addWidget(addButton)
             VLayout.addWidget(removeButton)
             HLayout.addLayout(VLayout)
-
+            try:
+                tempVal = self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['value'][count+1]
+                timeVal = self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['value'][count+1]
+            except:
+                tempVal = None
+                timeVal = None
             VLayout = QVBoxLayout()
-            thisTime = bodyLineEdit()
+            thisTime = bodyLineEdit(timeVal)
             thisTime.textEdited .connect(self.updateDict)
-            thisTemp = bodyLineEdit()
+            thisTemp = bodyLineEdit(tempVal)
             thisTemp.textEdited .connect(self.updateDict)
             VLayout.addWidget(thisTime)
             VLayout.addWidget(thisTemp)
@@ -225,6 +253,8 @@ class Temperature():
 
             tempGroupBox['QLineEditTgtTimes']['widgets'].append(thisTime)
             tempGroupBox['QLineEditTgtTemps']['widgets'].append(thisTemp)
+            tempGroupBox['QLineEditTgtTimes']['value'].append(timeVal)
+            tempGroupBox['QLineEditTgtTemps']['value'].append(tempVal)
             tempGroupBox['QButtonAdd']['widgets'].append(addButton)
             tempGroupBox['QButtonRemove']['widgets'].append(removeButton)
 
@@ -232,24 +262,34 @@ class Temperature():
         #add final buttons
         addButton = bodyButton('+')
         addButton.clicked.connect(lambda ignore, a=self.name:self.addDataPoint(a))
-        endTime = bodyLineEdit()
+        endTime = bodyLineEdit(endTimeVal)
         endTime.textEdited .connect(self.updateDict)
 
 
         VLayout = QVBoxLayout()
         VLayout.addWidget(addButton)
         HLayout.addLayout(VLayout)
+        HLayout.addWidget(endTime)  
 
-        HLayout.addWidget(endTime)   
-        VLayout = QVBoxLayout()
+        try:
+            VLayout = self.parameters.brewGUI[self.name]['tempGroupBox']['Layout']
+        except:
+            VLayout = QVBoxLayout()
+        
         currentTemp = bodyLabel('Current temperature --> no reading')
+        VLayout.addLayout(HLayout)
         VLayout.addWidget(currentTemp)
         tempGroupBox['QButtonAdd']['widgets'].append(addButton)
         tempGroupBox['QLineEditTgtTimes']['widgets'].append(endTime)
-        tempGroupBox['QLabelCurrentTemp'] = {'widget':currentTemp,'value':'no reading'},  
+        tempGroupBox['QLineEditTgtTimes']['value'].append(endTimeVal)
+        tempGroupBox['QLabelCurrentTemp'] = {'widget':currentTemp,'value':'no reading'}
+        tempGroupBox['Layout'] = VLayout
 
-        gb.setLayout(HLayout)          
-        dock.addThisWidget(gb)
+        gb.setLayout(VLayout)
+        try:
+            self.parameters.brewGUI[self.name]['tempGroupBox']
+        except:        
+            dock.addThisWidget(gb)
 
         self.parameters.brewGUI[self.name]['tempGroupBox'] = tempGroupBox     
 
