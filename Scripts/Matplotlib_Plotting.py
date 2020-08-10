@@ -119,7 +119,7 @@ class TempProbe(ProbeData,PlotWindow):
     def plotFormat(self):
         colour = self.parameters.colour
         self.ax.set_xlabel('Time', color=colourPick(colour,'dark'),fontweight='bold')
-        self.ax.set_ylabel('Temp (°{})'.format(self.parameters.tempUnit), color=colourPick(colour,'dark'),fontweight='bold')
+        self.ax.set_ylabel('Temp (°{})'.format(self.parameters.units('temperature')), color=colourPick(colour,'dark'),fontweight='bold')
         self.ax.set_title(label = 'Temperature probes', color=colourPick(colour,'dark'),fontweight='bold')
         self.ax.set_facecolor(colourPick(colour,'dark'))
         self.canvas.figure.patch.set_facecolor(colourPick(colour,'light'))

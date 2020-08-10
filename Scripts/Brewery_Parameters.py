@@ -8,6 +8,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import os
+from pathlib import Path
 
 from Actor_Classes import getActors
 
@@ -23,7 +24,7 @@ class Parameters():
         #Add hardware to dictionary to populate GUI {hardware:SimpleTemp,TempTgt,TempTimer,Relays}
         self.hardware = {   
                             'HLT':{'widgets':[False,True,False,True],'relayPins':[],'actors':[]},
-                            'Mash':{'widgets':[False,True,False,True],'relayPins':[],'actors':[]},
+                            'Mash':{'widgets':[False,False,True,True],'relayPins':[],'actors':[]},
                             'Boil':{'widgets':[True,False,False,False],'relayPins':[],'actors':[]},
                             'Pump 1':{'widgets':[False,False,False,True],'relayPins':[],'actors':[]},
                             'Pump 2':{'widgets':[False,False,False,True],'relayPins':[],'actors':[]},
@@ -41,14 +42,12 @@ class Parameters():
             self.test = True
         print('Assitant to the brewer is running in {} mode'.format(['live','test'][self.test]))
              
-        #Dictionaries for GUI
-        #user inputs as a dictionary{hardware: Status, Target tempature, Temperature tolerance, Actor}
-        # self.userInputs={}
-        #Actor inputs as a dictionary{HLT: Status, Target tempature, Temperature tolerance, Actor}       
-        # self.actorTemps = {}
-        #pins
-        # self.allHardware = {}
-        
+        #add path locations
+        self.cwd = Path.cwd()
+        self.imageFP = str(self.cwd/'Images')
+        self.database = str(self.cwd/'BrewDay')
+
+
         # for key in self.hardware:
         #     for hw in self.hardware[key]:
         #          self.allHardware[hw] = []
@@ -78,11 +77,12 @@ class Parameters():
 #        print(self.cwd)
         
         self.tempDatabaseFP = ''
-        self.units()
+        self.units('temperature')
         
 
-    def units(self):
-        self.tempUnit = 'C'
+    def units(self,variable):
+        if variable == 'temperature':
+            return 'C'
 
 
 def colourPick(colour,shade):

@@ -31,7 +31,7 @@ class BreweryGUI(QMainWindow):
             self.parameters.brewGUI[key] = {}
             self.parameters.brewGUI[key]['object'] = Hardware(self.parameters,key)
 
-            #create a dockable widget which will contain child widgets only if at least one vlau
+            #create a dockable widget which will contain child widgets only if at least one value
             if any(value):
                 self.dock = dockable(key,objectName = 'childTab')
                 self.parameters.brewGUI[key]['dockwidget']=[self.dock]
@@ -45,7 +45,8 @@ class BreweryGUI(QMainWindow):
                 self.parameters.brewGUI[key]['object'].addTempTgt(self.dock)
 
             #check if we are adding temperature timer functionality to the hardware
-            if value['widgets'][2]:pass
+            if value['widgets'][2]:
+                self.parameters.brewGUI[key]['object'].addTempTimer(self.dock)
 
             #check if we are adding relay functionality to the hardware
             if value['widgets'][3]:
@@ -160,7 +161,107 @@ class Temperature():
         self.parameters.brewGUI[self.name]['tempGroupBox'] = tempGroupBox
     
      # add a temperature timer widget to the GUI    
-    def addTempTimer(self):pass
+    def addTempTimer(self,dock):
+        #initialise set-up
+        self.populateWidgets([1],[1],dock)
+
+    def addDataPoint(self,hardware):
+        print('adding')
+
+    def removeDataPoint(self,hardware):
+        print('removing')
+
+    def updateDict(self):
+        print('you changed somehting')
+
+    def populateWidgets(self,timeList,tempList,dock):
+        #initialise, this always happens
+        gb = groupBox('Temperature')
+        tempGroupBox = {}
+        startLabel = bodyLabel('Time (min)')
+        startLabel2 = bodyLabel('Temp (°{})'.format(self.parameters.units('temperature')))
+        startTime = bodyLabel('0')
+        startTemp = bodyLineEdit()
+        startTemp.textEdited .connect(self.updateDict)
+
+        HLayout = QHBoxLayout()
+        VLayout = QVBoxLayout()
+        VLayout.addWidget(startLabel)
+        VLayout.addWidget(startLabel2)
+        HLayout.addLayout(VLayout)
+
+        VLayout = QVBoxLayout()
+        VLayout.addWidget(startTime)
+        VLayout.addWidget(startTemp)
+        HLayout.addLayout(VLayout)
+
+        tempGroupBox = {'widget':gb,
+                        'QLineEditTgtTimes':{'widgets':[startTime],'value':[0]},
+                        'QLineEditTgtTemps':{'widgets':[startTemp],'value':[None]},
+                        'QButtonAdd':{'widgets':[None]},
+                        'QButtonRemove':{'widgets':[None]},
+                        }
+
+
+        #now we add the intermediary steps
+        for count, item in enumerate(tempList):
+            VLayout = QVBoxLayout()
+            addButton = bodyButton('+')
+            addButton.clicked.connect(lambda ignore, a=self.name:self.addDataPoint(a))
+            removeButton = bodyButton('-')
+            removeButton.clicked.connect(lambda ignore, a=self.name:self.removeDataPoint(a))
+            VLayout.addWidget(addButton)
+            VLayout.addWidget(removeButton)
+            HLayout.addLayout(VLayout)
+
+            VLayout = QVBoxLayout()
+            thisTime = bodyLineEdit()
+            thisTime.textEdited .connect(self.updateDict)
+            thisTemp = bodyLineEdit()
+            thisTemp.textEdited .connect(self.updateDict)
+            VLayout.addWidget(thisTime)
+            VLayout.addWidget(thisTemp)
+            HLayout.addLayout(VLayout)
+
+            tempGroupBox['QLineEditTgtTimes']['widgets'].append(thisTime)
+            tempGroupBox['QLineEditTgtTemps']['widgets'].append(thisTemp)
+            tempGroupBox['QButtonAdd']['widgets'].append(addButton)
+            tempGroupBox['QButtonRemove']['widgets'].append(removeButton)
+
+
+        #add final buttons
+        addButton = bodyButton('+')
+        addButton.clicked.connect(lambda ignore, a=self.name:self.addDataPoint(a))
+        endTime = bodyLineEdit()
+        endTime.textEdited .connect(self.updateDict)
+
+
+        VLayout = QVBoxLayout()
+        VLayout.addWidget(addButton)
+        HLayout.addLayout(VLayout)
+
+        HLayout.addWidget(endTime)   
+        VLayout = QVBoxLayout()
+        currentTemp = bodyLabel('Current temperature --> no reading')
+        VLayout.addWidget(currentTemp)
+        tempGroupBox['QButtonAdd']['widgets'].append(addButton)
+        tempGroupBox['QLineEditTgtTimes']['widgets'].append(endTime)
+        tempGroupBox['QLabelCurrentTemp'] = {'widget':currentTemp,'value':'no reading'},  
+
+        gb.setLayout(HLayout)          
+        dock.addThisWidget(gb)
+
+        self.parameters.brewGUI[self.name]['tempGroupBox'] = tempGroupBox     
+
+
+    def clearLayout(self,layout):
+        while layout.count():
+            child = layout.takeAt(0)
+            if child.widget() is not None:
+                child.widget().deleteLater()
+            elif child.layout() is not None:
+                self.clearLayout(child.layout())
+
 
 class Relay(EventFunctions):
     def __init__(self, parameters):
