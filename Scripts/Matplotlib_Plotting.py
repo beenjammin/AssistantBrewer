@@ -4,7 +4,6 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import (Qt, pyqtSignal)
 from matplotlib.backends.backend_qt5agg import FigureCanvas
 from matplotlib.figure import Figure
-from matplotlib.widgets import CheckButtons
 import pandas as pd
 
 from Widget_Styles import *

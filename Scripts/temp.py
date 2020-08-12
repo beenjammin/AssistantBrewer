@@ -1,75 +1,55 @@
-import sys
-from PyQt5.QtWidgets import QDialog, QApplication, QVBoxLayout
-from PyQt5 import QtCore
-from PyQt5.QtCore import (Qt, pyqtSignal)
-from matplotlib.backends.backend_qt5agg import FigureCanvas
-from matplotlib.figure import Figure
-from matplotlib.widgets import CheckButtons
-import pandas as pd
+import matplotlib.pyplot as plt
 
-from Widget_Styles import *
-from Brewery_Parameters import colourPick
+times = [0,15,30,45,60]
+temps = [65,55,60,75,20]
 
+holdTemps = False
+warmUp = False
+tempTolerance = 5
 
-class PlotWindow(QDialog):
-    def __init__(self, parent=None):
-        super(PlotWindow, self).__init__(parent)
-        self._want_to_close = False
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.rows = 2
+tl = []
+tl2 = []
 
-    def closeEvent(self, evnt):
-        if self._want_to_close:
-            super(PlotWindow, self).closeEvent(evnt)
-        else:
-            evnt.ignore()
-            super(PlotWindow, self).closeEvent(evnt)
-            print('exit 2')         
-            userList = ['plot']
-            self.closePlotWindow.emit(userList)
-            print('exit 1')
-
-            self.setWindowState(QtCore.Qt.WindowMinimized)
-
-    def plot(self):
-        self.canvas = FigureCanvas(Figure(figsize=(10, 6)))
-        self.ax = self.canvas.figure.subplots()
-
-        # self.plotFormat()
-        self.layout = QVBoxLayout()
-##        layout.addWidget(self.toolbar)
-        self.layout.addWidget(self.canvas)
-        self.addInputBoxes()
-        self.setLayout(self.layout)
-
-        self.canvas.draw()
+for count, time in enumerate(times):
+	#if both values are present
+	if str(times[count]).isnumeric() and  str(temps[count]).isnumeric():     
+		tl.append(times[count])
+		tl2.append(temps[count])
+print (tl)
+print (tl2)
 
 
-    def updatePlot(self):
-        #this function draws the temp profile based on the users inputs
-        colour = ['blue','green','red','cyan','magenta','yellow','black']
-        self.seriesList = []
-        self.ax.clear()
+if holdTemps:
+    plotTime = [tl[0]]
+    plotTemp = [tl2[0]]
+    for count in range(len(tl)):
+    	#check to make sure it is not the first indice
+    	if count is not 0:
+    		#append a value just before
+    		plotTime += [tl[count]-0.01,tl[count]]
+    		plotTemp += [tl2[count-1],tl2[count]]
+else:
+    plotTime = tl
+    plotTemp = tl2
 
-        # this plots our series from the dataframe
-        for count,col in enumerate(self.df_columns[1:]):
-            if col in self.plotSeries:
-                self.seriesList.append(self.ax.plot(self.df_columns[0], col,data=self.df, label=col, color = colour[count]))
-        self.plotFormat()
-        self.canvas.draw()
+try:
+	tempToPlot = [[a - tempTolerance for a in plotTemp],[a + tempTolerance for a in plotTemp]]
+except TypeError:
+	tempToPlot = None
+except:
+	print("Unexpected error:", sys.exc_info()[0])
+	raise
+	
+print (plotTime)
+print (plotTemp)
+print (tempToPlot)
 
-
-    def addToolbar(self):
-        #add the toolbar at bottom of the plot
-        self.parameters.plotGUI['checkBoxes']={}
-        hlayout = QHBoxLayout()
-        for actor in self.parameters.actors['actors']:
-            cb = bodyCheckBox(actor[-8:])
-            cb.setChecked(True)
-            cb.stateChanged.connect(lambda:self.btnState())
-            hlayout.addWidget(cb)
-            self.parameters.plotGUI['checkBoxes'][actor]={'hw':actor,'widget':cb,'state':True}
-        self.layout.addLayout(hlayout)
-        
-
-if __name__ == '__main__':pass
+fig, ax = plt.subplots(1)
+ax.plot(plotTime, plotTemp, lw=2, label='Temperature Target', color='blue')
+ax.fill_between(plotTime, tempToPlot[0], tempToPlot[1], facecolor='blue', alpha=0.25,
+                label='Tolerance')
+ax.set_xlabel('Time')
+ax.set_ylabel('Temp (°C)')
+ax.grid()
+ax.legend(loc='upper left')
+plt.show()

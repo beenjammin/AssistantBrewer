@@ -10,6 +10,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import json, ast
+from matplotlib.backends.backend_qt5agg import FigureCanvas
+from matplotlib.figure import Figure
 
 try:
     import RPi.GPIO as GPIO #incase we are in test mode
@@ -162,27 +164,92 @@ class Temperature():
     
      # add a temperature timer widget to the GUI    
     def addTempTimer(self,dock):
-        #initialise set-up
+        #initialise set-up, need to add checkboxes, drop down list for selecting profiles etc
         self.plotPoints = 0
+        self.holdTemps = True
+        self.warmUp = False
+        self.tempTolerance = 5
         self.populateWidgets(dock)
+        self.initialisePlot()
+
+    def initialisePlot(self):
+        self.dlg = QDialog()
+        self.dlg.canvas = FigureCanvas(Figure(figsize=(4, 2)))
+        self.ax = self.dlg.canvas.figure.subplots()
+        VLayout = self.parameters.brewGUI[self.name]['tempGroupBox']['Layout']
+        VLayout.addWidget(self.dlg.canvas)
+
+    def updatePlot(self):      
+        times = [float(a) if a else None for a in self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values']]
+        temps = [float(a) if a else None for a in self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values']]
+        print (times)
+        tl = []
+        tl2 = []
+
+        for count, time in enumerate(times):
+            #if both values are present
+            if isinstance(temps[count],int) or isinstance(temps[count],float):
+                if isinstance(times[count],int) or isinstance(times[count],float):     
+                    tl.append(times[count])
+                    tl2.append(temps[count])
+        print('tl is {}'.format(tl))    
+        if tl:
+            if self.holdTemps:
+                plotTime = [tl[0]]
+                plotTemp = [tl2[0]]
+                for count in range(len(tl)):
+                    #check to make sure it is not the first indice
+                    if count is not 0:
+                        #append a value just before
+                        plotTime += [tl[count]-0.01,tl[count]]
+                        plotTemp += [tl2[count-1],tl2[count]]
+            else:
+                plotTime = tl
+                plotTemp = tl2
+
+            print ('x axis is {}'.format(plotTime))
+            print ('y axis is {}'.format(plotTemp))
+            try:
+                tempToPlot = [[a - self.tempTolerance for a in plotTemp],[a + self.tempTolerance for a in plotTemp]]
+            except TypeError:
+                tempToPlot = None
+            except:
+                print("Unexpected error:", sys.exc_info()[0])
+                raise
+            print (tempToPlot)
+
+            self.ax.clear()
+            self.ax.plot(plotTime, plotTemp, lw=2, label='Temperature Target', color='blue')
+            self.ax.fill_between(plotTime, tempToPlot[0], tempToPlot[1], facecolor='blue', alpha=0.25,
+                            label='Tolerance')
+            self.ax.set_xlabel('Time')
+            self.ax.set_ylabel('Temp (°C)')
+            self.ax.grid()
+            self.ax.legend(loc='upper left')
+            self.dlg.canvas.draw()
+        
 
     def addDataPoint(self,widget):
-        #need to handle the addition of specific point - which one was clicked?
+        #adds data point based on click location
         indice = self.parameters.brewGUI[self.name]['tempGroupBox']['QButtonAdd']['widgets'].index(widget)
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'].insert(indice,None)
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'].insert(indice,None)
         self.clearLayout(self.parameters.brewGUI[self.name]['tempGroupBox']['Layout'])
         self.plotPoints += 1
         self.populateWidgets()
+        self.initialisePlot()
+        self.updatePlot()
         
     def removeDataPoint(self,widget):
-        #need to handle the removal of specific point - which one was clicked?
+        #removes data point based on click location
         indice = self.parameters.brewGUI[self.name]['tempGroupBox']['QButtonRemove']['widgets'].index(widget)
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'].pop(indice)
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'].pop(indice)
         self.clearLayout(self.parameters.brewGUI[self.name]['tempGroupBox']['Layout'])
         self.plotPoints -= 1
         self.populateWidgets()
+        self.initialisePlot()
+        self.updatePlot()
 
     def updateDict(self):
         ls_1, ls_2, = [], []
@@ -194,6 +261,7 @@ class Temperature():
                 ls_2.append(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['widgets'][count].text())
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'] = ls_1
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'] = ls_2
+        self.updatePlot()
 
     def populateWidgets(self,dock=None):
         #initialise, this always happens
