@@ -17,7 +17,7 @@ from Event_Functions import EventFunctions
 
 class SettingsGUI(QMainWindow,EventFunctions):
     def __init__(self,parameters):
-        print('initiating settings GUI')
+        print('initiating connections GUI')
         EventFunctions.__init__(self,parameters)
         QMainWindow.__init__(self,parameters=None)
         self.parameters=parameters
@@ -125,7 +125,7 @@ class SettingsGUI(QMainWindow,EventFunctions):
                 print('{} has no relay'.format(key))        
             except:
                 print("Unexpected error:", sys.exc_info()[0])
-                raise       
+                raise
 
         #updating the brewGUI dictionary
         for key, value in self.parameters.settingsGUI['relayDict'].items():
@@ -158,8 +158,10 @@ class SettingsGUI(QMainWindow,EventFunctions):
         
 
     def updateActors(self,cb):
+        #runs on actor combobox change event - update associated actors
         print(cb.currentText())
-        #reset text labels
+        #reset text labels and actor dictionary
+        self.parameters.actors['hw'] = [None]*len(self.parameters.actors['readings'])
         for key, value in self.parameters.brewGUI.items():
             # print('key is {}'.format(key))
             # print('value is {}'.format(value))
@@ -179,6 +181,7 @@ class SettingsGUI(QMainWindow,EventFunctions):
             hw = cb.currentText()
             #update the dictionary, adding the selected combobox value for the pin
             value['QCBActor']['value'] = hw
+            self.parameters.actors['hw'][self.parameters.actors['actors'].index(actor)] = hw
             try:
                 self.parameters.brewGUI[hw]['object'].actorList.append(actor)
                 self.parameters.brewGUI[hw]['object'].updateTempLabel()

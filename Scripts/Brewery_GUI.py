@@ -164,6 +164,7 @@ class Temperature():
     
      # add a temperature timer widget to the GUI    
     def addTempTimer(self,dock):
+        self.__updateTempHardware()
         #initialise set-up, need to add checkboxes, drop down list for selecting profiles etc
         #number of additional points
         self.plotPoints = 0
@@ -176,9 +177,9 @@ class Temperature():
         #add the connected live temp
         self.plotLiveTemp = False
         self.populateWidgets(dock)
-        self.addToolbar()
         self.initialisePlot()
-        self.updatePlot()
+        self.addToolbar()
+        self.valueChange()
 
     def initialisePlot(self):
         self.dlg = QDialog()
@@ -187,12 +188,39 @@ class Temperature():
         VLayout = self.parameters.brewGUI[self.name]['tempGroupBox']['Layout']
         VLayout.addWidget(self.dlg.canvas)
 
-    def updatePlot(self):
-    #updates the plot but should change this so it takes the plots as an argument  
+    def widgetChange(self):
+        #function to define what happens when there is a widget change
+        self.populateWidgets()
+        self.initialisePlot()
+        self.addToolbar()
+        self.valueChange()
+
+    def valueChange(self):
+        #function to define what happens when there is a value change
+        s1, s2 = self.updateTgtTempSeries()
+        if self.plotLiveTemp:
+            s3 = self.updateTempReadingSeries(self.actorList)
+        else:
+            s3 = None
+        self.updatePlot(s1, s2, s3)
+ 
+    #returns the series of actors passed
+    def updateTempReadingSeries(self,actor):
+        if not actor:
+            print('no actors attached to {} - check your connections tab'.format(self.name))
+        headers = ['Time']
+        headers += actor
+        # print(self.parameters.databases['temperature'])
+        liveTempSeries = self.parameters.databases['temperature'].loc[:,headers]
+        return [liveTempSeries]
+   
+    def updateTgtTempSeries(self):
+    #updates the plot but should change this so it takes the plots as an argument 
+    #get temps from GUI
         times = [float(a) if a or a == 0 else None for a in self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values']]
         temps = [float(a) if a or a == 0 else None for a in self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values']]
-        print (times)
-        print ('dict list is {}'.format(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values']))
+        # print (times)
+        # print ('dict list is {}'.format(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values']))
         tl = []
         tl2 = []
 
@@ -202,8 +230,9 @@ class Temperature():
                 if isinstance(times[count],int) or isinstance(times[count],float):     
                     tl.append(times[count])
                     tl2.append(temps[count])
-        print('tl is {}'.format(tl))    
+  
         if tl:
+            #if we are holding temps we need to add indices for plotting
             if self.holdTemps:
                 plotTime = [tl[0]]
                 plotTemp = [tl2[0]]
@@ -220,19 +249,33 @@ class Temperature():
             print ('x axis is {}'.format(plotTime))
             print ('y axis is {}'.format(plotTemp))
             try:
-                tempToPlot = [[a - self.tempTolerance for a in plotTemp],[a + self.tempTolerance for a in plotTemp]]
+                tempTolPlot = [[a - self.tempTolerance for a in plotTemp],[a + self.tempTolerance for a in plotTemp]]
             except TypeError:
-                tempToPlot = None
+                tempTolPlot = None
             except:
                 print("Unexpected error:", sys.exc_info()[0])
                 raise
-            print (tempToPlot)
 
+            return [plotTime, plotTemp], tempTolPlot
+
+    def updatePlot(self,tempTgtSeries=None,tempTolPlot=None,liveTempSeries=None):
+        #update the plot, takes series as inputs
+        #tempTgtSeries is a 2 by n list (x and y)
+        #tempTolPlot is a 2 by n list (y+tol and y-tol)
+        #liveTempSeries is an m by n dataframe (x and m'y series)
             self.ax.clear()
-            self.ax.plot(plotTime, plotTemp, lw=2, label='Temperature Target', color='blue')
-            self.ax.fill_between(plotTime, tempToPlot[0], tempToPlot[1], facecolor='blue', alpha=0.25,
-                            label='Tolerance')
- 
+            colour = self.parameters.plotColours
+            #check we have a list to plots
+            if tempTgtSeries[0] and tempTgtSeries[1]:
+                self.ax.plot(tempTgtSeries[0], tempTgtSeries[1], lw=2, label='Temperature Target', color='blue')
+            if self.tempTolerance:
+                self.ax.fill_between(tempTgtSeries[0], tempTolPlot[0], tempTolPlot[1], facecolor='blue', alpha=0.35,label='Tolerance')
+            if self.plotLiveTemp:
+                headers = list(liveTempSeries.columns)
+                print (headers)
+                for count, actor in enumerate(headers[1:]):
+                    print('adding {}'.format(actor))
+                    self.ax.plot(headers[0], actor, data=liveTempSeries, label=actor, color=colour[count])
             self.formatPlotTemp()
             self.dlg.canvas.draw()
     
@@ -259,10 +302,7 @@ class Temperature():
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'].insert(indice,tempInterp)
         self.clearLayout(self.parameters.brewGUI[self.name]['tempGroupBox']['Layout'])
         self.plotPoints += 1
-        self.populateWidgets()
-        self.addToolbar()
-        self.initialisePlot()
-        self.updatePlot()
+        self.widgetChange()
         
     def removeDataPoint(self,widget):
         #removes data point based on click location
@@ -271,10 +311,7 @@ class Temperature():
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'].pop(indice)
         self.clearLayout(self.parameters.brewGUI[self.name]['tempGroupBox']['Layout'])
         self.plotPoints -= 1
-        self.populateWidgets()
-        self.addToolbar()
-        self.initialisePlot()
-        self.updatePlot()
+        self.widgetChange()
 
     def updateDict(self):
         #function to track what numbers the user has selected
@@ -284,7 +321,7 @@ class Temperature():
             ls_2.append(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['widgets'][count].value())
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'] = ls_1
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'] = ls_2
-        self.updatePlot()
+        self.valueChange()
 
     def populateWidgets(self,dock=None):
         #initialise, this always happens
@@ -454,11 +491,11 @@ class Temperature():
             self.warmUp = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['warmUp'].isChecked()
         elif a == 'plotLiveTemp':
             self.plotLiveTemp = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['plotLiveTemp'].isChecked()
-        self.updatePlot()
+        self.valueChange()
 
     def updateTol(self):
         self.tempTolerance = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['tempTolerance'].value()
-        self.updatePlot()
+        self.valueChange()
 
     def clearLayout(self,layout):
         while layout.count():

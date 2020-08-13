@@ -47,14 +47,18 @@ class PlotWindow(QDialog):
     def updatePlot(self):
         self.updateDataFrame()
 #        print(self.df)
-        colour = ['blue','green','red','cyan','magenta','yellow','black']
-        self.seriesList = []
+        colour = self.parameters.plotColours
         self.ax.clear()
-
+        labelList = []
+        for count, label in enumerate(self.parameters.actors['hw']):
+            if label:
+                labelList.append(label)
+            else:
+                labelList.append(self.df_columns[count+1])
         # this plots our series from the dataframe
-        for count,col in enumerate(self.df_columns[1:]):
+        for count, col in enumerate(self.df_columns[1:]):
             if col in self.plotSeries:
-                self.seriesList.append(self.ax.plot(self.df_columns[0], col,data=self.df, label=col, color = colour[count]))
+                self.ax.plot(self.df_columns[0], col, data=self.df, label=labelList[count], color=colour[count])
         self.plotFormat()
         self.canvas.draw()
 

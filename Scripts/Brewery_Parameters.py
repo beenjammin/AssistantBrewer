@@ -59,12 +59,14 @@ class Parameters():
         self.hwList = list(self.hardware)
         self.tempHardware = set()
         self.relayHardware = set()
+        #store the databases as a dictionary here
         self.databases = {}
         
         if self.test:
             self.actors = {'actors':['1','2','3'],'readings':[10,25,30]}
         else:
             self.actors = {'actors':getActors(),'readings':[]}
+        self.actors['hw'] = [None]*len(self.actors['readings'])
         
         self.brewGUI = {}
         self.settingsGUI = {}
@@ -79,7 +81,7 @@ class Parameters():
         
         self.tempDatabaseFP = ''
         self.units('temperature')
-        
+        self.plotColours = ['blue','green','red','cyan','magenta','yellow','black']
 
     def units(self,variable):
         if variable == 'temperature':
