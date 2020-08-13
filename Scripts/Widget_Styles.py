@@ -139,6 +139,25 @@ class bodyComboBox(QComboBox):
                                 color: black}"""%(colourPick(colour,'light'))          
         self.setStyleSheet(stylesheet)
 
+
+class bodySpinBox(QSpinBox):
+    def __init__(self, *args, **kwargs):
+        QSpinBox.__init__(self, *args, **kwargs)
+        
+        #Styling
+        self.colour = Parameters().colour
+        self.setMinimum(0)
+        self.setMaximum(86400)
+        self.applyStyle(self.colour)
+
+    def applyStyle(self,colour):
+        stylesheet = """ 
+                    QSpinBox {background-color:  %s;
+                                border: 1px solid black; 
+                                color: %s}"""%(colourPick(colour,'light'),colourPick(self.colour,'dark'))             
+        self.setStyleSheet(stylesheet)
+
+
 class bodyCheckBox(QCheckBox):
     def __init__(self, *args, **kwargs):
         QCheckBox.__init__(self, *args, **kwargs)

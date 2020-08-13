@@ -83,6 +83,7 @@ class ProbeData:
     def updateDataFrame(self):       
         try:
             self.df = pd.read_csv(self.fp)
+            self.parameters.databases['temperature'] = self.df
             self.df_columns = list(self.df)
             self.df_lastRow = self.df.iloc[[-1]]
         except: pass
@@ -113,10 +114,11 @@ class TempProbe(ProbeData,PlotWindow):
             self.name = 'Temperatures'
         self.fp = self.parameters.tempDatabaseFP 
         # self.count = 0
-        self.plotSeries=['Time']+self.parameters.actors['actors']
+        self.plotSeries = ['Time'] + self.parameters.actors['actors']
 
     def plotFormat(self):
         colour = self.parameters.colour
+        self.ax.legend(loc='upper left')
         self.ax.set_xlabel('Time', color=colourPick(colour,'dark'),fontweight='bold')
         self.ax.set_ylabel('Temp (°{})'.format(self.parameters.units('temperature')), color=colourPick(colour,'dark'),fontweight='bold')
         self.ax.set_title(label = 'Temperature probes', color=colourPick(colour,'dark'),fontweight='bold')

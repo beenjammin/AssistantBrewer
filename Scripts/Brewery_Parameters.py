@@ -59,6 +59,7 @@ class Parameters():
         self.hwList = list(self.hardware)
         self.tempHardware = set()
         self.relayHardware = set()
+        self.databases = {}
         
         if self.test:
             self.actors = {'actors':['1','2','3'],'readings':[10,25,30]}

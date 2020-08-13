@@ -42,7 +42,7 @@ class BreweryGUI(QMainWindow):
             if value['widgets'][0]:
                 self.parameters.brewGUI[key]['object'].addSimpleTemp(self.dock)
 
-            #check if we are adding targer temperature functionality to the hardware
+            #check if we are adding target temperature functionality to the hardware
             if value['widgets'][1]:
                 self.parameters.brewGUI[key]['object'].addTempTgt(self.dock)
 
@@ -165,24 +165,34 @@ class Temperature():
      # add a temperature timer widget to the GUI    
     def addTempTimer(self,dock):
         #initialise set-up, need to add checkboxes, drop down list for selecting profiles etc
+        #number of additional points
         self.plotPoints = 0
+        #flat line the temps if true, gradients if false
         self.holdTemps = True
+        #if True, only count the time if the temp is within tolerance of target
         self.warmUp = False
+        #the tolerance for the target temp
         self.tempTolerance = 5
+        #add the connected live temp
+        self.plotLiveTemp = False
         self.populateWidgets(dock)
+        self.addToolbar()
         self.initialisePlot()
+        self.updatePlot()
 
     def initialisePlot(self):
         self.dlg = QDialog()
-        self.dlg.canvas = FigureCanvas(Figure(figsize=(4, 2)))
+        self.dlg.canvas = FigureCanvas(Figure(figsize=(4, 4)))
         self.ax = self.dlg.canvas.figure.subplots()
         VLayout = self.parameters.brewGUI[self.name]['tempGroupBox']['Layout']
         VLayout.addWidget(self.dlg.canvas)
 
-    def updatePlot(self):      
-        times = [float(a) if a else None for a in self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values']]
-        temps = [float(a) if a else None for a in self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values']]
+    def updatePlot(self):
+    #updates the plot but should change this so it takes the plots as an argument  
+        times = [float(a) if a or a == 0 else None for a in self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values']]
+        temps = [float(a) if a or a == 0 else None for a in self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values']]
         print (times)
+        print ('dict list is {}'.format(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values']))
         tl = []
         tl2 = []
 
@@ -222,21 +232,35 @@ class Temperature():
             self.ax.plot(plotTime, plotTemp, lw=2, label='Temperature Target', color='blue')
             self.ax.fill_between(plotTime, tempToPlot[0], tempToPlot[1], facecolor='blue', alpha=0.25,
                             label='Tolerance')
-            self.ax.set_xlabel('Time')
-            self.ax.set_ylabel('Temp (°C)')
-            self.ax.grid()
-            self.ax.legend(loc='upper left')
+ 
+            self.formatPlotTemp()
             self.dlg.canvas.draw()
-        
+    
+    def formatPlotTemp(self):
+        colour = self.parameters.colour
+        self.ax.set_xlabel('Time', color=colourPick(colour,'dark'),fontweight='bold')
+        self.ax.set_ylabel('Temp (°{}) for {}'.format(self.parameters.units('temperature'),self.name), color=colourPick(colour,'dark'),fontweight='bold')
+        # self.ax.set_title(label = 'Temperature probes', color=colourPick(colour,'dark'),fontweight='bold')
+        self.ax.legend(loc='upper left')
+        self.ax.set_facecolor(colourPick(colour,'dark'))
+        self.dlg.canvas.figure.patch.set_facecolor(colourPick(colour,'light'))
+        self.ax.tick_params(color=colourPick(colour,'dark'))
+        self.ax.grid(b=True, which='major', color=colourPick(colour,'light'), linestyle='-')
 
     def addDataPoint(self,widget):
         #adds data point based on click location
         indice = self.parameters.brewGUI[self.name]['tempGroupBox']['QButtonAdd']['widgets'].index(widget)
-        self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'].insert(indice,None)
-        self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'].insert(indice,None)
+        ls_1 = self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values']
+        ls_2 = self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values']
+        # print('ls_2 is {}'.format(ls_2))
+        timeInterp = float(ls_1[indice-1])/2 + float(ls_1[indice])/2
+        tempInterp = float(ls_2[indice-1])/2 + float(ls_2[indice])/2
+        self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'].insert(indice,timeInterp)
+        self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'].insert(indice,tempInterp)
         self.clearLayout(self.parameters.brewGUI[self.name]['tempGroupBox']['Layout'])
         self.plotPoints += 1
         self.populateWidgets()
+        self.addToolbar()
         self.initialisePlot()
         self.updatePlot()
         
@@ -248,37 +272,49 @@ class Temperature():
         self.clearLayout(self.parameters.brewGUI[self.name]['tempGroupBox']['Layout'])
         self.plotPoints -= 1
         self.populateWidgets()
+        self.addToolbar()
         self.initialisePlot()
         self.updatePlot()
 
     def updateDict(self):
+        #function to track what numbers the user has selected
         ls_1, ls_2, = [], []
         for count in range(self.plotPoints+2):
-            ls_1.append(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['widgets'][count].text())
-            if count == self.plotPoints+1:
-                ls_2.append(None)
-            else:
-                ls_2.append(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['widgets'][count].text())
+            ls_1.append(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['widgets'][count].value())
+            ls_2.append(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['widgets'][count].value())
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'] = ls_1
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'] = ls_2
         self.updatePlot()
 
     def populateWidgets(self,dock=None):
         #initialise, this always happens
+        addRemoveBtnSize = QSize(15, 15)
         try:
             gb = self.parameters.brewGUI[self.name]['tempGroupBox']['widget']
-            startTempVal = self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'][0]
-            endTimeVal = self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'][-1]
-        except:
+            startTempVal = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'][0])
+            endTempVal = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'][-1])
+            startTimeVal = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'][0])
+            endTimeVal = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'][-1])
+        except KeyError:
             gb = groupBox('Temperature')
-            startTempVal = None
-            endTimeVal = None
+            startTempVal = 65
+            endTempVal = 70
+            startTimeVal = 0
+            endTimeVal = 60
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            raise
+
         tempGroupBox = {}
         startLabel = bodyLabel('Time (min)')
         startLabel2 = bodyLabel('Temp (°{})'.format(self.parameters.units('temperature')))
-        startTime = bodyLabel('0')
-        startTemp = bodyLineEdit(startTempVal)
-        startTemp.textEdited.connect(self.updateDict)
+        startTime = bodySpinBox()
+        startTime.setValue(startTimeVal)
+        startTime.valueChanged.connect(self.updateDict)
+        startTemp = bodySpinBox()
+        startTemp.setValue(startTempVal)
+
+        startTemp.valueChanged.connect(self.updateDict)
 
         HLayout = QHBoxLayout()
         VLayout = QVBoxLayout()
@@ -292,7 +328,7 @@ class Temperature():
         HLayout.addLayout(VLayout)
 
         tempGroupBox = {'widget':gb,
-                        'QLineEditTgtTimes':{'widgets':[startTime],'values':[0]},
+                        'QLineEditTgtTimes':{'widgets':[startTime],'values':[startTimeVal]},
                         'QLineEditTgtTemps':{'widgets':[startTemp],'values':[startTempVal]},
                         'QButtonAdd':{'widgets':[None]},
                         'QButtonRemove':{'widgets':[None]},
@@ -303,23 +339,33 @@ class Temperature():
         for count in range(self.plotPoints):
             VLayout = QVBoxLayout()
             addButton = bodyButton('+')
+            addButton.setFixedSize(addRemoveBtnSize)
             addButton.clicked.connect(lambda ignore, a=addButton:self.addDataPoint(a))
             removeButton = bodyButton('-')
             removeButton.clicked.connect(lambda ignore, a=removeButton:self.removeDataPoint(a))
+            removeButton.setFixedSize(addRemoveBtnSize)
             VLayout.addWidget(addButton)
             VLayout.addWidget(removeButton)
             HLayout.addLayout(VLayout)
+            #see if we have value already
             try:
-                tempVal = self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'][count+1]
-                timeVal = self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'][count+1]
-            except:
+                tempVal = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'][count+1])
+                timeVal = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'][count+1])
+            #if we don't lets set to empty
+            except KeyError:
                 tempVal = None
                 timeVal = None
+            except:
+                print("Unexpected error:", sys.exc_info()[0])
+                raise
+
             VLayout = QVBoxLayout()
-            thisTime = bodyLineEdit(timeVal)
-            thisTime.textEdited .connect(self.updateDict)
-            thisTemp = bodyLineEdit(tempVal)
-            thisTemp.textEdited .connect(self.updateDict)
+            thisTime = bodySpinBox()
+            thisTime.setValue(timeVal)
+            thisTime.valueChanged.connect(self.updateDict)
+            thisTemp = bodySpinBox()
+            thisTemp.setValue(tempVal)
+            thisTemp.valueChanged.connect(self.updateDict)
             VLayout.addWidget(thisTime)
             VLayout.addWidget(thisTemp)
             HLayout.addLayout(VLayout)
@@ -331,18 +377,25 @@ class Temperature():
             tempGroupBox['QButtonAdd']['widgets'].append(addButton)
             tempGroupBox['QButtonRemove']['widgets'].append(removeButton)
 
-
         #add final buttons
         addButton = bodyButton('+')
+        addButton.setFixedSize(addRemoveBtnSize)
         addButton.clicked.connect(lambda ignore, a=addButton:self.addDataPoint(addButton))
-        endTime = bodyLineEdit(endTimeVal)
-        endTime.textEdited .connect(self.updateDict)
+        endTime = bodySpinBox()
+        endTime.setValue(endTimeVal)
+        endTime.valueChanged.connect(self.updateDict)
+        endTemp = bodySpinBox()
+        endTemp.setValue(endTempVal)
+        endTemp.valueChanged.connect(self.updateDict)
 
 
         VLayout = QVBoxLayout()
         VLayout.addWidget(addButton)
         HLayout.addLayout(VLayout)
-        HLayout.addWidget(endTime)  
+        VLayout = QVBoxLayout()
+        VLayout.addWidget(endTime)
+        VLayout.addWidget(endTemp)
+        HLayout.addLayout(VLayout)  
 
         try:
             VLayout = self.parameters.brewGUI[self.name]['tempGroupBox']['Layout']
@@ -355,6 +408,8 @@ class Temperature():
         tempGroupBox['QButtonAdd']['widgets'].append(addButton)
         tempGroupBox['QLineEditTgtTimes']['widgets'].append(endTime)
         tempGroupBox['QLineEditTgtTimes']['values'].append(endTimeVal)
+        tempGroupBox['QLineEditTgtTemps']['widgets'].append(endTemp)
+        tempGroupBox['QLineEditTgtTemps']['values'].append(endTempVal)
         tempGroupBox['QLabelCurrentTemp'] = {'widget':currentTemp,'values':'no reading'}
         tempGroupBox['Layout'] = VLayout
 
@@ -366,6 +421,44 @@ class Temperature():
 
         self.parameters.brewGUI[self.name]['tempGroupBox'] = tempGroupBox     
 
+    def addToolbar(self):
+        holdTemps = bodyCheckBox('Hold temperatures constant')
+        holdTemps.setChecked(True)
+        holdTemps.stateChanged.connect(lambda ignore, a='holdTemps':self.switchState(a))
+        warmUp = bodyCheckBox('Heating time is included')
+        holdTemps.stateChanged.connect(lambda ignore, a='warmUp':self.switchState(a))
+        plotLiveTemp = bodyCheckBox('Add live temp')
+        plotLiveTemp.stateChanged.connect(lambda ignore, a='plotLiveTemp':self.switchState(a))
+        HLayout = QHBoxLayout()
+        HLayout.addWidget(holdTemps)
+        HLayout.addWidget(warmUp)
+        HLayout.addWidget(plotLiveTemp)
+
+        tempTolLbl = bodyLabel('Temperature tolerance')
+        tempTolerance = bodySpinBox()
+        tempTolerance.setValue(5)
+        tempTolerance.valueChanged.connect(self.updateTol)
+        # HLayout2 = QHBoxLayout()
+        HLayout.addWidget(tempTolLbl)
+        HLayout.addWidget(tempTolerance)
+
+        toolBar = {'holdTemps':holdTemps,'warmUp':warmUp,'tempTolerance':tempTolerance,'plotLiveTemp':plotLiveTemp}
+        self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar'] = toolBar
+        self.parameters.brewGUI[self.name]['tempGroupBox']['Layout'].addLayout(HLayout) 
+
+
+    def switchState(self,a):
+        if a == 'holdTemps':
+            self.holdTemps = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['holdTemps'].isChecked()
+        elif a == 'warmUp':
+            self.warmUp = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['warmUp'].isChecked()
+        elif a == 'plotLiveTemp':
+            self.plotLiveTemp = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['plotLiveTemp'].isChecked()
+        self.updatePlot()
+
+    def updateTol(self):
+        self.tempTolerance = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['tempTolerance'].value()
+        self.updatePlot()
 
     def clearLayout(self,layout):
         while layout.count():
