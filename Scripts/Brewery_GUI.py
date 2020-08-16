@@ -210,9 +210,8 @@ class Temperature():
             print('no actors attached to {} - check your connections tab'.format(self.name))
         headers = ['Time']
         headers += actor
-        print('size is {}'.format(self.parameters.databases['temperature'].size))
-        liveTempSeries = self.parameters.databases['temperature'].loc[:,headers]
-        return [liveTempSeries]
+        liveTempSeries = self.parameters.database['temperature'].loc[:,headers]
+        return liveTempSeries
    
     def updateTgtTempSeries(self):
     #updates the plot but should change this so it takes the plots as an argument 
@@ -246,8 +245,8 @@ class Temperature():
                 plotTime = tl
                 plotTemp = tl2
 
-            print ('x axis is {}'.format(plotTime))
-            print ('y axis is {}'.format(plotTemp))
+            # print ('x axis is {}'.format(plotTime))
+            # print ('y axis is {}'.format(plotTemp))
             try:
                 tempTolPlot = [[a - self.tempTolerance for a in plotTemp],[a + self.tempTolerance for a in plotTemp]]
             except TypeError:
@@ -263,6 +262,7 @@ class Temperature():
         #tempTgtSeries is a 2 by n list (x and y)
         #tempTolPlot is a 2 by n list (y+tol and y-tol)
         #liveTempSeries is an m by n dataframe (x and m'y series)
+            print('updating plot')
             self.ax.clear()
             colour = self.parameters.plotColours
             #check we have a list to plots
@@ -271,8 +271,7 @@ class Temperature():
             if self.tempTolerance:
                 self.ax.fill_between(tempTgtSeries[0], tempTolPlot[0], tempTolPlot[1], facecolor='blue', alpha=0.35,label='Tolerance')
             if self.plotLiveTemp:
-                headers = list(liveTempSeries.columns)
-                print (headers)
+                headers = liveTempSeries.columns.values.tolist()
                 for count, actor in enumerate(headers[1:]):
                     print('adding {}'.format(actor))
                     self.ax.plot(headers[0], actor, data=liveTempSeries, label=actor, color=colour[count])
@@ -460,12 +459,14 @@ class Temperature():
 
     def addToolbar(self):
         holdTemps = bodyCheckBox('Hold temperatures constant')
-        holdTemps.setChecked(True)
+        holdTemps.setChecked(self.holdTemps)
         holdTemps.stateChanged.connect(lambda ignore, a='holdTemps':self.switchState(a))
         warmUp = bodyCheckBox('Heating time is included')
+        warmUp.setChecked(self.warmUp)
         holdTemps.stateChanged.connect(lambda ignore, a='warmUp':self.switchState(a))
         plotLiveTemp = bodyCheckBox('Add live temp')
         plotLiveTemp.stateChanged.connect(lambda ignore, a='plotLiveTemp':self.switchState(a))
+        plotLiveTemp.setChecked(self.plotLiveTemp)
         HLayout = QHBoxLayout()
         HLayout.addWidget(holdTemps)
         HLayout.addWidget(warmUp)
@@ -473,7 +474,7 @@ class Temperature():
 
         tempTolLbl = bodyLabel('Temperature tolerance')
         tempTolerance = bodySpinBox()
-        tempTolerance.setValue(5)
+        tempTolerance.setValue(self.tempTolerance)
         tempTolerance.valueChanged.connect(self.updateTol)
         # HLayout2 = QHBoxLayout()
         HLayout.addWidget(tempTolLbl)
@@ -491,6 +492,15 @@ class Temperature():
             self.warmUp = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['warmUp'].isChecked()
         elif a == 'plotLiveTemp':
             self.plotLiveTemp = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['plotLiveTemp'].isChecked()
+        if self.plotLiveTemp:
+            self.updateFunctions.add(self.valueChange())
+        else:
+            try:
+                self.updateFunctions.remove(self.valueChange())
+            except KeyError: pass
+            except:
+                print("Unexpected error:", sys.exc_info()[0])
+                raise
         self.valueChange()
 
     def updateTol(self):
@@ -567,7 +577,8 @@ class Relay(EventFunctions):
 
 
 
-#a super class that will inherit all properties of probes and relays    
+#a super class that will inherit all properties of probes and relays
+#need to define what functions get updated by timer
 class Hardware(Temperature,Relay):
     def __init__(self,parameters,name):
         Temperature.__init__(self,parameters)
@@ -579,6 +590,8 @@ class Hardware(Temperature,Relay):
         self.pinList = []
         #staus of hw controls (boolean)
         self.hwStatus={}
+        #functions to be updated
+        self.updateFunctions = set()
         self.status = False
 
     #function to update the temp label associated with the hardware class

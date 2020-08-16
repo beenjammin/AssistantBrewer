@@ -33,6 +33,12 @@ class MyTimer(EventFunctions):
         self.database.readLastRow()
         self.plot.updatePlot()
         self.updateReadings()
+        # print ('dictionary is {}'.format(self.parameters.hardware))
+        for key in self.parameters.hardware:
+            for function in self.parameters.brewGUI[key]['object'].updateFunctions:
+                print('running function')
+                function #runs function that have been appended to the update set
+
 #        self.paramaters.settingsGUI['object'].clickedUpdateReadings()
         
         

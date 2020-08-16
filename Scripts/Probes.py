@@ -8,7 +8,7 @@ class TempProbe(databaseManager,PlotWindow):
     This class defines the temperature probes, currently links to a database and defines the plot formatting
     """
     def __init__(self,parameters):
-        super(TempProbe, self).__init__()
+        super().__init__()
         self.parameters = parameters
         self.fp = self.parameters.tempDatabaseFP 
         self.plotSeries = ['Time'] + self.parameters.actors['actors']

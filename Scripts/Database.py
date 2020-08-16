@@ -8,8 +8,9 @@ import pandas as pd
 class databaseManager():       
     def refreshDatabase(self):
         self.data = pd.read_csv(self.fp)
-        print ('datafdrame is {}'.format(self.data.loc[:,['1','2']]))
+        # print ('datafdrame is {}'.format(self.data.loc[:,['1','2']]))
         self.parameters.database['temperature'] = self.data
+        print ('datafdrame is {}'.format(self.parameters.database['temperature'].loc[:,['1','2']]))
         self.headers = list(self.data)
         self.lastRow = self.data.iloc[[-1]]
 

@@ -11,7 +11,7 @@ from Widget_Styles import *
 
 class PlotWindow(QDialog):
     def __init__(self, parent=None):
-        super(PlotWindow, self).__init__(parent)
+        super().__init__()
         self._want_to_close = False
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
