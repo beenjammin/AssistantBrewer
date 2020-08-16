@@ -1,6 +1,7 @@
 from Vertical_Tabs import mainGUI
 from Brewery_Parameters import Parameters
-from Actor_Classes import csvFunctions, actor_read_raw
+from Actor_Classes import actor_read_raw
+from Database import csvFunctions
 from time import sleep
 import random
 from threading import Thread

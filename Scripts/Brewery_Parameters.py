@@ -45,22 +45,14 @@ class Parameters():
         #add path locations
         self.cwd = Path.cwd()
         self.imageFP = str(self.cwd/'Images')
-        self.database = str(self.cwd/'BrewDay')
+        # self.database = str(self.cwd/'BrewDay')
 
-
-        # for key in self.hardware:
-        #     for hw in self.hardware[key]:
-        #          self.allHardware[hw] = []
-        
-        # self.headerFont = QFont()
-        # self.headerFont.setPointSize(14)     
-        # self.bodyFont = QFont()
-        # self.bodyFont.setPointSize(10)
         self.hwList = list(self.hardware)
         self.tempHardware = set()
         self.relayHardware = set()
         #store the databases as a dictionary here
-        self.databases = {}
+        self.database = {}
+        self.database['Type'] = {'fp':'filepath','data':'entire databse as pandas dataframe','lr':'last row of databse'}
         
         if self.test:
             self.actors = {'actors':['1','2','3'],'readings':[10,25,30]}

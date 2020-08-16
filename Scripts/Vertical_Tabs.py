@@ -15,8 +15,8 @@ import json, ast
 from Brewery_Parameters import Parameters
 from Brewery_GUI import BreweryGUI
 from Settings_GUI import SettingsGUI
-from Matplotlib_Plotting import TempProbe
-from Actor_Classes import csvFunctions
+from Probes import TempProbe
+from Database import csvFunctions
 from Timer import MyTimer
 
 class TabBar(QTabBar):

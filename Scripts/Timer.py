@@ -9,7 +9,7 @@ Created on Tue Jul 28 20:57:29 2020
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from Actor_Classes import csvFunctions
+from Database import csvFunctions
 from Event_Functions import EventFunctions
 
 class MyTimer(EventFunctions):

@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import *
 import json, ast
 
 from Widget_Styles import *
-from Actor_Classes import *
+# from Actor_Classes import *
 from Event_Functions import EventFunctions
 
 class SettingsGUI(QMainWindow,EventFunctions):

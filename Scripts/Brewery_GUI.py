@@ -210,7 +210,7 @@ class Temperature():
             print('no actors attached to {} - check your connections tab'.format(self.name))
         headers = ['Time']
         headers += actor
-        # print(self.parameters.databases['temperature'])
+        print('size is {}'.format(self.parameters.databases['temperature'].size))
         liveTempSeries = self.parameters.databases['temperature'].loc[:,headers]
         return [liveTempSeries]
    

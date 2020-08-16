@@ -5,9 +5,9 @@ from PyQt5.QtCore import (Qt, pyqtSignal)
 from matplotlib.backends.backend_qt5agg import FigureCanvas
 from matplotlib.figure import Figure
 import pandas as pd
-
+from Database import databaseManager
 from Widget_Styles import *
-from Brewery_Parameters import colourPick
+
 
 class PlotWindow(QDialog):
     def __init__(self, parent=None):
@@ -31,13 +31,8 @@ class PlotWindow(QDialog):
     def plot(self):
         self.canvas = FigureCanvas(Figure(figsize=(10, 6)))
         self.ax = self.canvas.figure.subplots()
-        self.count = 0
-        self.updateDataFrame()
-
-
         self.plotFormat()
         self.layout = QVBoxLayout()
-##        layout.addWidget(self.toolbar)
         self.layout.addWidget(self.canvas)
         self.addCheckBoxes()
         self.setLayout(self.layout)
@@ -45,7 +40,7 @@ class PlotWindow(QDialog):
         self.canvas.draw()
 
     def updatePlot(self):
-        self.updateDataFrame()
+        self.refreshDatabase()
 #        print(self.df)
         colour = self.parameters.plotColours
         self.ax.clear()
@@ -54,11 +49,11 @@ class PlotWindow(QDialog):
             if label:
                 labelList.append(label)
             else:
-                labelList.append(self.df_columns[count+1])
+                labelList.append(self.headers[count+1])
         # this plots our series from the dataframe
-        for count, col in enumerate(self.df_columns[1:]):
+        for count, col in enumerate(self.headers[1:]):
             if col in self.plotSeries:
-                self.ax.plot(self.df_columns[0], col, data=self.df, label=labelList[count], color=colour[count])
+                self.ax.plot(self.headers[0], col, data=self.data, label=labelList[count], color=colour[count])
         self.plotFormat()
         self.canvas.draw()
 
@@ -83,54 +78,38 @@ class PlotWindow(QDialog):
         self.updatePlot()
 
 
-class ProbeData:
-    def updateDataFrame(self):       
-        try:
-            self.df = pd.read_csv(self.fp)
-            self.parameters.databases['temperature'] = self.df
-            self.df_columns = list(self.df)
-            self.df_lastRow = self.df.iloc[[-1]]
-        except: pass
-
-##class PHProbe:
-##    def __init__(self):
-##        #do some stuff
-##
-##class SpecificGravityProbe:
-##    def __init__(self):
-##        #do some stuff
-##
-##class DissolvedOxygenProbe:
-##    def __init__(self):
-##        #do some stuff
-##
-##class ElectricalConductivityProbe:
-##    def __init__(self):
-##        #do some stuff
+# class ProbeData:
+#     def refreshDatabase(self):       
+#         self.data = pd.read_csv(self.fp)
+#         print ('datafdrame is {}'.format(self.data.loc[:,['1','2']]))
+#         self.parameters.database['temperature'] = self.data
+#         self.headers = list(self.data)
+#         self.lastRow = self.data.iloc[[-1]]
 
 
 
-class TempProbe(ProbeData,PlotWindow):
-    def __init__(self,parameters):
-        super(TempProbe, self).__init__()
-        self.parameters = parameters
-        if self.parameters.test:
-            self.name = 'Temperatures'
-        self.fp = self.parameters.tempDatabaseFP 
-        # self.count = 0
-        self.plotSeries = ['Time'] + self.parameters.actors['actors']
+# class TempProbe(ProbeData,PlotWindow):
+#     def __init__(self,parameters):
+#         super(TempProbe, self).__init__()
+#         self.parameters = parameters
+#         if self.parameters.test:
+#             self.name = 'Temperatures'
+#         self.fp = self.parameters.tempDatabaseFP 
+#         # self.count = 0
+#         self.plotSeries = ['Time'] + self.parameters.actors['actors']
 
-    def plotFormat(self):
-        colour = self.parameters.colour
-        self.ax.legend(loc='upper left')
-        self.ax.set_xlabel('Time', color=colourPick(colour,'dark'),fontweight='bold')
-        self.ax.set_ylabel('Temp (°{})'.format(self.parameters.units('temperature')), color=colourPick(colour,'dark'),fontweight='bold')
-        self.ax.set_title(label = 'Temperature probes', color=colourPick(colour,'dark'),fontweight='bold')
-        self.ax.set_facecolor(colourPick(colour,'dark'))
-        self.canvas.figure.patch.set_facecolor(colourPick(colour,'light'))
-        self.ax.tick_params(color=colourPick(colour,'dark'))
-        # self.canvas.rc('grid', linestyle="-", color=colourPick(colour,'light'))
-        self.ax.grid(b=True, which='major', color=colourPick(colour,'light'), linestyle='-')
+#     def plotFormat(self):
+#         colour = self.parameters.colour
+#         self.ax.legend(loc='upper left')
+#         self.ax.set_xlabel('Time', color=colourPick(colour,'dark'),fontweight='bold')
+#         self.ax.set_ylabel('Temp (°{})'.format(self.parameters.units('temperature')), color=colourPick(colour,'dark'),fontweight='bold')
+#         self.ax.set_title(label = 'Temperature probes', color=colourPick(colour,'dark'),fontweight='bold')
+#         self.ax.set_facecolor(colourPick(colour,'dark'))
+#         self.canvas.figure.patch.set_facecolor(colourPick(colour,'light'))
+#         self.ax.tick_params(color=colourPick(colour,'dark'))
+#         # self.canvas.rc('grid', linestyle="-", color=colourPick(colour,'light'))
+#         self.ax.grid(b=True, which='major', color=colourPick(colour,'light'), linestyle='-')
+
 
 
 if __name__ == '__main__':
