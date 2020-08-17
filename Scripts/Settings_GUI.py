@@ -18,9 +18,8 @@ from Event_Functions import EventFunctions
 class SettingsGUI(QMainWindow,EventFunctions):
     def __init__(self,parameters):
         print('initiating connections GUI')
-        EventFunctions.__init__(self,parameters)
-        QMainWindow.__init__(self,parameters=None)
-        self.parameters=parameters
+        super().__init__()
+        self.parameters = parameters
         # eF = EventFunctions(self.parameters)
         #Settings
         #Give user the option to set connections for relays

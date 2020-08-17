@@ -25,13 +25,13 @@ class BreweryGUI(QMainWindow):
     def __init__(self,parameters):
         print('initiating brewery GUI')
         super().__init__()
-        self.parameters=parameters
+        self.parameters = parameters
         # self.parameters.colour = 'blue'
         # self.setDockOptions(self.parameters._DOCK_OPTS)
         VLayoutP = QVBoxLayout()       
         for key, value in self.parameters.hardware.items():
             self.parameters.brewGUI[key] = {}
-            self.parameters.brewGUI[key]['object'] = Hardware(self.parameters,key)
+            self.parameters.brewGUI[key]['object'] = Hardware(key,self.parameters)
 
             #create a dockable widget which will contain child widgets only if at least one value
             if any(value):
@@ -62,9 +62,11 @@ class BreweryGUI(QMainWindow):
     #adding the temperature funcitonality
     #multiple probes connected to one hardware item - use min, max or average of readings
 class Temperature():
-    def __init__(self, parameters):
-        self.parameters = parameters
-        self.hwTemp = ''
+    def __init__(self):
+        #the temperature of the actor(s) connected to the hardware
+        self.temp = ''
+        #if more than one probe connected to the actor, specifies the methodology for taking the reading (min, max, default is average)
+        self.tempCalc = 'average'
 
     #update the set of hardware with temperature properties
     def __updateTempHardware(self):
@@ -74,7 +76,7 @@ class Temperature():
             self.parameters.tempHardware = set()
         self.parameters.tempHardware.add(self.name)
 
-    #get the temperature of the hardware
+    #get the temperature of the hardware by going to the select actor and 
     def getTemp(self):
         if self.actorList:
             indices = [self.parameters.actors['actors'].index(b) for b in self.actorList]
@@ -82,14 +84,14 @@ class Temperature():
             print('temps for {} is {}'.format(self.name,temps))
             self.tempCalc = 'max'
             if self.tempCalc == 'max':
-                self.hwTemp = max(temps)
-                print(self.hwTemp)
+                self.temp = max(temps)
+                print(self.temp)
             elif self.tempCalc == 'min':
-                self.hwTemp = min(temps)
+                self.temp = min(temps)
             else:
-                self.hwTemp = average(temps)
+                self.temp = average(temps)
         else:
-            self.hwTemp = ''
+            self.temp = ''
 
     # add a simple temp widget to the GUI            
     def addSimpleTemp(self,dock):
@@ -111,7 +113,7 @@ class Temperature():
         try:
             tgtTemp = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemp']['widget'].text())
             tempTol = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTempTol']['widget'].text())
-            currentTemp = float(self.hwTemp)
+            currentTemp = float(self.temp)
             pinStatus = all([self.parameters.activePins[a[0]] for a in self.pinList])
             if currentTemp < tgtTemp - tempTol:
                 self.hwStatus['TempTgt']=True
@@ -493,10 +495,11 @@ class Temperature():
         elif a == 'plotLiveTemp':
             self.plotLiveTemp = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['plotLiveTemp'].isChecked()
         if self.plotLiveTemp:
-            self.updateFunctions.add(self.valueChange())
+            self.updateFunctions.add(self.valueChange)
+            # print('updated funcitons {}'.format(self.updateFunctions))
         else:
             try:
-                self.updateFunctions.remove(self.valueChange())
+                self.updateFunctions.remove(self.valueChange)
             except KeyError: pass
             except:
                 print("Unexpected error:", sys.exc_info()[0])
@@ -517,9 +520,8 @@ class Temperature():
 
 
 class Relay(EventFunctions):
-    def __init__(self, parameters):
-        EventFunctions.__init__(self,parameters)
-        self.parameters = parameters
+    def __init__(self):
+        super().__init__()
 
     def __updateRelayHardware(self):
         try:
@@ -580,9 +582,9 @@ class Relay(EventFunctions):
 #a super class that will inherit all properties of probes and relays
 #need to define what functions get updated by timer
 class Hardware(Temperature,Relay):
-    def __init__(self,parameters,name):
-        Temperature.__init__(self,parameters)
-        Relay.__init__(self,parameters)
+    def __init__(self,name,parameters):
+        super().__init__()
+        self.parameters = parameters
         self.name = name
         #list of actors connected to hw
         self.actorList = []
@@ -597,9 +599,9 @@ class Hardware(Temperature,Relay):
     #function to update the temp label associated with the hardware class
     def updateTempLabel(self):
         self.getTemp()
-        if self.hwTemp:
+        if self.temp:
             text = self.parameters.brewGUI[self.name]['tempGroupBox']['QLabelCurrentTemp']['widget'].text()
-            text = text[:text.find('-->')+4]+'{}'.format(round(self.hwTemp,1))
+            text = text[:text.find('-->')+4]+'{}'.format(round(self.temp,1))
             self.parameters.brewGUI[self.name]['tempGroupBox']['QLabelCurrentTemp']['widget'].setText(text)
         else:
             text = 'Current temperature --> no reading'

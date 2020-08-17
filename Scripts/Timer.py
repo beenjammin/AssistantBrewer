@@ -15,7 +15,7 @@ from Event_Functions import EventFunctions
 class MyTimer(EventFunctions):
     def __init__(self,parameters,plot):
         print('timer started')
-        EventFunctions.__init__(self,parameters)
+        super().__init__()
         self.parameters = parameters
         self.plot = plot
         self.database = csvFunctions(self.parameters)
@@ -33,11 +33,10 @@ class MyTimer(EventFunctions):
         self.database.readLastRow()
         self.plot.updatePlot()
         self.updateReadings()
-        # print ('dictionary is {}'.format(self.parameters.hardware))
         for key in self.parameters.hardware:
             for function in self.parameters.brewGUI[key]['object'].updateFunctions:
-                print('running function')
-                function #runs function that have been appended to the update set
+                print('running function {}'.format(function))
+                function() #runs function that have been appended to the update set
 
 #        self.paramaters.settingsGUI['object'].clickedUpdateReadings()
         

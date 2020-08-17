@@ -11,10 +11,8 @@ except:
 
 class EventFunctions():
 	"""A class which contains the function handling for the GUI EventFunctions"""
-	def __init__(self, parameters):
-		#huh - do i need this?
-		super(EventFunctions, self).__init__()
-		self.parameters = parameters
+	def __init__(self):pass
+
 		
 
 	def checkPinStatus(self,pins):
