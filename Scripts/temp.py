@@ -1,55 +1,49 @@
-import matplotlib.pyplot as plt
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication
+from PyQt5.QtGui import QPalette, QColor
 
-times = [0,15,30,45,60]
-temps = [65,55,60,75,20]
+class Window(QWidget):
 
-holdTemps = False
-warmUp = False
-tempTolerance = 5
+    def __init__(self):
+        super().__init__()
+        self.flag = False
 
-tl = []
-tl2 = []
+        self.button = QPushButton('change the colors of the buttons', self)
+        self.button.clicked.connect(self.click)
+        lay = QVBoxLayout(self)
+        lay.addWidget(self.button)
 
-for count, time in enumerate(times):
-	#if both values are present
-	if str(times[count]).isnumeric() and  str(temps[count]).isnumeric():     
-		tl.append(times[count])
-		tl2.append(temps[count])
-print (tl)
-print (tl2)
+        stylesheet = """
+                    QPushButton {background-color:  %s;
+                                border: 5px solid black;
+                                border-radius: 4px; color : %s}"""%('red','white')
+        self.button.setStyleSheet(stylesheet)
 
 
-if holdTemps:
-    plotTime = [tl[0]]
-    plotTemp = [tl2[0]]
-    for count in range(len(tl)):
-    	#check to make sure it is not the first indice
-    	if count is not 0:
-    		#append a value just before
-    		plotTime += [tl[count]-0.01,tl[count]]
-    		plotTemp += [tl2[count-1],tl2[count]]
-else:
-    plotTime = tl
-    plotTemp = tl2
+    def click(self):
+        print("click")
+        if not self.flag:
+            stylesheet = """
+                    QPushButton {background-color:  %s;
+                                border: 1px solid black;
+                                border-radius: 4px; color : %s}"""%('red','white')
+            self.button.setStyleSheet(stylesheet)
 
-try:
-	tempToPlot = [[a - tempTolerance for a in plotTemp],[a + tempTolerance for a in plotTemp]]
-except TypeError:
-	tempToPlot = None
-except:
-	print("Unexpected error:", sys.exc_info()[0])
-	raise
-	
-print (plotTime)
-print (plotTemp)
-print (tempToPlot)
+        else:
+            stylesheet = """
+                        QPushButton {background-color:  %s;
+                                    border: 1px solid black;
+                                    border-radius: 4px; color : %s}"""%('green','red')
+            self.button.setStyleSheet(stylesheet)
 
-fig, ax = plt.subplots(1)
-ax.plot(plotTime, plotTemp, lw=2, label='Temperature Target', color='blue')
-ax.fill_between(plotTime, tempToPlot[0], tempToPlot[1], facecolor='blue', alpha=0.25,
-                label='Tolerance')
-ax.set_xlabel('Time')
-ax.set_ylabel('Temp (°C)')
-ax.grid()
-ax.legend(loc='upper left')
-plt.show()
+        self.flag = not self.flag
+
+
+if __name__ == '__main__':
+    import sys
+    app = QApplication([])
+
+    app.setStyle('Fusion')                              # <-----
+
+    w = Window()
+    w.show()
+    sys.exit(app.exec_())

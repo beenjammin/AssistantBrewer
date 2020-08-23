@@ -15,6 +15,7 @@ import json, ast
 from Brewery_Parameters import Parameters
 from Brewery_GUI import BreweryGUI
 from Settings_GUI import SettingsGUI
+from Connections_GUI import ConnectionsGUI
 from Probes import TempProbe
 from Database import csvFunctions
 from Timer import MyTimer
@@ -90,13 +91,20 @@ class mainGUI():
         vlayout.addWidget(docks) 
         brewDay = QWidget()
         brewDay.setLayout(vlayout)
+        self.parameters.mainWindows['BreweryGUI'] = docks
         
         setting = SettingsGUI(self.parameters)
         vlayout = QVBoxLayout()
         vlayout.addWidget(setting) 
         settingW = QWidget()
         settingW.setLayout(vlayout)
-        
+
+        connection = ConnectionsGUI(self.parameters)
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(connection) 
+        connectionW = QWidget()
+        connectionW.setLayout(vlayout)
+
         tempPlot =  TempProbe(self.parameters)
         tempPlot.plot()
         vlayout = QVBoxLayout()
@@ -112,7 +120,9 @@ class mainGUI():
         w.addTab(QWidget(),QIcon(self.parameters.imageFP+"/mash.png"), "The Mash")
         w.addTab(QWidget(),QIcon(self.parameters.imageFP+"/hops.png"), "The Boil")
         w.addTab(plotW,QIcon(self.parameters.imageFP+"/plot.png"), "Plots")        
-        w.addTab(settingW,QIcon(self.parameters.imageFP+"/connection.png"), "Connections")
+        w.addTab(connectionW,QIcon(self.parameters.imageFP+"/connection.png"), "Connections")
+        w.addTab(settingW,QIcon(self.parameters.imageFP+"/settings.png"), "Settings")
+        w.addTab(QWidget(),QIcon(self.parameters.imageFP+"/calculator.png"), "Tools and calcs")
         print(self.parameters.imageFP+"/connection.png")
         w.setWindowTitle("Assistant to the Regional Brewer")
         w.resize(1200, 800)

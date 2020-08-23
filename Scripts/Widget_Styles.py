@@ -2,9 +2,48 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from Brewery_Parameters import *
+from Brewery_Parameters import colourPick, Parameters
 
-       
+
+def getWidgetStylesheet(self, colour='grey'):
+    stylesheet = """ 
+                QLabel {color : %s;
+                        background: %s}"""%('white',colourPick(colour,'medium'))+"""       
+                QDockWidget>QWidget{background:%s}"""%(colourPick(colour,'dark'))+"""
+                    QDockWidget>QTabBar::tab:selected {background: %s;color: red}"""%(colourPick(colour,'medium'))+"""
+                    QDockWidget::tab {background: %s;color: red}"""%(colourPick(colour,'dark'))+""" 
+                QGroupBox {border: 1px solid black;
+                            border-radius: 9px;
+                            margin-top: .5em;
+                            margin-bottom: .0em;
+                            margin-left: .25em;
+                            margin-right: .25em;
+                            padding: 1px 1px 1px 1px}
+                QGroupBox::title {subcontrol-origin: margin;
+                                    left: 10px;
+                                    color: black;
+                                    padding: 0 3px 0 3px;}
+                QLabel {color : %s}"""%('white')+"""
+                QPushButton {background-color:  %s; 
+                            border: 1px solid black;
+                            border-radius: 4px; color : %s}"""%(colourPick(colour,'light'),'black')+"""
+                QPushButton:checked {background-color: %s; 
+                                    border: 1px solid black;
+                                    border-radius: 4px;color: %s}"""%(colourPick(colour,'medium'),colourPick(colour,'light'))+"""   
+                QLineEdit {background-color:  %s;
+                            border: 1px solid black; 
+                            color: %s}"""%(colourPick(colour,'light'),colourPick(colour,'dark'))+"""
+                QComboBox {background-color:  %s;
+                            border: 1px solid black; 
+                            color: black}"""%(colourPick(colour,'light'))+"""
+                QSpinBox {background-color:  %s;
+                            border: 1px solid black; 
+                            color: %s}"""%(colourPick(colour,'light'),colourPick(colour,'dark'))+"""
+                QCheckBox {background-color:  %s; 
+                            color: black}"""%(colourPick(colour,'light'))      
+    
+    return stylesheet                                                            
+
 
 class dockable(QDockWidget):
     def __init__(self, *args, **kwargs):

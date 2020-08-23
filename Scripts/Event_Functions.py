@@ -61,7 +61,7 @@ class EventFunctions():
 			else:
 				text = str(self.parameters.actors['readings'][self.parameters.actors['actors'].index(actor)])
 			try:
-				self.parameters.settingsGUI['actorReadingDict'][actor]['QLabelReading']['widget'].setText(text)
+				self.parameters.connectionsGUI['actorReadingDict'][actor]['QLabelReading']['widget'].setText(text)
 			except KeyError:pass
 			except:
 				print("Unexpected error:", sys.exc_info()[0])

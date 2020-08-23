@@ -60,7 +60,9 @@ class Parameters():
             self.actors = {'actors':getActors(),'readings':[]}
         self.actors['hw'] = [None]*len(self.actors['readings'])
         
+        self.mainWindows = {}
         self.brewGUI = {}
+        self.connectionsGUI = {}
         self.settingsGUI = {}
         self.plotGUI = {}
 
@@ -73,6 +75,7 @@ class Parameters():
         
         self.tempDatabaseFP = ''
         self.units('temperature')
+        self.colours = ['green','blue','orange','yellow','grey']
         self.plotColours = ['blue','green','red','cyan','magenta','yellow','black']
 
     def units(self,variable):
