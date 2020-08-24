@@ -119,6 +119,7 @@ class mainGUI():
         w.addTab(theCrush,QIcon(self.parameters.imageFP+"/crush.png"), "The Crush")
         w.addTab(QWidget(),QIcon(self.parameters.imageFP+"/mash.png"), "The Mash")
         w.addTab(QWidget(),QIcon(self.parameters.imageFP+"/hops.png"), "The Boil")
+        w.addTab(QWidget(),QIcon(self.parameters.imageFP+"/froth.png"), "The Froth")
         w.addTab(plotW,QIcon(self.parameters.imageFP+"/plot.png"), "Plots")        
         w.addTab(connectionW,QIcon(self.parameters.imageFP+"/connection.png"), "Connections")
         w.addTab(settingW,QIcon(self.parameters.imageFP+"/settings.png"), "Settings")

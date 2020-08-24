@@ -96,7 +96,7 @@ class Hardware(TemperatureWidgets,RelayWidgets):
     #function to set status of pins
     def setPinStatus(self):
         for pin in self.pinList:
-            self.parameters.activePins[pin][0] = self.status
+            self.parameters.relayPins[pin][0] = self.status
 
 
 

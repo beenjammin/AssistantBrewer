@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jul 28 20:57:29 2020
-
-@author: pi
-"""
-
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -18,7 +10,7 @@ class MyTimer(EventFunctions):
         super().__init__()
         self.parameters = parameters
         self.plot = plot
-        self.database = csvFunctions(self.parameters)
+        # self.database = csvFunctions(self.parameters)
         
     def startTimer(self):   
         self.timer = QTimer()
@@ -27,10 +19,7 @@ class MyTimer(EventFunctions):
         self.timer.start()
     
     def runFunctions(self):
-        #this whole function can in a process
-#        if not self.parameters.test:
-#            self.parameters.actors['readings'] = [actor_read_raw(a+'/w1_slave') for a in self.parameters.actors['actors']]
-        self.database.readLastRow()
+        # self.database.readLastRow()
         self.plot.updatePlot()
         self.updateReadings()
         for key in self.parameters.hardware:

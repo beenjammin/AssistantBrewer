@@ -19,13 +19,13 @@ class EventFunctions():
 		"""takes a list of pins and checks their status and status of parent HW switching on and off as required"""
 		for pin in pins: #self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['value']:
 			#check to see if the pin value is true and it has hardware assigned
-			hw = self.parameters.activePins[pin][1]
+			hw = self.parameters.relayPins[pin][1]
 			#update the status of the hardware - pin may not need switching on
 			try:
 				self.parameters.brewGUI[hw]['object'].updateStatus()
 			except:
 				print('no hardware is associated with pin {}, try the connections tab'.format(pin))
-			switch = self.parameters.activePins[pin][0]
+			switch = self.parameters.relayPins[pin][0]
 			if hw in self.parameters.hwList:
 				self.relay(pin,switch,hw)
 	   
@@ -41,13 +41,13 @@ class EventFunctions():
 		if switch:
 			#check for other dependencies and only switch on if these are also true
 			print('switching on relay connected to pin {}'.format(pin))
-			self.parameters.activePins[pin]=True
+			self.parameters.relayPins[pin]=True
 			text = text.replace(str(pin),'<a style="color:red;"><strong>{}</strong></a>'.format(pin))
 			if not self.parameters.test:
 				GPIO.output(RELAIS_1_GPIO, GPIO.LOW) # turn on
 		else:
 			print('switching off relay connected to pin {}'.format(pin))
-			self.parameters.activePins[pin]=False
+			self.parameters.relayPins[pin]=False
 			text = text.replace('<a style="color:red;"><strong>'+str(pin)+'</strong></a>','{}'.format(pin))
 			if not self.parameters.test:
 				GPIO.output(RELAIS_1_GPIO, GPIO.HIGH) # turn on
@@ -55,11 +55,11 @@ class EventFunctions():
 
 	#update raw temp readings on the connections tab
 	def updateReadings(self):
-		for actor in self.parameters.actors['actors']:
-			if not self.parameters.actors['readings']:
+		for actor in self.parameters.probes['temperature']['probes']:
+			if not self.parameters.probes['temperature']['readings']:
 				text = 'none'
 			else:
-				text = str(self.parameters.actors['readings'][self.parameters.actors['actors'].index(actor)])
+				text = str(self.parameters.probes['temperature']['readings'][self.parameters.probes['temperature']['probes'].index(actor)])
 			try:
 				self.parameters.connectionsGUI['actorReadingDict'][actor]['QLabelReading']['widget'].setText(text)
 			except KeyError:pass

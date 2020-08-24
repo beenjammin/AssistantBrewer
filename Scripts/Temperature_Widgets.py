@@ -26,8 +26,8 @@ class TemperatureWidgets():
     #get the temperature of the hardware by going to the select actor and 
     def getTemp(self):
         if self.actorList:
-            indices = [self.parameters.actors['actors'].index(b) for b in self.actorList]
-            temps = [float(self.parameters.actors['readings'][b]) for b in indices]
+            indices = [self.parameters.probes['temperature']['probes'].index(b) for b in self.actorList]
+            temps = [float(self.parameters.probes['temperature']['readings'][b]) for b in indices]
             print('temps for {} is {}'.format(self.name,temps))
             self.tempCalc = 'max'
             if self.tempCalc == 'max':
@@ -104,7 +104,7 @@ class TemperatureWidgets():
             tgtTemp = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemp']['widget'].text())
             tempTol = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTempTol']['widget'].text())
             currentTemp = float(self.temp)
-            pinStatus = all([self.parameters.activePins[a[0]] for a in self.pinList])
+            pinStatus = all([self.parameters.relayPins[a[0]] for a in self.pinList])
             if currentTemp < tgtTemp - tempTol:
                 self.hwStatus['TempTgt']=True
             elif currentTemp < tgtTemp and pinStatus:

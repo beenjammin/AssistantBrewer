@@ -32,7 +32,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
         self.bodyFont.setPointSize(10)
 
         self.parameters.connectionsGUI['relayDict'] = {}
-        for relay in self.parameters.activePins:
+        for relay in self.parameters.relayPins:
             HLayout = QHBoxLayout()
             relayLabel = bodyLabel()
             relayLabel.setText('Select control for pin {}'.format(relay))
@@ -53,7 +53,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
         VLayout = QVBoxLayout()
         Actors = groupBox("Actors")
         self.parameters.connectionsGUI['actorDict'] = {}
-        for actor in self.parameters.actors['actors']:
+        for actor in self.parameters.probes['temperature']['probes']:
             HLayout = QHBoxLayout()
             hwLabel = bodyLabel()
             hwLabel.setText('Select hardware for the {} actor'.format(actor))
@@ -82,7 +82,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
         
         #load the raw output of each actor
         self.parameters.connectionsGUI['actorReadingDict'] = {}
-        for count, actor in enumerate(self.parameters.actors['actors']):
+        for count, actor in enumerate(self.parameters.probes['temperature']['probes']):
             HLayout = QHBoxLayout()  
             actorLabel = bodyLabel()
             actorLabel.setText(actor)   
@@ -137,7 +137,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
             #update the dictionary, adding the selected combobox value for the pin
             value['QCBRelay']['value'] = hw
             #going to try and add the associate the pin with the hardware
-            self.parameters.activePins[pin][1] = hw
+            self.parameters.relayPins[pin][1] = hw
             try:
                 #check if hw is in the list, if not, display default text
                 if hw in list(self.parameters.hardware):
@@ -160,7 +160,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
         #runs on actor combobox change event - update associated actors
         print(cb.currentText())
         #reset text labels and actor dictionary
-        self.parameters.actors['hw'] = [None]*len(self.parameters.actors['readings'])
+        self.parameters.probes['temperature']['hw'] = [None]*len(self.parameters.probes['temperature']['readings'])
         for key, value in self.parameters.brewGUI.items():
             # print('key is {}'.format(key))
             # print('value is {}'.format(value))
@@ -180,7 +180,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
             hw = cb.currentText()
             #update the dictionary, adding the selected combobox value for the pin
             value['QCBActor']['value'] = hw
-            self.parameters.actors['hw'][self.parameters.actors['actors'].index(actor)] = hw
+            self.parameters.probes['temperature']['hw'][self.parameters.probes['temperature']['probes'].index(actor)] = hw
             try:
                 self.parameters.brewGUI[hw]['object'].actorList.append(actor)
                 self.parameters.brewGUI[hw]['object'].updateTempLabel()

@@ -9,8 +9,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import os
 from pathlib import Path
+from datetime import date
 
-from Actor_Classes import getActors
+from probeTypes.DS18B20 import getActors
 
 class Parameters():
     def __init__(self):
@@ -19,7 +20,7 @@ class Parameters():
 
     def initialise(self):
         #{pin:last state, Parent} The pin state is boolean and each pin can only have one parent which is the hardware
-        self.activePins = {17:[False,None],22:[False,None],23:[False,None],27:[False,None]}
+        self.relayPins = {17:[False,None],22:[False,None],23:[False,None],27:[False,None]}
         #For relays, we have three types [heat,cool,binary]
         #Add hardware to dictionary to populate GUI {hardware:SimpleTemp,TempTgt,TempTimer,Relays}
         self.hardware = {   
@@ -32,34 +33,50 @@ class Parameters():
         
         
         #go into test mode if we cannot find any actors
-        try:
-            if getActors():
-#                print('found {} actors'.format(len(getActors())))
-                self.test = False
-            else:
-                self.test = True
-        except:
-            self.test = True
-        print('Assitant to the brewer is running in {} mode'.format(['live','test'][self.test]))
+#         try:
+#             if getActors():
+# #                print('found {} actors'.format(len(getActors())))
+#                 self.test = False
+#             else:
+        self.test = True
+        # except:
+        #     self.test = True
+        # print('Assitant to the brewer is running in {} mode'.format(['live','test'][self.test]))
              
         #add path locations
         self.cwd = Path.cwd()
         self.imageFP = str(self.cwd/'Images')
+        name = 'brew_'+str(date.today()).replace('-','_')
+        self.brewDayFP = str(Path(self.cwd).parents[0]/'brewDay'/name)
+        #if folder does not already exist for todays brew then create it
+        Path(self.brewDayFP).mkdir(parents=True, exist_ok=True)
         # self.database = str(self.cwd/'BrewDay')
 
         self.hwList = list(self.hardware)
         self.tempHardware = set()
         self.relayHardware = set()
+
         #store the databases as a dictionary here
         self.database = {}
         self.database['Type'] = {'fp':'filepath','data':'entire databse as pandas dataframe','lr':'last row of databse'}
-        
-        if self.test:
-            self.actors = {'actors':['1','2','3'],'readings':[10,25,30]}
-        else:
-            self.actors = {'actors':getActors(),'readings':[]}
-        self.actors['hw'] = [None]*len(self.actors['readings'])
-        
+       
+        self.probes = {}
+        #probe dictionary,pobeType: {probe name, last reading, hardware attached to, protocol}       
+        self.probes['temperature']= {   'fp':'somefp',
+                                        'databaseClass':object,
+                                        'probes':[],
+                                        'readings':[],
+                                        'hw':[],
+                                        'protocol':[]}
+
+        self.probes['ph'] = {           'fp':'somefp',
+                                        'databaseClass':object,
+                                        'probes':[],
+                                        'readings':[],
+                                        'hw':[],
+                                        'protocol':[]}
+
+        #initialise GUI dicts        
         self.mainWindows = {}
         self.brewGUI = {}
         self.connectionsGUI = {}
@@ -74,6 +91,7 @@ class Parameters():
 #        print(self.cwd)
         
         self.tempDatabaseFP = ''
+
         self.units('temperature')
         self.colours = ['green','blue','orange','yellow','grey']
         self.plotColours = ['blue','green','red','cyan','magenta','yellow','black']

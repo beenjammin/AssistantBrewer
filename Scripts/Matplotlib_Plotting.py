@@ -40,12 +40,12 @@ class PlotWindow(QDialog):
         self.canvas.draw()
 
     def updatePlot(self):
-        self.refreshDatabase()
+        self.updateDatabase()
 #        print(self.df)
         colour = self.parameters.plotColours
         self.ax.clear()
         labelList = []
-        for count, label in enumerate(self.parameters.actors['hw']):
+        for count, label in enumerate(self.parameters.probes['temperature']['hw']):
             if label:
                 labelList.append(label)
             else:
@@ -60,7 +60,7 @@ class PlotWindow(QDialog):
     def addCheckBoxes(self):
         self.parameters.plotGUI['checkBoxes']={}
         hlayout = QHBoxLayout()
-        for actor in self.parameters.actors['actors']:
+        for actor in self.parameters.probes['temperature']['probes']:
             cb = bodyCheckBox(actor[-8:])
             cb.setChecked(True)
             cb.stateChanged.connect(lambda:self.btnState())
@@ -70,45 +70,13 @@ class PlotWindow(QDialog):
         
     def btnState(self):
         self.plotSeries=['Time']
-        for actor in self.parameters.actors['actors']:
+        for actor in self.parameters.probes['temperature']['probes']:
             state = self.parameters.plotGUI['checkBoxes'][actor]['widget'].isChecked()
             self.parameters.plotGUI['checkBoxes'][actor]['state'] = state
             if state:
                 self.plotSeries.append(actor)
         self.updatePlot()
 
-
-# class ProbeData:
-#     def refreshDatabase(self):       
-#         self.data = pd.read_csv(self.fp)
-#         print ('datafdrame is {}'.format(self.data.loc[:,['1','2']]))
-#         self.parameters.database['temperature'] = self.data
-#         self.headers = list(self.data)
-#         self.lastRow = self.data.iloc[[-1]]
-
-
-
-# class TempProbe(ProbeData,PlotWindow):
-#     def __init__(self,parameters):
-#         super(TempProbe, self).__init__()
-#         self.parameters = parameters
-#         if self.parameters.test:
-#             self.name = 'Temperatures'
-#         self.fp = self.parameters.tempDatabaseFP 
-#         # self.count = 0
-#         self.plotSeries = ['Time'] + self.parameters.actors['actors']
-
-#     def plotFormat(self):
-#         colour = self.parameters.colour
-#         self.ax.legend(loc='upper left')
-#         self.ax.set_xlabel('Time', color=colourPick(colour,'dark'),fontweight='bold')
-#         self.ax.set_ylabel('Temp (°{})'.format(self.parameters.units('temperature')), color=colourPick(colour,'dark'),fontweight='bold')
-#         self.ax.set_title(label = 'Temperature probes', color=colourPick(colour,'dark'),fontweight='bold')
-#         self.ax.set_facecolor(colourPick(colour,'dark'))
-#         self.canvas.figure.patch.set_facecolor(colourPick(colour,'light'))
-#         self.ax.tick_params(color=colourPick(colour,'dark'))
-#         # self.canvas.rc('grid', linestyle="-", color=colourPick(colour,'light'))
-#         self.ax.grid(b=True, which='major', color=colourPick(colour,'light'), linestyle='-')
 
 
 

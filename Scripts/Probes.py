@@ -10,8 +10,8 @@ class TempProbe(databaseManager,PlotWindow):
     def __init__(self,parameters):
         super().__init__()
         self.parameters = parameters
-        self.fp = self.parameters.tempDatabaseFP 
-        self.plotSeries = ['Time'] + self.parameters.actors['actors']
+        self.fp = self.parameters.probes['temperature']['fp']
+        self.plotSeries = ['Time'] + self.parameters.probes['temperature']['probes']
 
 
     def plotFormat(self):

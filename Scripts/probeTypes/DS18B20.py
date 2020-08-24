@@ -6,13 +6,16 @@ from datetime import date
 
 #function to return actors as a list
 def getActors():
-    os.system('modprobe w1-gpio')
-    os.system('modprobe w1-therm')
-    home = '/home/pi/temperature_sensor'
-    base_dir = '/sys/bus/w1/devices/'
-    #Returns a list of all connected devices
-    devices = [f.path for f in os.scandir(base_dir) if f.is_dir()]
-    tempDevices = [x for x in devices if not 'master' in x]
+    try:
+        os.system('modprobe w1-gpio')
+        os.system('modprobe w1-therm')
+        home = '/home/pi/temperature_sensor'
+        base_dir = '/sys/bus/w1/devices/'
+        #Returns a list of all connected devices
+        devices = [f.path for f in os.scandir(base_dir) if f.is_dir()]
+        tempDevices = [x for x in devices if not 'master' in x]
+    except:
+        tempDevices = []
     return tempDevices
 
 #function to return the temperature of a given actor
@@ -35,7 +38,8 @@ def actor_read_raw(device_file):
         return temp_c
 
     
-#takes a device as 
+#takes a device as file path and returns the reading
+#not used at the moment
 class ReadDevice():
     def __init__(self,device_file):
         self.device_file = device_file
