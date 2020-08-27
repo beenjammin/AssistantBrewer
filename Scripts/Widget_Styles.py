@@ -47,7 +47,7 @@ def getWidgetStylesheet(self, colour='grey'):
 
 class dockable(QDockWidget):
     def __init__(self, *args, **kwargs):
-        QDockWidget.__init__(self, *args, **kwargs)
+        super().__init__()
         self.colour = Parameters().colour
 
         self.sub = QMainWindow()
@@ -91,7 +91,7 @@ class dockable(QDockWidget):
 
 class groupBox(QGroupBox):
     def __init__(self, *args, **kwargs):
-        QGroupBox.__init__(self, *args, **kwargs)
+        super().__init__()
 
         #Styling
         self.colour = Parameters().colour
@@ -130,7 +130,7 @@ class bodyLabel(QLabel):
 
 class bodyButton(QPushButton):
     def __init__(self, *args, **kwargs):
-        QPushButton.__init__(self, *args, **kwargs)
+        super().__init__()
 
         #Styling
         self.colour = Parameters().colour
@@ -149,7 +149,7 @@ class bodyButton(QPushButton):
 
 class bodyLineEdit(QLineEdit):
     def __init__(self, *args, **kwargs):
-        QLineEdit.__init__(self, *args, **kwargs)
+        super().__init__()
         
         #Styling
         self.colour = Parameters().colour
@@ -164,12 +164,23 @@ class bodyLineEdit(QLineEdit):
 
 
 class bodyComboBox(QComboBox):
+    new_signal = pyqtSignal(str, str, str, str)
+
     def __init__(self, *args, **kwargs):
-        QComboBox.__init__(self, *args, **kwargs)
-        
+        super().__init__()
+        # QComboBox.__init__(self, *args, **kwargs)
+        self.actor = None
+        self.probe = None
+        self.__dict__.update(kwargs)
+        self.lastSelected = ""
+        self.activated[str].connect(self.onActivated)        
         #Styling
         self.colour = Parameters().colour
         self.applyStyle(self.colour)
+
+    def onActivated(self, text):
+        self.new_signal.emit(self.lastSelected, text, self.actor, self.probe)
+        self.lastSelected = text
 
     def applyStyle(self,colour):
         stylesheet = """ 
@@ -181,7 +192,7 @@ class bodyComboBox(QComboBox):
 
 class bodySpinBox(QSpinBox):
     def __init__(self, *args, **kwargs):
-        QSpinBox.__init__(self, *args, **kwargs)
+        super().__init__()
         
         #Styling
         self.colour = Parameters().colour

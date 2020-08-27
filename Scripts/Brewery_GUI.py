@@ -68,7 +68,7 @@ class Hardware(TemperatureWidgets,RelayWidgets):
         self.parameters = parameters
         self.name = name
         #list of actors connected to hw
-        self.actorList = []
+        self.actorList = {a:[] for a in self.parameters.probes.keys()}
         #list of pins connected to hw
         self.pinList = []
         #staus of hw controls (boolean)

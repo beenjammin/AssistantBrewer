@@ -25,8 +25,8 @@ class TemperatureWidgets():
 
     #get the temperature of the hardware by going to the select actor and 
     def getTemp(self):
-        if self.actorList:
-            indices = [self.parameters.probes['temperature']['probes'].index(b) for b in self.actorList]
+        if self.actorList['temperature']:
+            indices = [self.parameters.probes['temperature']['actors'].index(b) for b in self.actorList['temperature']]
             temps = [float(self.parameters.probes['temperature']['readings'][b]) for b in indices]
             print('temps for {} is {}'.format(self.name,temps))
             self.tempCalc = 'max'
@@ -153,7 +153,7 @@ class TemperatureWidgets():
         #function to define what happens when there is a value change
         s1, s2 = self.updateTgtTempSeries()
         if self.plotLiveTemp:
-            s3 = self.updateTempReadingSeries(self.actorList)
+            s3 = self.updateTempReadingSeries(self.actorList['temperature'])
         else:
             s3 = None
         self.updatePlot(s1, s2, s3)

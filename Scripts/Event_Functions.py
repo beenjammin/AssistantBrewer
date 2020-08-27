@@ -55,17 +55,18 @@ class EventFunctions():
 
 	#update raw temp readings on the connections tab
 	def updateReadings(self):
-		for actor in self.parameters.probes['temperature']['probes']:
-			if not self.parameters.probes['temperature']['readings']:
-				text = 'none'
-			else:
-				text = str(self.parameters.probes['temperature']['readings'][self.parameters.probes['temperature']['probes'].index(actor)])
-			try:
-				self.parameters.connectionsGUI['actorReadingDict'][actor]['QLabelReading']['widget'].setText(text)
-			except KeyError:pass
-			except:
-				print("Unexpected error:", sys.exc_info()[0])
-				raise
-		for hw in self.parameters.tempHardware:
-			self.parameters.brewGUI[hw]['object'].updateTempLabel()
+		for probe in self.parameters.probes.keys():
+			for actor in self.parameters.probes[probe]['actors']:
+				if not self.parameters.probes[probe]['readings']:
+					text = 'none'
+				else:
+					text = str(self.parameters.probes[probe]['readings'][self.parameters.probes[probe]['actors'].index(actor)])
+				try:
+					self.parameters.connectionsGUI['actorReadingDict'][actor]['QLabelReading']['widget'].setText(text)
+				except KeyError:pass
+				except:
+					print("Unexpected error:", sys.exc_info()[0])
+					raise
+			for hw in self.parameters.tempHardware:
+				self.parameters.brewGUI[hw]['object'].updateTempLabel()
 

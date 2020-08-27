@@ -20,6 +20,7 @@ class Parameters():
 
     def initialise(self):
         #{pin:last state, Parent} The pin state is boolean and each pin can only have one parent which is the hardware
+        # Each pin should have its own class
         self.relayPins = {17:[False,None],22:[False,None],23:[False,None],27:[False,None]}
         #For relays, we have three types [heat,cool,binary]
         #Add hardware to dictionary to populate GUI {hardware:SimpleTemp,TempTgt,TempTimer,Relays}
@@ -62,10 +63,10 @@ class Parameters():
        
         self.probes = {}
         #change to actors (rather than probes)
-        #probe dictionary,pobeType: {probe name, last reading, hardware attached to, protocol}       
+        #probe dictionary,pobeType: {probe name, last reading, hardware attached to NOT USED!!, protocol}       
         self.probes['temperature']= {   'fp':'somefp',
                                         'databaseClass':object,
-                                        'probes':[],
+                                        'actors':[],
                                         'readings':[],
                                         'hw':[],
                                         'protocol':[],
@@ -76,7 +77,7 @@ class Parameters():
 
         self.probes['ph'] = {           'fp':'somefp',
                                         'databaseClass':object,
-                                        'probes':[],
+                                        'actors':[],
                                         'readings':[],
                                         'hw':[],
                                         'protocol':[],
@@ -84,7 +85,8 @@ class Parameters():
                                                         'yLabel': 'PH'
                                                         }
                                         }
-
+        #a list of all actors
+        self.allActors = []
         #initialise GUI dicts        
         self.mainWindows = {}
         self.brewGUI = {}

@@ -27,7 +27,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
         VLayout = QVBoxLayout()       
         relays = groupBox("Relays")
         self.headerFont = QFont()
-        self.headerFont.setPointSize(14) 
+        self.headerFont.setPointSize(11) 
         self.bodyFont = QFont()
         self.bodyFont.setPointSize(10)
 
@@ -39,8 +39,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
             cb = bodyComboBox()
             cb.addItems(['None']+list(self.parameters.relayHardware))
             self.parameters.connectionsGUI ['relayDict'][relay]={  'QLabelRelay':{'widget':relayLabel},
-                                                                'QCBRelay':{'widget':cb,'value':None}}
-            
+                                                                'QCBRelay':{'widget':cb,'value':None}}         
             cb.activated.connect(lambda:self.updatePins())
             HLayout.addWidget(relayLabel)
             HLayout.addWidget(cb)
@@ -53,18 +52,20 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
         VLayout = QVBoxLayout()
         Actors = groupBox("Actors")
         self.parameters.connectionsGUI['actorDict'] = {}
-        for actor in self.parameters.probes['temperature']['probes']:
-            HLayout = QHBoxLayout()
-            hwLabel = bodyLabel()
-            hwLabel.setText('Select hardware for the {} actor'.format(actor))
-            cb = bodyComboBox()
-            cb.addItems(['None']+list(self.parameters.tempHardware))
-            cb.activated.connect(lambda ignore, a=cb:self.updateActors(a))
-            HLayout.addWidget(hwLabel)
-            HLayout.addWidget(cb)
-            VLayout.addLayout(HLayout)
-            self.parameters.connectionsGUI['actorDict'][actor]={    'QLabelActor':{'widget':hwLabel},
-                                                                'QCBActor':{'widget':cb,'value':None}}
+        for probe in self.parameters.probes.keys():
+            for actor in self.parameters.probes[probe]['actors']:
+                HLayout = QHBoxLayout()
+                hwLabel = bodyLabel()
+                hwLabel.setText('Select hardware for the {} actor'.format(actor))
+                cb = bodyComboBox(actor=actor,probe=probe)
+                cb.addItems(['None']+list(self.parameters.tempHardware))
+                cb.new_signal.connect(self.updateActors)
+                # cb.new_signal.connect(lambda ignore, a=cb, b=actor:self.updateActors(a,actor))
+                HLayout.addWidget(hwLabel)
+                HLayout.addWidget(cb)
+                VLayout.addLayout(HLayout)
+                self.parameters.connectionsGUI['actorDict'][actor]={    'QLabelActor':{'widget':hwLabel},
+                                                                    'QCBActor':{'widget':cb,'value':None}}
 
         # self.parameters.connectionsGUI = {'relayDict':relayDict,'actorDict':actorDict}
         
@@ -82,7 +83,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
         
         #load the raw output of each actor
         self.parameters.connectionsGUI['actorReadingDict'] = {}
-        for count, actor in enumerate(self.parameters.probes['temperature']['probes']):
+        for count, actor in enumerate(self.parameters.allActors):
             HLayout = QHBoxLayout()  
             actorLabel = bodyLabel()
             actorLabel.setText(actor)   
@@ -153,47 +154,59 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
                     self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].setText(text)                       
             except:
                 print("Unexpected error:", sys.exc_info()[0])
-                raise     
+                raise
         
 
-    def updateActors(self,cb):
-        #runs on actor combobox change event - update associated actors
-        print(cb.currentText())
-        #reset text labels and actor dictionary
-        self.parameters.probes['temperature']['hw'] = [None]*len(self.parameters.probes['temperature']['readings'])
-        for key, value in self.parameters.brewGUI.items():
-            # print('key is {}'.format(key))
-            # print('value is {}'.format(value))
-            try:
-                value['tempGroupBox']
-                text = 'Current temperature --> no reading'
-                self.parameters.brewGUI[key]['object'].actorList=[]
-                self.parameters.brewGUI[key]['tempGroupBox']['QLabelCurrentTemp']['widget'].setText(text)
-            except:pass
-        #loop through cbs and get parameters
-        for key, value in self.parameters.connectionsGUI['actorDict'].items():
-            #set the relay pin
-            actor = key
-            #set the combobox in the GUI associated with the pin
-            cb = value['QCBActor']['widget']
-            #get the combox value
-            hw = cb.currentText()
-            #update the dictionary, adding the selected combobox value for the pin
-            value['QCBActor']['value'] = hw
-            self.parameters.probes['temperature']['hw'][self.parameters.probes['temperature']['probes'].index(actor)] = hw
-            try:
-                self.parameters.brewGUI[hw]['object'].actorList.append(actor)
-                self.parameters.brewGUI[hw]['object'].updateTempLabel()
-            except KeyError: pass
-            except:
-                print("Unexpected error:", sys.exc_info()[0])
-                raise 
-            try:
-                self.parameters.plotGUI['checkBoxes'][actor]['widget'].setText(hw)
-                self.parameters.plotGUI['checkBoxes'][actor]['hw']=hw
-            except:
-                print("Unexpected error:", sys.exc_info()[0])
-                raise 
+    def updateActors(self,lastitem, newitem, actor, probe):
+        #runs on actor combobox change event - update associated actors, think this can be rewritten to only update relevent info
+        # print('last item is {} and this item is {} and name is {}'.format(lastitem, newitem, actor))
+        
+        #update plotGUI widgets
+        if self.parameters.plotGUI['checkBoxes'][actor]['widget']: self.parameters.plotGUI['checkBoxes'][actor]['widget'].setText(newitem) 
+        self.parameters.plotGUI['checkBoxes'][actor]['hw']=newitem
+
+        #update brewGUI widgets NEED TO MODEIFY THE updateTempLabel
+        self.parameters.brewGUI[newitem]['object'].actorList[probe].append(actor)
+        self.parameters.brewGUI[newitem]['object'].updateTempLabel()
+        if lastitem:
+            self.parameters.brewGUI[lastitem]['object'].actorList[probe].remove(actor)
+            self.parameters.brewGUI[lastitem]['object'].updateTempLabel()
+
+        # self.parameters.probes['temperature']['hw'][self.parameters.probes['temperature']['actors'].index(actor)] = hw
+        # self.parameters.probes['temperature']['hw'] = [None]*len(self.parameters.probes['temperature']['readings'])
+        # for key, value in self.parameters.brewGUI.items():
+        #     # print('key is {}'.format(key))
+        #     # print('value is {}'.format(value))
+        #     try:
+        #         value['tempGroupBox']
+        #         text = 'Current temperature --> no reading'
+        #         self.parameters.brewGUI[key]['object'].actorList['temperature']=[]
+        #         self.parameters.brewGUI[key]['tempGroupBox']['QLabelCurrentTemp']['widget'].setText(text)
+        #     except:pass
+        # #loop through cbs and get parameters
+        # for key, value in self.parameters.connectionsGUI['actorDict'].items():
+        #     #set the relay pin
+        #     actor = key
+        #     #set the combobox in the GUI associated with the pin
+        #     cb = value['QCBActor']['widget']
+        #     #get the combox value
+        #     hw = cb.currentText()
+        #     #update the dictionary, adding the selected combobox value for the pin
+        #     value['QCBActor']['value'] = hw
+        #     self.parameters.probes['temperature']['hw'][self.parameters.probes['temperature']['actors'].index(actor)] = hw
+        #     try:
+        #         self.parameters.brewGUI[hw]['object'].actorList['temperature'].append(actor)
+        #         self.parameters.brewGUI[hw]['object'].updateTempLabel()
+        #     except KeyError: pass
+        #     except:
+        #         print("Unexpected error:", sys.exc_info()[0])
+        #         raise 
+        #     try:
+        #         self.parameters.plotGUI['checkBoxes'][actor]['widget'].setText(hw)
+        #         self.parameters.plotGUI['checkBoxes'][actor]['hw']=hw
+        #     except:
+        #         print("Unexpected error:", sys.exc_info()[0])
+        #         raise 
 
         
 def main():

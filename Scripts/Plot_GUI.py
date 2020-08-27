@@ -33,8 +33,10 @@ class PlotWindow(QDialog):
         self.plotSeries = []
         #layout for the checkboxes
         self.cbLayout = QHBoxLayout()
-        #set the dictionary for checkboxes
+        #set the dictionary for checkboxes and initialise
         self.parameters.plotGUI['checkBoxes']={}
+        for actor in self.parameters.allActors:
+            self.parameters.plotGUI['checkBoxes'][actor]={'hw':None,'widget':None,'state':True}
 
     def closeEvent(self, evnt):
         if self._want_to_close:
@@ -168,7 +170,7 @@ class PlotWindow(QDialog):
         for axis, probe in zip([self.ax1, self.ax2],[self.primaryAxis,self.secondaryAxis]):
             if probe:
                 #adding checkboxes, one for each series
-                 self.addCheckBoxes(probe, self.parameters.probes[probe]['probes'])
+                 self.addCheckBoxes(probe, self.parameters.probes[probe]['actors'])
         self.updatePlot()
         #some funciton to update checkboxes
 
@@ -180,14 +182,13 @@ class PlotWindow(QDialog):
         self.cbLayout.addWidget(lbl)
         for actor in probeList:
             #try and set the check box to the last known state, if no info, set to true
-            try:
-                currentState = self.parameters.plotGUI['checkBoxes'][actor]['state']
-                label = self.parameters.plotGUI['checkBoxes'][actor]['hw']         
-            except KeyError:
+            label = self.parameters.plotGUI['checkBoxes'][actor]['hw']
+            if label:
+                currentState = self.parameters.plotGUI['checkBoxes'][actor]['state']      
+            else:
                 currentState = True
                 label = actor
-            except:
-                print("Unexpected error:", sys.exc_info()[0])
+
             cb = bodyCheckBox(label)
             cb.setChecked(currentState)
             cb.stateChanged.connect(lambda ignore, a=actor:self.btnState(a))

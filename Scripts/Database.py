@@ -20,7 +20,7 @@ class DatabaseFunctions():
         self.parameters = parameters
         self.parameters.brewDayFP
         self.probe = probe
-        self.header = ['Time']+self.parameters.probes[probe]['probes']
+        self.header = ['Time']+self.parameters.probes[probe]['actors']
         self.startTime = time.time()
     
     def updateDatabase(self):

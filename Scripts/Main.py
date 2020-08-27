@@ -41,7 +41,7 @@ class intialiseBrewery():
                         if protocol == 'test':
                             readings += [random.randint(30,55)]
                         elif protocol == 'DS18B20':
-                            readings += [actor_read_raw(self.parameters.probes[probe]['probes'][count]+'/w1_slave')]
+                            readings += [actor_read_raw(self.parameters.probes['probe']['actors'][count]+'/w1_slave')]
                         elif protocol == 'I2C':
                             print("don't have I2C functionality yet")
                         else:
