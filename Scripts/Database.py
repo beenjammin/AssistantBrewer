@@ -14,30 +14,37 @@ class databaseManager():
         self.lastRow = self.data.iloc[[-1]]
 
 
-class csvFunctions():
+class DatabaseFunctions():
     def __init__(self,parameters,probe):
         today = date.today()
         self.parameters = parameters
         self.parameters.brewDayFP
-        self.name = probe
+        self.probe = probe
         self.header = ['Time']+self.parameters.probes[probe]['probes']
         self.startTime = time.time()
+    
+    def updateDatabase(self):
+        self.data = pd.read_csv(self.fp)
+        # print ('datafdrame is {}'.format(self.data.loc[:,['1','2']]))
+        #maybe can get rid of this and access via self.data
+        self.parameters.database[self.probe] = self.data
+        self.headers = list(self.data)
+        self.lastRow = self.data.iloc[[-1]]
 
     def createFile(self):      
         i = 0
-        while os.path.exists(self.parameters.brewDayFP+'/'+self.name+'%s.csv' % i):
+        while os.path.exists(self.parameters.brewDayFP+'/'+self.probe+'%s.csv' % i):
             i += 1
-        self.csv_fp = self.parameters.brewDayFP+'/'+self.name+'_%s.csv' % i
-        self.parameters.probes[self.name]['fp'] = self.csv_fp
-        f = open(self.csv_fp, "w")
+        self.fp = self.parameters.brewDayFP+'/'+self.probe+'_%s.csv' % i
+        self.parameters.probes[self.probe]['fp'] = self.fp
+        f = open(self.fp, "w")
         with f:
             writer = csv.writer(f)
             writer.writerow(self.header)
         f.close()
-        print('created new file --> {}'.format(self.csv_fp))
-        self.appendRow(self.parameters.probes[self.name]['readings'])
-        self.appendRow(self.parameters.probes[self.name]['readings'])
-
+        print('created new file --> {}'.format(self.fp))
+        self.appendRow(self.parameters.probes[self.probe]['readings'])
+        self.appendRow(self.parameters.probes[self.probe]['readings'])
     
     def import_csv(self,csvfilename):
         data = []
@@ -49,12 +56,11 @@ class csvFunctions():
                     columns = row
                     data.append(columns)
         return data
-         
-        
+                
     def appendRow(self,write_data):
-        #add the latest readings to the dictionary
-        self.parameters.probes[self.name]['readings'] = write_data
-        f = open(self.csv_fp, "a",newline='')
+        #add the latest readings to the csv file
+        self.parameters.probes[self.probe]['readings'] = write_data
+        f = open(self.fp, "a",newline='')
         print('writing data --> {}'.format(write_data))
         timeElapsed = time.time()-self.startTime
         write_data = [timeElapsed]+write_data

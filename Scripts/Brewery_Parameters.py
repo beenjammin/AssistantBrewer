@@ -56,25 +56,34 @@ class Parameters():
         self.tempHardware = set()
         self.relayHardware = set()
 
-        #store the databases as a dictionary here
+        #store the databases as a dictionary here - probs get rid of this and assign it to the database class
         self.database = {}
         self.database['Type'] = {'fp':'filepath','data':'entire databse as pandas dataframe','lr':'last row of databse'}
        
         self.probes = {}
+        #change to actors (rather than probes)
         #probe dictionary,pobeType: {probe name, last reading, hardware attached to, protocol}       
         self.probes['temperature']= {   'fp':'somefp',
                                         'databaseClass':object,
                                         'probes':[],
                                         'readings':[],
                                         'hw':[],
-                                        'protocol':[]}
+                                        'protocol':[],
+                                        'plotLabels':{  'title': 'Temperature',
+                                                        'yLabel': 'Temp (°{})'.format(self.units('temperature'))
+                                                        }
+                                        }
 
         self.probes['ph'] = {           'fp':'somefp',
                                         'databaseClass':object,
                                         'probes':[],
                                         'readings':[],
                                         'hw':[],
-                                        'protocol':[]}
+                                        'protocol':[],
+                                        'plotLabels':{  'title': 'PH',
+                                                        'yLabel': 'PH'
+                                                        }
+                                        }
 
         #initialise GUI dicts        
         self.mainWindows = {}

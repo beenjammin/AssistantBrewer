@@ -1,5 +1,5 @@
 from probeTypes.DS18B20 import getActors
-from Database import csvFunctions
+from Database import DatabaseFunctions
 
 class Probe_Initialise():
     """check for probe types that exist and assign functionality for that probe"""
@@ -20,7 +20,7 @@ class Probe_Initialise():
         #initialising databases
         for probe in self.parameters.probes.keys():
             print('initialising database for {}'.format(probe))
-            self.parameters.probes[probe]['databaseClass'] = csvFunctions(self.parameters,probe)
+            self.parameters.probes[probe]['databaseClass'] = DatabaseFunctions(self.parameters,probe)
             self.parameters.probes[probe]['databaseClass'].createFile()
 
     def atlasProbes(self):
@@ -46,7 +46,7 @@ class Probe_Initialise():
         #test to see if there are any probes and add some sample data if not
         if not self.parameters.probes['temperature']['probes']:
             print('no temp probes, generating sample data for temp probes')
-            self.parameters.probes['temperature']['probes']     = ['1','2','3']
+            self.parameters.probes['temperature']['probes']     = ['T1','T2','T3']
             self.parameters.probes['temperature']['readings']   = [10,25,30]
             self.parameters.probes['temperature']['hw']         = [None,None,None]
             self.parameters.probes['temperature']['protocol']   =  ['test','test','test']
@@ -54,7 +54,7 @@ class Probe_Initialise():
         #test to see if there are any probes and add some sample data if not
         if not self.parameters.probes['ph']['probes']:  
             print('no ph probes, generating sample data for ph probes')                                         
-            self.parameters.probes['ph']['probes']     = ['1','2']
+            self.parameters.probes['ph']['probes']     = ['ph1','ph2']
             self.parameters.probes['ph']['readings']   = [5,6,]
             self.parameters.probes['ph']['hw']         = [None,None]
             self.parameters.probes['ph']['protocol']   =  ['test','test']

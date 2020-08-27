@@ -23,7 +23,9 @@ class BreweryGUI(QMainWindow):
         self.parameters = parameters
         # self.parameters.colour = 'blue'
         # self.setDockOptions(self.parameters._DOCK_OPTS)
-        VLayoutP = QVBoxLayout()       
+        VLayoutP = QVBoxLayout()#Delete?
+
+        #loop over hardware and set up based on booleans in list
         for key, value in self.parameters.hardware.items():
             self.parameters.brewGUI[key] = {}
             self.parameters.brewGUI[key]['object'] = Hardware(key,self.parameters)
@@ -34,7 +36,7 @@ class BreweryGUI(QMainWindow):
                 self.parameters.brewGUI[key]['dockwidget']=[self.dock]
 
             #check if we are adding simple temperature functionality to the hardware
-            if value['widgets'][0]:
+            if value['widgets'][0]: 
                 self.parameters.brewGUI[key]['object'].addSimpleTemp(self.dock)
 
             #check if we are adding target temperature functionality to the hardware
@@ -48,7 +50,7 @@ class BreweryGUI(QMainWindow):
             #check if we are adding relay functionality to the hardware
             if value['widgets'][3]:
                 self.parameters.brewGUI[key]['object'].addRelay(self.dock)
-
+            #add and set the widget
             self.dock.setCentralWidget()
             self.addDockWidget(Qt.RightDockWidgetArea,self.dock)
         # print (self.parameters.brewGUI)

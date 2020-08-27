@@ -2,7 +2,7 @@ from Vertical_Tabs import mainGUI
 from Brewery_Parameters import Parameters
 from probeTypes.DS18B20 import actor_read_raw
 from probeTypes.Probes_Init import Probe_Initialise
-from Database import csvFunctions
+from Database import DatabaseFunctions
 from time import sleep
 import random
 from threading import Thread
@@ -14,7 +14,7 @@ class intialiseBrewery():
         print('initialising brewery')
         self.parameters = parameters
         a = Probe_Initialise(self.parameters)
-        # self.dataWrite = csvFunctions(self.parameters)
+        # self.dataWrite = DatabaseFunctions(self.parameters)
         # self.dataWrite.createFile()
 
         print('starting another process')

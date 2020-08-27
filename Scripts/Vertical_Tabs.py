@@ -16,8 +16,8 @@ from Brewery_Parameters import Parameters
 from Brewery_GUI import BreweryGUI
 from Settings_GUI import SettingsGUI
 from Connections_GUI import ConnectionsGUI
-from Probes import TempProbe
-from Database import csvFunctions
+from Plot_GUI import PlotGUI
+from Database import DatabaseFunctions
 from Timer import MyTimer
 
 class TabBar(QTabBar):
@@ -105,8 +105,8 @@ class mainGUI():
         connectionW = QWidget()
         connectionW.setLayout(vlayout)
 
-        tempPlot =  TempProbe(self.parameters)
-        tempPlot.plot()
+        tempPlot =  PlotGUI(self.parameters)
+        tempPlot.plotDialog.plot()
         vlayout = QVBoxLayout()
         vlayout.addWidget(tempPlot)
         plotW = QWidget()

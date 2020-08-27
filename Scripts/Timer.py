@@ -1,7 +1,7 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from Database import csvFunctions
+from Database import DatabaseFunctions
 from Event_Functions import EventFunctions
 
 class MyTimer(EventFunctions):
@@ -10,7 +10,7 @@ class MyTimer(EventFunctions):
         super().__init__()
         self.parameters = parameters
         self.plot = plot
-        # self.database = csvFunctions(self.parameters)
+        # self.database = DatabaseFunctions(self.parameters)
         
     def startTimer(self):   
         self.timer = QTimer()
@@ -20,7 +20,7 @@ class MyTimer(EventFunctions):
     
     def runFunctions(self):
         # self.database.readLastRow()
-        self.plot.updatePlot()
+        self.plot.plotDialog.updatePlot()
         self.updateReadings()
         for key in self.parameters.hardware:
             for function in self.parameters.brewGUI[key]['object'].updateFunctions:
