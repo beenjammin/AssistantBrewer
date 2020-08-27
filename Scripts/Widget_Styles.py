@@ -2,13 +2,52 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from Brewery_Parameters import *
+from Brewery_Parameters import colourPick, Parameters
 
-       
+
+def getWidgetStylesheet(self, colour='grey'):
+    stylesheet = """ 
+                QLabel {color : %s;
+                        background: %s}"""%('white',colourPick(colour,'medium'))+"""       
+                QDockWidget>QWidget{background:%s}"""%(colourPick(colour,'dark'))+"""
+                    QDockWidget>QTabBar::tab:selected {background: %s;color: red}"""%(colourPick(colour,'medium'))+"""
+                    QDockWidget::tab {background: %s;color: red}"""%(colourPick(colour,'dark'))+""" 
+                QGroupBox {border: 1px solid black;
+                            border-radius: 9px;
+                            margin-top: .5em;
+                            margin-bottom: .0em;
+                            margin-left: .25em;
+                            margin-right: .25em;
+                            padding: 1px 1px 1px 1px}
+                QGroupBox::title {subcontrol-origin: margin;
+                                    left: 10px;
+                                    color: black;
+                                    padding: 0 3px 0 3px;}
+                QLabel {color : %s}"""%('white')+"""
+                QPushButton {background-color:  %s; 
+                            border: 1px solid black;
+                            border-radius: 4px; color : %s}"""%(colourPick(colour,'light'),'black')+"""
+                QPushButton:checked {background-color: %s; 
+                                    border: 1px solid black;
+                                    border-radius: 4px;color: %s}"""%(colourPick(colour,'medium'),colourPick(colour,'light'))+"""   
+                QLineEdit {background-color:  %s;
+                            border: 1px solid black; 
+                            color: %s}"""%(colourPick(colour,'light'),colourPick(colour,'dark'))+"""
+                QComboBox {background-color:  %s;
+                            border: 1px solid black; 
+                            color: black}"""%(colourPick(colour,'light'))+"""
+                QSpinBox {background-color:  %s;
+                            border: 1px solid black; 
+                            color: %s}"""%(colourPick(colour,'light'),colourPick(colour,'dark'))+"""
+                QCheckBox {background-color:  %s; 
+                            color: black}"""%(colourPick(colour,'light'))      
+    
+    return stylesheet                                                            
+
 
 class dockable(QDockWidget):
     def __init__(self, *args, **kwargs):
-        QDockWidget.__init__(self, *args, **kwargs)
+        super().__init__()
         self.colour = Parameters().colour
 
         self.sub = QMainWindow()
@@ -52,7 +91,7 @@ class dockable(QDockWidget):
 
 class groupBox(QGroupBox):
     def __init__(self, *args, **kwargs):
-        QGroupBox.__init__(self, *args, **kwargs)
+        super().__init__()
 
         #Styling
         self.colour = Parameters().colour
@@ -91,7 +130,7 @@ class bodyLabel(QLabel):
 
 class bodyButton(QPushButton):
     def __init__(self, *args, **kwargs):
-        QPushButton.__init__(self, *args, **kwargs)
+        super().__init__()
 
         #Styling
         self.colour = Parameters().colour
@@ -110,7 +149,7 @@ class bodyButton(QPushButton):
 
 class bodyLineEdit(QLineEdit):
     def __init__(self, *args, **kwargs):
-        QLineEdit.__init__(self, *args, **kwargs)
+        super().__init__()
         
         #Styling
         self.colour = Parameters().colour
@@ -125,12 +164,23 @@ class bodyLineEdit(QLineEdit):
 
 
 class bodyComboBox(QComboBox):
+    new_signal = pyqtSignal(str, str, str, str)
+
     def __init__(self, *args, **kwargs):
-        QComboBox.__init__(self, *args, **kwargs)
-        
+        super().__init__()
+        # QComboBox.__init__(self, *args, **kwargs)
+        self.actor = None
+        self.probe = None
+        self.__dict__.update(kwargs)
+        self.lastSelected = ""
+        self.activated[str].connect(self.onActivated)        
         #Styling
         self.colour = Parameters().colour
         self.applyStyle(self.colour)
+
+    def onActivated(self, text):
+        self.new_signal.emit(self.lastSelected, text, self.actor, self.probe)
+        self.lastSelected = text
 
     def applyStyle(self,colour):
         stylesheet = """ 
@@ -138,6 +188,25 @@ class bodyComboBox(QComboBox):
                                 border: 1px solid black; 
                                 color: black}"""%(colourPick(colour,'light'))          
         self.setStyleSheet(stylesheet)
+
+
+class bodySpinBox(QSpinBox):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        
+        #Styling
+        self.colour = Parameters().colour
+        self.setMinimum(0)
+        self.setMaximum(86400)
+        self.applyStyle(self.colour)
+
+    def applyStyle(self,colour):
+        stylesheet = """ 
+                    QSpinBox {background-color:  %s;
+                                border: 1px solid black; 
+                                color: %s}"""%(colourPick(colour,'light'),colourPick(self.colour,'dark'))             
+        self.setStyleSheet(stylesheet)
+
 
 class bodyCheckBox(QCheckBox):
     def __init__(self, *args, **kwargs):

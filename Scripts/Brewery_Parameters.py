@@ -8,8 +8,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import os
+from pathlib import Path
+from datetime import date
 
-from Actor_Classes import getActors
+from probeTypes.DS18B20 import getActors
 
 class Parameters():
     def __init__(self):
@@ -18,12 +20,13 @@ class Parameters():
 
     def initialise(self):
         #{pin:last state, Parent} The pin state is boolean and each pin can only have one parent which is the hardware
-        self.activePins = {17:[False,None],22:[False,None],23:[False,None],27:[False,None]}
+        # Each pin should have its own class
+        self.relayPins = {17:[False,None],22:[False,None],23:[False,None],27:[False,None]}
         #For relays, we have three types [heat,cool,binary]
         #Add hardware to dictionary to populate GUI {hardware:SimpleTemp,TempTgt,TempTimer,Relays}
         self.hardware = {   
                             'HLT':{'widgets':[False,True,False,True],'relayPins':[],'actors':[]},
-                            'Mash':{'widgets':[False,True,False,True],'relayPins':[],'actors':[]},
+                            'Mash':{'widgets':[False,False,True,True],'relayPins':[],'actors':[]},
                             'Boil':{'widgets':[True,False,False,False],'relayPins':[],'actors':[]},
                             'Pump 1':{'widgets':[False,False,False,True],'relayPins':[],'actors':[]},
                             'Pump 2':{'widgets':[False,False,False,True],'relayPins':[],'actors':[]},
@@ -31,40 +34,63 @@ class Parameters():
         
         
         #go into test mode if we cannot find any actors
-        try:
-            if getActors():
-#                print('found {} actors'.format(len(getActors())))
-                self.test = False
-            else:
-                self.test = True
-        except:
-            self.test = True
-        print('Assitant to the brewer is running in {} mode'.format(['live','test'][self.test]))
+#         try:
+#             if getActors():
+# #                print('found {} actors'.format(len(getActors())))
+#                 self.test = False
+#             else:
+        self.test = True
+        # except:
+        #     self.test = True
+        # print('Assitant to the brewer is running in {} mode'.format(['live','test'][self.test]))
              
-        #Dictionaries for GUI
-        #user inputs as a dictionary{hardware: Status, Target tempature, Temperature tolerance, Actor}
-        # self.userInputs={}
-        #Actor inputs as a dictionary{HLT: Status, Target tempature, Temperature tolerance, Actor}       
-        # self.actorTemps = {}
-        #pins
-        # self.allHardware = {}
-        
-        # for key in self.hardware:
-        #     for hw in self.hardware[key]:
-        #          self.allHardware[hw] = []
-        
-        # self.headerFont = QFont()
-        # self.headerFont.setPointSize(14)     
-        # self.bodyFont = QFont()
-        # self.bodyFont.setPointSize(10)
+        #add path locations
+        self.cwd = Path.cwd()
+        self.imageFP = str(self.cwd/'Images')
+        name = 'brew_'+str(date.today()).replace('-','_')
+        self.brewDayFP = str(Path(self.cwd).parents[0]/'brewDay'/name)
+        #if folder does not already exist for todays brew then create it
+        Path(self.brewDayFP).mkdir(parents=True, exist_ok=True)
+        # self.database = str(self.cwd/'BrewDay')
+
         self.hwList = list(self.hardware)
-        
-        if self.test:
-            self.actors = {'actors':['1','2','3'],'readings':[10,25,30]}
-        else:
-            self.actors = {'actors':getActors(),'readings':[]}
-        
+        self.tempHardware = set()
+        self.relayHardware = set()
+
+        #store the databases as a dictionary here - probs get rid of this and assign it to the database class
+        self.database = {}
+        self.database['Type'] = {'fp':'filepath','data':'entire databse as pandas dataframe','lr':'last row of databse'}
+       
+        self.probes = {}
+        #change to actors (rather than probes)
+        #probe dictionary,pobeType: {probe name, last reading, hardware attached to NOT USED!!, protocol}       
+        self.probes['temperature']= {   'fp':'somefp',
+                                        'databaseClass':object,
+                                        'actors':[],
+                                        'readings':[],
+                                        'hw':[],
+                                        'protocol':[],
+                                        'plotLabels':{  'title': 'Temperature',
+                                                        'yLabel': 'Temp (°{})'.format(self.units('temperature'))
+                                                        }
+                                        }
+
+        self.probes['ph'] = {           'fp':'somefp',
+                                        'databaseClass':object,
+                                        'actors':[],
+                                        'readings':[],
+                                        'hw':[],
+                                        'protocol':[],
+                                        'plotLabels':{  'title': 'PH',
+                                                        'yLabel': 'PH'
+                                                        }
+                                        }
+        #a list of all actors
+        self.allActors = []
+        #initialise GUI dicts        
+        self.mainWindows = {}
         self.brewGUI = {}
+        self.connectionsGUI = {}
         self.settingsGUI = {}
         self.plotGUI = {}
 
@@ -76,11 +102,14 @@ class Parameters():
 #        print(self.cwd)
         
         self.tempDatabaseFP = ''
-        self.units()
-        
 
-    def units(self):
-        self.tempUnit = 'C'
+        self.units('temperature')
+        self.colours = ['green','blue','orange','yellow','grey']
+        self.plotColours = ['blue','green','red','cyan','magenta','yellow','black']
+
+    def units(self,variable):
+        if variable == 'temperature':
+            return 'C'
 
 
 def colourPick(colour,shade):

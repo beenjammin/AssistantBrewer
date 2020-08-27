@@ -15,8 +15,9 @@ import json, ast
 from Brewery_Parameters import Parameters
 from Brewery_GUI import BreweryGUI
 from Settings_GUI import SettingsGUI
-from Matplotlib_Plotting import TempProbe
-from Actor_Classes import csvFunctions
+from Connections_GUI import ConnectionsGUI
+from Plot_GUI import PlotGUI
+from Database import DatabaseFunctions
 from Timer import MyTimer
 
 class TabBar(QTabBar):
@@ -74,16 +75,8 @@ class mainGUI():
         app = QApplication(sys.argv)
         QApplication.setStyle(ProxyStyle())
         w = TabWidget()
-#        tempDatabase = csvFunctions(header = self.parameters.actors['actors'],parameters = self.parameters)
-        #Work to do, add a combo box so user can select different plots, maybe put into dockable widgets so the plots can be added and removed as necessary
-        tempPlot =  TempProbe(self.parameters)
-        tempPlot.plot()
-        vlayout = QVBoxLayout()
-        vlayout.addWidget(tempPlot)
-        plotW = QWidget()
-        plotW.setLayout(vlayout)
-        guiTimer = MyTimer(self.parameters,tempPlot)
-        guiTimer.runFunctions()
+
+
         
         label = QLabel('hi')
         label2 = QLabel('so')
@@ -98,23 +91,40 @@ class mainGUI():
         vlayout.addWidget(docks) 
         brewDay = QWidget()
         brewDay.setLayout(vlayout)
+        self.parameters.mainWindows['BreweryGUI'] = docks
         
         setting = SettingsGUI(self.parameters)
         vlayout = QVBoxLayout()
         vlayout.addWidget(setting) 
         settingW = QWidget()
         settingW.setLayout(vlayout)
-        
 
-        w.addTab(brewDay,QIcon("beer.png"), "Brew Day")
-        
+        connection = ConnectionsGUI(self.parameters)
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(connection) 
+        connectionW = QWidget()
+        connectionW.setLayout(vlayout)
+
+        tempPlot =  PlotGUI(self.parameters)
+        tempPlot.plotDialog.plot()
+        vlayout = QVBoxLayout()
+        vlayout.addWidget(tempPlot)
+        plotW = QWidget()
+        plotW.setLayout(vlayout)
+        guiTimer = MyTimer(self.parameters,tempPlot)
+        guiTimer.runFunctions()
+
         w.setIconSize(QSize(40, 40))
-        w.addTab(theCrush,QIcon("crush.png"), "The Crush")
-        w.addTab(QWidget(),QIcon("mash.png"), "The Mash")
-        w.addTab(QWidget(),QIcon("hops.png"), "The Boil")
-        w.addTab(plotW,QIcon("plot.png"), "Plots")        
-        w.addTab(settingW,QIcon("settings.png"), "Settings")
-    #    w.addTab(QWidget(), QIcon("zoom-out.png"), "XYZ")
+        w.addTab(brewDay,QIcon(self.parameters.imageFP+"/beer.png"), "Brew Day")        
+        w.addTab(theCrush,QIcon(self.parameters.imageFP+"/crush.png"), "The Crush")
+        w.addTab(QWidget(),QIcon(self.parameters.imageFP+"/mash.png"), "The Mash")
+        w.addTab(QWidget(),QIcon(self.parameters.imageFP+"/hops.png"), "The Boil")
+        w.addTab(QWidget(),QIcon(self.parameters.imageFP+"/froth.png"), "The Froth")
+        w.addTab(plotW,QIcon(self.parameters.imageFP+"/plot.png"), "Plots")        
+        w.addTab(connectionW,QIcon(self.parameters.imageFP+"/connection.png"), "Connections")
+        w.addTab(settingW,QIcon(self.parameters.imageFP+"/settings.png"), "Settings")
+        w.addTab(QWidget(),QIcon(self.parameters.imageFP+"/calculator.png"), "Tools and calcs")
+        print(self.parameters.imageFP+"/connection.png")
         w.setWindowTitle("Assistant to the Regional Brewer")
         w.resize(1200, 800)
         w.show()
