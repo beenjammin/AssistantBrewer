@@ -49,52 +49,73 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
         
 
         #setting up connections to actors
+#load the actors
         VLayout = QVBoxLayout()
         Actors = groupBox("Actors")
+        HLayout = QHBoxLayout()    
+        actorHeader = bodyLabel()
+        actorHeader.setText('Actor')   
+        actorHeader.setFont(self.headerFont)
+        cbHeader = bodyLabel()
+        cbHeader.setText('Connected hardware')   
+        cbHeader.setFont(self.headerFont)
+        rawOutput = bodyLabel()
+        rawOutput.setText('Raw Reading')   
+        rawOutput.setFont(self.headerFont)
+        HLayout.addWidget(actorHeader)
+        HLayout.addWidget(cbHeader)
+        HLayout.addWidget(rawOutput)
+        VLayout.addLayout(HLayout)
+        
         self.parameters.connectionsGUI['actorDict'] = {}
         for probe in self.parameters.probes.keys():
-            for actor in self.parameters.probes[probe]['actors']:
+            for count, actor in enumerate(self.parameters.probes[probe]['actors']):
+                label = self.parameters.probes[probe]['dispName'][count]
                 HLayout = QHBoxLayout()
                 hwLabel = bodyLabel()
-                hwLabel.setText('Select hardware for the {} actor'.format(actor))
+                hwLabel.setText('Select hardware for the {} actor'.format(label))
+                rawReading = bodyLabel()
+                rawReading.setText('none')
                 cb = bodyComboBox(actor=actor,probe=probe)
                 cb.addItems(['None']+list(self.parameters.tempHardware))
                 cb.new_signal.connect(self.updateActors)
                 # cb.new_signal.connect(lambda ignore, a=cb, b=actor:self.updateActors(a,actor))
                 HLayout.addWidget(hwLabel)
                 HLayout.addWidget(cb)
+                HLayout.addWidget(rawReading)
                 VLayout.addLayout(HLayout)
                 self.parameters.connectionsGUI['actorDict'][actor]={    'QLabelActor':{'widget':hwLabel},
-                                                                    'QCBActor':{'widget':cb,'value':None}}
+                                                                        'QCBActor':{'widget':cb,'value':None},
+                                                                        'QLabelReading':{'widget':rawReading,'value':'none'}}
 
         # self.parameters.connectionsGUI = {'relayDict':relayDict,'actorDict':actorDict}
         
         #load the actors
-        HLayout = QHBoxLayout()    
-        actorHeader = bodyLabel()
-        actorHeader.setText('Actor')   
-        actorHeader.setFont(self.headerFont)
-        rawOutput = bodyLabel()
-        rawOutput.setText('Raw Reading')   
-        rawOutput.setFont(self.headerFont)
-        HLayout.addWidget(actorHeader)
-        HLayout.addWidget(rawOutput)
-        VLayout.addLayout(HLayout)
-        
-        #load the raw output of each actor
-        self.parameters.connectionsGUI['actorReadingDict'] = {}
-        for count, actor in enumerate(self.parameters.allActors):
-            HLayout = QHBoxLayout()  
-            actorLabel = bodyLabel()
-            actorLabel.setText(actor)   
-            rawReading = bodyLabel()
-            rawReading.setText('none')
-            HLayout.addWidget(actorLabel)
-            HLayout.addWidget(rawReading)
-            VLayout.addLayout(HLayout)
-            self.parameters.connectionsGUI['actorReadingDict'][actor]={    'QLabelActor':{'widget':actorLabel},
-                                                                        'QLabelReading':{'widget':rawReading,'value':'none'}
-                                                                        }
+#        HLayout = QHBoxLayout()    
+#        actorHeader = bodyLabel()
+#        actorHeader.setText('Actor')   
+#        actorHeader.setFont(self.headerFont)
+#        rawOutput = bodyLabel()
+#        rawOutput.setText('Raw Reading')   
+#        rawOutput.setFont(self.headerFont)
+#        HLayout.addWidget(actorHeader)
+#        HLayout.addWidget(rawOutput)
+#        VLayout.addLayout(HLayout)
+#        
+#        #load the raw output of each actor
+#        self.parameters.connectionsGUI['actorReadingDict'] = {}
+#        for count, actor in enumerate(self.parameters.allActors):
+#            HLayout = QHBoxLayout()  
+#            actorLabel = bodyLabel()
+#            actorLabel.setText(actor)   
+#            rawReading = bodyLabel()
+#            rawReading.setText('none')
+#            HLayout.addWidget(actorLabel)
+#            HLayout.addWidget(rawReading)
+#            VLayout.addLayout(HLayout)
+#            self.parameters.connectionsGUI['actorReadingDict'][actor]={    'QLabelActor':{'widget':actorLabel},
+#                                                                        'QLabelReading':{'widget':rawReading,'value':'none'}
+#                                                                        }
         self.updateReadings()
            
         Actors.setLayout(VLayout)

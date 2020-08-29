@@ -41,15 +41,16 @@ class intialiseBrewery():
                         if protocol == 'test':
                             readings += [random.randint(30,55)]
                         elif protocol == 'DS18B20':
-                            readings += [actor_read_raw(self.parameters.probes['probe']['actors'][count]+'/w1_slave')]
-                        elif protocol == 'I2C':
-                            print("don't have I2C functionality yet")
+                            readings += [actor_read_raw(self.parameters.probes[probe]['actors'][count]+'/w1_slave')]
+                        elif protocol == 'Atlas_I2C':
+                            print(self.parameters.probes[probe]['probeClass'][count].query("R"))
+                            readings += [self.parameters.probes[probe]['probeClass'][count].query("R").rstrip('\x00')]
                         else:
                             print('unidentified protocol for temp probe in probe dictionary')
                             raise
                     elif probe == 'ph':
-                        if protocol == 'I2C':
-                            print("don't have I2C functionality yet")
+                        if protocol == 'Atlas_I2C':
+                            readings += [self.parameters.probes[probe]['probeClass'][count].query("R").rstrip('\x00')]
                         elif protocol == 'test':
                             readings += [random.randint(5,7)]
                         else:

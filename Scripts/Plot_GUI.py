@@ -187,7 +187,7 @@ class PlotWindow(QDialog):
                 currentState = self.parameters.plotGUI['checkBoxes'][actor]['state']      
             else:
                 currentState = True
-                label = actor
+                label = str(actor)
 
             cb = bodyCheckBox(label)
             cb.setChecked(currentState)

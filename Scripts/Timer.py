@@ -5,7 +5,6 @@ from Database import DatabaseFunctions
 from Event_Functions import EventFunctions
 
 class MyTimer(EventFunctions):
-
     def __init__(self,parameters,plot):
         print('timer started')
         super().__init__()
@@ -14,12 +13,10 @@ class MyTimer(EventFunctions):
         # self.database = DatabaseFunctions(self.parameters)
         
     def startTimer(self):   
-        try:
-            with daemon.DaemonContext():
-                self.timer = QTimer()
-                self.timer.setInterval(5000)
-                self.timer.timeout.connect(self.runFunctions)
-                self.timer.start()
+        self.timer = QTimer()
+        self.timer.setInterval(5000)
+        self.timer.timeout.connect(self.runFunctions)
+        self.timer.start()
     
     def runFunctions(self):
         # self.database.readLastRow()
@@ -31,5 +28,3 @@ class MyTimer(EventFunctions):
                 function() #runs function that have been appended to the update set
 
 #        self.paramaters.settingsGUI['object'].clickedUpdateReadings()
-        
-        

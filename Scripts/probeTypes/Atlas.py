@@ -62,7 +62,7 @@ class atlas_i2c:
             # NOTE: having to change the MSB to 0 is a glitch in the
             # raspberry pi, and you shouldn't have to do this!
             # convert the char list to a string and returns it
-            return "Command succeeded " + ''.join(char_list)
+            return ''.join(char_list)
         else:
             return "Error " + str(response[0])
 

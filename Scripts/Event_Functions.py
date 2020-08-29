@@ -56,13 +56,13 @@ class EventFunctions():
 	#update raw temp readings on the connections tab
 	def updateReadings(self):
 		for probe in self.parameters.probes.keys():
-			for actor in self.parameters.probes[probe]['actors']:
+			for count, actor in enumerate(self.parameters.probes[probe]['actors']):
 				if not self.parameters.probes[probe]['readings']:
 					text = 'none'
 				else:
-					text = str(self.parameters.probes[probe]['readings'][self.parameters.probes[probe]['actors'].index(actor)])
+					text = str(self.parameters.probes[probe]['readings'][count])
 				try:
-					self.parameters.connectionsGUI['actorReadingDict'][actor]['QLabelReading']['widget'].setText(text)
+					self.parameters.connectionsGUI['actorDict'][actor]['QLabelReading']['widget'].setText(text)
 				except KeyError:pass
 				except:
 					print("Unexpected error:", sys.exc_info()[0])

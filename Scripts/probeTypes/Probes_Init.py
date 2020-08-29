@@ -1,4 +1,5 @@
 from probeTypes.DS18B20 import getActors
+from probeTypes.Atlas import atlas_i2c
 from Database import DatabaseFunctions
 
 class Probe_Initialise():
@@ -8,12 +9,14 @@ class Probe_Initialise():
         print('checking for probes attached')
         self.parameters = parameters
 
-        self.atlasProbes()
+        
         self.DS18B20()
+        self.atlasProbes()
 
 
         #this goes last
         self.addTestData()
+        self.finaliseProbes()
         self.initialiseDatabases()
         self.parameters.allActors = []
         for key in self.parameters.probes.keys():
@@ -28,8 +31,20 @@ class Probe_Initialise():
 
     def atlasProbes(self):
         #use the atlas scientific I2C protocol
-        print("Didn't find any atlas probes using the I2C protocol")
-        pass
+        for probe, address in self.parameters.I2C.items():
+            try:
+                actor = atlas_i2c(address=int(address))
+                print(actor.query("R"))
+                self.parameters.probes[probe]['actors'] += [address]
+                #populate field for hardware
+                self.parameters.probes[probe]['hw'] += [None]
+                #add the protocol to the dict
+                self.parameters.probes[probe]['protocol'] += ['Atlas_I2C']
+                self.parameters.probes[probe]['probeClass'] += [actor]
+                print('found a {} probe using the Atlas I2C protocol on I2C address {}'.format(probe, address))
+                self.parameters.test = False
+            except: pass
+        if self.parameters.test: print("Didn't find any atlas probes using the I2C protocol")
 
     def DS18B20(self):
         #use the 1 wire DS18B20 temperature protocol
@@ -38,9 +53,10 @@ class Probe_Initialise():
             self.parameters.probes['temperature']['actors'] += DS18B20_Probes
             print('Found {} temp probes using the DS18B20 protocol'.format(len(DS18B20_Probes)))
             #populate field for hardware
-            self.parameters.probes['temperature']['hw'] = [None]*len(DS18B20_Probes)
+            self.parameters.probes['temperature']['hw'] += [None]*len(DS18B20_Probes)
             #add the protocol to the dict
-            self.parameters.probes['temperature']['protocol'] = ['DS18B20']*len(DS18B20_Probes)
+            self.parameters.probes['temperature']['protocol'] += ['DS18B20']*len(DS18B20_Probes)
+            self.parameters.probes['temperature']['probeClass'] += [None]*len(DS18B20_Probes)
             self.parameters.test = False
         else:
             print("Didn't find any temp probes using the DS18B20 protocol")
@@ -61,3 +77,8 @@ class Probe_Initialise():
             self.parameters.probes['ph']['readings']   = [5,6,]
             self.parameters.probes['ph']['hw']         = [None,None]
             self.parameters.probes['ph']['protocol']   =  ['test','test']
+            
+    def finaliseProbes(self):
+        for probe in self.parameters.probes.keys():
+            self.parameters.probes[probe]['dispName']   = [probe[:4] + a for a in self.parameters.probes[probe]['protocol']]
+                

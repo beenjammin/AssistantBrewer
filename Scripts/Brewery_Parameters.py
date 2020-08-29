@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 from datetime import date
 
-from probeTypes.DS18B20 import getActors
+
 
 class Parameters():
     def __init__(self):
@@ -61,15 +61,20 @@ class Parameters():
         self.database = {}
         self.database['Type'] = {'fp':'filepath','data':'entire databse as pandas dataframe','lr':'last row of databse'}
        
+        #dictionary which determines the address of the I2C sensor (Atlas only at the moment). Name of the keys MUST match the name of the keys in the probes dict
+        self.I2C = {'temperature' : '102', 
+                    'ph' : '99',
+                    }
         self.probes = {}
         #change to actors (rather than probes)
-        #probe dictionary,pobeType: {probe name, last reading, hardware attached to NOT USED!!, protocol}       
+        #initalise probe dictionary,pobeType: {probe name, last reading, hardware attached to NOT USED!!, protocol}       
         self.probes['temperature']= {   'fp':'somefp',
                                         'databaseClass':object,
                                         'actors':[],
                                         'readings':[],
                                         'hw':[],
                                         'protocol':[],
+                                        'probeClass':[],
                                         'plotLabels':{  'title': 'Temperature',
                                                         'yLabel': 'Temp (°{})'.format(self.units('temperature'))
                                                         }
@@ -81,6 +86,7 @@ class Parameters():
                                         'readings':[],
                                         'hw':[],
                                         'protocol':[],
+                                        'probeClass':[],
                                         'plotLabels':{  'title': 'PH',
                                                         'yLabel': 'PH'
                                                         }
