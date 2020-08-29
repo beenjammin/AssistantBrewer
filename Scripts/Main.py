@@ -3,14 +3,17 @@ from Brewery_Parameters import Parameters
 from probeTypes.DS18B20 import actor_read_raw
 from probeTypes.Probes_Init import Probe_Initialise
 from Database import DatabaseFunctions
+from Brewery_Functions import Functions
 from time import sleep
 import random
 from threading import Thread
 
 
 
-class intialiseBrewery():
+
+class intialiseBrewery(Functions):
     def __init__(self,parameters):
+        super().__init__()
         print('initialising brewery')
         self.parameters = parameters
         a = Probe_Initialise(self.parameters)
@@ -50,7 +53,11 @@ class intialiseBrewery():
                             raise
                     elif probe == 'ph':
                         if protocol == 'Atlas_I2C':
-                            readings += [self.parameters.probes[probe]['probeClass'][count].query("R").rstrip('\x00')]
+                            rawPH = self.parameters.probes[probe]['probeClass'][count].query("R").rstrip('\x00')
+                            if self.parameters.phTempAdjust:
+                                temp = self.getHWTemp(self.parameters.probes[probe]['hw'][count])
+                                rawPH = self.adjustPH(temp,rawPH)
+                            readings += [rawPH]
                         elif protocol == 'test':
                             readings += [random.randint(5,7)]
                         else:

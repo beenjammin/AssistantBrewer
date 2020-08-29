@@ -21,7 +21,8 @@ class Parameters():
     def initialise(self):
         #{pin:last state, Parent} The pin state is boolean and each pin can only have one parent which is the hardware
         # Each pin should have its own class
-        self.relayPins = {17:[False,None],22:[False,None],23:[False,None],27:[False,None]}
+        self.relayPins = {17:[False,None],18:[False,None],23:[False,None],22:[False,None]}
+        self.floatPins = {24:[False,None]}
         #For relays, we have three types [heat,cool,binary]
         #Add hardware to dictionary to populate GUI {hardware:SimpleTemp,TempTgt,TempTimer,Relays}
         self.hardware = {   
@@ -100,6 +101,8 @@ class Parameters():
         self.settingsGUI = {}
         self.plotGUI = {}
 
+        #adjust pH based on temp
+        self.phTempAdjust = True
         # self._DOCK_OPTS = QMainWindow.AnimatedDocks
         # self._DOCK_OPTS |= QMainWindow.AllowNestedDocks
         # self._DOCK_OPTS |= QMainWindow.AllowTabbedDocks

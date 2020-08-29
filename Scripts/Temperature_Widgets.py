@@ -28,7 +28,7 @@ class TemperatureWidgets():
         if self.actorList['temperature']:
             indices = [self.parameters.probes['temperature']['actors'].index(b) for b in self.actorList['temperature']]
             temps = [float(self.parameters.probes['temperature']['readings'][b]) for b in indices]
-            print('temps for {} is {}'.format(self.name,temps))
+#            print('temps for {} is {}'.format(self.name,temps))
             self.tempCalc = 'max'
             if self.tempCalc == 'max':
                 self.temp = max(temps)

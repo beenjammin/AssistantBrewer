@@ -62,7 +62,7 @@ class DatabaseFunctions():
         self.parameters.probes[self.probe]['readings'] = write_data
         f = open(self.fp, "a",newline='')
         print('writing data --> {}'.format(write_data))
-        timeElapsed = time.time()-self.startTime
+        timeElapsed = (time.time()-self.startTime)/60
         write_data = [timeElapsed]+write_data
         with f:
             writer = csv.writer(f)

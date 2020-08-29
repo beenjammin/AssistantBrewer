@@ -186,14 +186,14 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
         if self.parameters.plotGUI['checkBoxes'][actor]['widget']: self.parameters.plotGUI['checkBoxes'][actor]['widget'].setText(newitem) 
         self.parameters.plotGUI['checkBoxes'][actor]['hw']=newitem
 
-        #update brewGUI widgets NEED TO MODEIFY THE updateTempLabel
+        #update brewGUI widgets NEED TO MODIFY THE updateTempLabel
         self.parameters.brewGUI[newitem]['object'].actorList[probe].append(actor)
         self.parameters.brewGUI[newitem]['object'].updateTempLabel()
         if lastitem:
             self.parameters.brewGUI[lastitem]['object'].actorList[probe].remove(actor)
             self.parameters.brewGUI[lastitem]['object'].updateTempLabel()
 
-        # self.parameters.probes['temperature']['hw'][self.parameters.probes['temperature']['actors'].index(actor)] = hw
+        self.parameters.probes[probe]['hw'][self.parameters.probes[probe]['actors'].index(actor)] = newitem
         # self.parameters.probes['temperature']['hw'] = [None]*len(self.parameters.probes['temperature']['readings'])
         # for key, value in self.parameters.brewGUI.items():
         #     # print('key is {}'.format(key))
