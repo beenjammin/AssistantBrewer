@@ -69,8 +69,9 @@ class Hardware(TemperatureWidgets,RelayWidgets):
         self.name = name
         #list of actors connected to hw
         self.actorList = {a:[] for a in self.parameters.probes.keys()}
-        #list of pins connected to hw
-        self.pinList = []
+        #list of pins connected to hw (relays and float switches)
+        self.pinList = {'relay':[],
+                        'floatSwitch':[]}
         #staus of hw controls (boolean)
         self.hwStatus={}
         #functions to be updated
@@ -97,7 +98,7 @@ class Hardware(TemperatureWidgets,RelayWidgets):
 
     #function to set status of pins
     def setPinStatus(self):
-        for pin in self.pinList:
+        for pin in self.pinList['relay']:
             self.parameters.relayPins[pin][0] = self.status
 
 

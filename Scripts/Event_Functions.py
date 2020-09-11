@@ -15,11 +15,12 @@ class EventFunctions():
 
 		
 
-	def checkPinStatus(self,pins):
+	def checkRelayPinStatus(self,pins):
 		"""takes a list of pins and checks their status and status of parent HW switching on and off as required"""
-		for pin in pins: #self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['value']:
+		for pin in pins:
 			#check to see if the pin value is true and it has hardware assigned
 			hw = self.parameters.relayPins[pin][1]
+
 			#update the status of the hardware - pin may not need switching on
 			try:
 				self.parameters.brewGUI[hw]['object'].updateStatus()
@@ -41,13 +42,13 @@ class EventFunctions():
 		if switch:
 			#check for other dependencies and only switch on if these are also true
 			print('switching on relay connected to pin {}'.format(pin))
-			self.parameters.relayPins[pin]=True
+			self.parameters.relayPins[pin][0]=True
 			text = text.replace(str(pin),'<a style="color:red;"><strong>{}</strong></a>'.format(pin))
 			if not self.parameters.test:
 				GPIO.output(RELAIS_1_GPIO, GPIO.LOW) # turn on
 		else:
 			print('switching off relay connected to pin {}'.format(pin))
-			self.parameters.relayPins[pin]=False
+			self.parameters.relayPins[pin][0]=False
 			text = text.replace('<a style="color:red;"><strong>'+str(pin)+'</strong></a>','{}'.format(pin))
 			if not self.parameters.test:
 				GPIO.output(RELAIS_1_GPIO, GPIO.HIGH) # turn on

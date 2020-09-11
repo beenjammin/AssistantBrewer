@@ -23,8 +23,10 @@ class Parameters():
         # Each pin should have its own class
         self.relayPins = {17:[False,None],18:[False,None],23:[False,None],22:[False,None]}
         self.floatPins = {24:[False,None]}
+
         #For relays, we have three types [heat,cool,binary]
         #Add hardware to dictionary to populate GUI {hardware:SimpleTemp,TempTgt,TempTimer,Relays}
+        #not sure if I use the relayPins or actors, think it is covered by the class
         self.hardware = {   
                             'HLT':{'widgets':[False,True,False,True],'relayPins':[],'actors':[]},
                             'Mash':{'widgets':[False,False,True,True],'relayPins':[],'actors':[]},
@@ -32,14 +34,6 @@ class Parameters():
                             'Pump 1':{'widgets':[False,False,False,True],'relayPins':[],'actors':[]},
                             'Pump 2':{'widgets':[False,False,False,True],'relayPins':[],'actors':[]},
                          }
-        
-        
-        #go into test mode if we cannot find any actors
-#         try:
-#             if getActors():
-# #                print('found {} actors'.format(len(getActors())))
-#                 self.test = False
-#             else:
         self.test = True
         # except:
         #     self.test = True
@@ -67,7 +61,6 @@ class Parameters():
                     'ph' : '99',
                     }
         self.probes = {}
-        #change to actors (rather than probes)
         #initalise probe dictionary,pobeType: {probe name, last reading, hardware attached to NOT USED!!, protocol}       
         self.probes['temperature']= {   'fp':'somefp',
                                         'databaseClass':object,
@@ -111,7 +104,9 @@ class Parameters():
 #        print(self.cwd)
         
         self.tempDatabaseFP = ''
-
+        self.pins = {   'relay':list(self.relayPins.keys()),
+                        'floatSwitch':list(self.floatPins.keys())
+                    }
         self.units('temperature')
         self.colours = ['green','blue','orange','yellow','grey']
         self.plotColours = ['blue','green','red','cyan','magenta','yellow','black']

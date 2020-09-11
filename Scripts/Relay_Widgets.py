@@ -20,7 +20,7 @@ class RelayWidgets(EventFunctions):
     #adds basic relay to the GUI
     def addRelay(self,dock):
         self.__updateRelayHardware()
-        self.hwStatus['relay']=False
+        self.hwStatus['relayButtonGUI']=False
         gb = groupBox('Relay')
         # VLayout = QVBoxLayout()
         HLayout = QHBoxLayout()
@@ -54,12 +54,13 @@ class RelayWidgets(EventFunctions):
             b.setText(b.text()[:-5]+' - Off')
             switch = False
         #updating the status dictionary
-        self.parameters.brewGUI[hw]['object'].hwStatus['relay']=switch
+        self.parameters.brewGUI[hw]['object'].hwStatus['relayButtonGUI']=switch
         print('Trying to switch {}{}'.format(hw,b.text()[b.text().find('-')+1:]))
+        
         #check to see if any pins are connected to the hardware
-        pins = self.parameters.brewGUI[hw]['object'].pinList
+        pins = self.parameters.brewGUI[hw]['object'].pinList['relay']
         print(pins)
         if not pins:
             print('Warning, no relays connected')
         else:
-            self.checkPinStatus(pins)
+            self.checkRelayPinStatus(pins)

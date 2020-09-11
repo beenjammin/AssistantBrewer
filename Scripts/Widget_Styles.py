@@ -164,22 +164,21 @@ class bodyLineEdit(QLineEdit):
 
 
 class bodyComboBox(QComboBox):
-    new_signal = pyqtSignal(str, str, str, str)
+    new_signal = pyqtSignal(str, str, list)
 
     def __init__(self, *args, **kwargs):
         super().__init__()
         # QComboBox.__init__(self, *args, **kwargs)
-        self.actor = None
-        self.probe = None
+        self.ls = []
         self.__dict__.update(kwargs)
-        self.lastSelected = ""
+        self.lastSelected = "None"
         self.activated[str].connect(self.onActivated)        
         #Styling
         self.colour = Parameters().colour
         self.applyStyle(self.colour)
 
     def onActivated(self, text):
-        self.new_signal.emit(self.lastSelected, text, self.actor, self.probe)
+        self.new_signal.emit(self.lastSelected, text, self.ls)
         self.lastSelected = text
 
     def applyStyle(self,colour):

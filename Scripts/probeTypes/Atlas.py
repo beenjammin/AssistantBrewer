@@ -12,7 +12,9 @@
 ##############################################################################
 
 import io  # used to create file streams
-import fcntl  # used to access I2C parameters like addresses
+try:
+    import fcntl  # used to access I2C parameters like addresses
+except: pass
 import time  # used for sleep delay and timestamps
 import string  # helps parse
 
@@ -30,9 +32,12 @@ class atlas_i2c:
         # the specific I2C channel is selected with bus
         # it is usually 1, except for older revisions where its 0
         # wb and rb indicate binary read and write
-        self.file_read = io.open("/dev/i2c-" + str(bus), "rb", buffering=0)
-        self.file_write = io.open("/dev/i2c-" + str(bus), "wb", buffering=0)
-
+        try:           
+            self.file_read = io.open("/dev/i2c-" + str(bus), "rb", buffering=0)
+            self.file_write = io.open("/dev/i2c-" + str(bus), "wb", buffering=0)
+        except FileNotFoundError: pass
+        except: 
+            print("Unexpected error:", sys.exc_info()[0])
         # initializes I2C to either a user specified or default address
         self.set_i2c_address(address)
 

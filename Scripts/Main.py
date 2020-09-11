@@ -29,6 +29,8 @@ class intialiseBrewery(Functions):
             p1.start()
         except:
             print('starting process failed')
+        #going too add another process for quick polling, so far only the float switch is in here
+        #add thread for float switch and send signal on trigger
         print('loading GUI')
         b = mainGUI(self.parameters)
         print('done')
