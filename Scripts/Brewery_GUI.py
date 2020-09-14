@@ -61,7 +61,6 @@ class BreweryGUI(QMainWindow):
 
 
 #a super class that will inherit all properties of probes and relays
-#need to define what functions get updated by timer
 class Hardware(TemperatureWidgets,RelayWidgets):
     def __init__(self,name,parameters):
         super().__init__()
@@ -74,6 +73,8 @@ class Hardware(TemperatureWidgets,RelayWidgets):
                         'floatSwitch':[]}
         #staus of hw controls (boolean)
         self.hwStatus={}
+        #the last state of the relay - need this for temp tolerances
+        self.lastRelayState = False
         #functions to be updated
         self.updateFunctions = set()
         self.status = False
@@ -94,6 +95,7 @@ class Hardware(TemperatureWidgets,RelayWidgets):
         if 'TempTgt' in self.hwStatus:
             self.updateTempTgtStatus()
         self.status=all(list(self.hwStatus.values()))
+        print(self.hwStatus)
         self.setPinStatus()
 
     #function to set status of pins

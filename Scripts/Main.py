@@ -2,6 +2,7 @@ from Vertical_Tabs import mainGUI
 from Brewery_Parameters import Parameters
 from probeTypes.DS18B20 import actor_read_raw
 from probeTypes.Probes_Init import Probe_Initialise
+from probeTypes.Float_Switch import FloatSwitch
 from Database import DatabaseFunctions
 from Brewery_Functions import Functions
 from time import sleep
@@ -23,10 +24,14 @@ class intialiseBrewery(Functions):
         print('starting another process')
         if not self.parameters.test:
             p1 = Thread(target=self.outputData)
+            #test to see if we have any float pins
+#            if self.parameters.floatPins:
+#                p2 = Thread(target=self.pollFloatSwitch)
         else: 
             p1 = Thread(target=self.outputDataTest)
         try:
             p1.start()
+#            p2.start()
         except:
             print('starting process failed')
         #going too add another process for quick polling, so far only the float switch is in here
@@ -34,11 +39,28 @@ class intialiseBrewery(Functions):
         print('loading GUI')
         b = mainGUI(self.parameters)
         print('done')
-        p1.join()   
-
+        p1.join()  
+        p2.join()
+    
+    def pollFloatSwitch(self):
+        lst = [FloatSwitch(pin) for pin in self.parameters.floatPins]
+        while True:
+            for floatSwitch, pin in zip(lst, self.parameters.floatPins.keys()):
+                #check if pin has hw assigned
+                hw = self.parameters.floatPins[pin][1]
+                if hw:
+                    if floatSwitch.switchState():
+                        self.parameters.brewGUI[hw]['object'].hwStatus['floatSwitch']=not(floatSwitch.thisState)
+                        relayPins = self.parameters.brewGUI[hw]['object'].pinList['relay']
+                        if relayPins:
+                            self.parameters.brewGUI[hw]['object'].checkRelayPinStatus(relayPins)
+            sleep(1)
+                
+        
     def outputData(self):
         while True:
             #split this out into I2C readings and DS18B20 and test
+#            self.pollFloatSwitch()
             for probe in self.parameters.probes.keys():
                 readings = []
                 for count, protocol in enumerate(self.parameters.probes[probe]['protocol']):

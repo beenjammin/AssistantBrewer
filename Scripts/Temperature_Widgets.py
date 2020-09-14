@@ -39,6 +39,7 @@ class TemperatureWidgets():
                 self.temp = average(temps)
         else:
             self.temp = None
+            print('could not get a temperature for {}, one may need to be defined in the connections tab'.format(self.name))
 
     #initialise the widget by creating a groupbox with a vertical layout 
     def __initialiseTempWidget(self, dock):
@@ -104,10 +105,9 @@ class TemperatureWidgets():
             tgtTemp = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemp']['widget'].text())
             tempTol = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTempTol']['widget'].text())
             currentTemp = float(self.temp)
-            pinStatus = all([self.parameters.relayPins[a[0]] for a in self.pinList['relay']])
             if currentTemp < tgtTemp - tempTol:
                 self.hwStatus['TempTgt']=True
-            elif currentTemp < tgtTemp and pinStatus:
+            elif currentTemp < tgtTemp and self.lastRelayStatus:
                 self.hwStatus['TempTgt']=True
             else:
                 self.hwStatus['TempTgt']=False

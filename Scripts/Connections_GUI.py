@@ -151,7 +151,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
                     self.parameters.brewGUI[lastitem]['relayGroupBox']['QLabelCurrentPins']['widget'].setText('Relay pins attached --> no relays attached')
             #remove float switch control from hardware status dict
             if pinHW == 'floatSwitch':             
-                self.parameters.brewGUI[newitem]['object'].hwStatu.pop('floatSwitch', None)
+                self.parameters.brewGUI[newitem]['object'].hwStatus.pop('floatSwitch', None)
 
 
             # print('remove {} from {} and list is now {}'.format(actor, lastitem, self.parameters.brewGUI[lastitem]['object'].actorList[probe]))
