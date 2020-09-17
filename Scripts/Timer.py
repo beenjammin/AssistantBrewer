@@ -21,7 +21,7 @@ class MyTimer(EventFunctions):
     def runFunctions(self):
         # self.database.readLastRow()
         self.plot.plotDialog.updatePlot()
-        self.updateReadings()
+        self.assignProbeReadings()
         for key in self.parameters.hardware:
             for function in self.parameters.brewGUI[key]['object'].updateFunctions:
                 print('running function {}'.format(function))

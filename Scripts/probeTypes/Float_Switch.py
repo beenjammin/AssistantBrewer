@@ -5,8 +5,10 @@ Created on Sat Sep 12 11:23:08 2020
 
 @author: pi
 """
-
-import RPi.GPIO as GPIO
+try:
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BCM)
+except: pass
 from time import sleep
 
 
@@ -16,7 +18,7 @@ class FloatSwitch():
         pin, integer - the pin on the GPIO board that float switch is connected to
         switch, boolean - by default, a signal (true) from the float switch will turn the relays with the associated hardware off and vice versa
     """
-    GPIO.setmode(GPIO.BCM)
+    
     def __init__(self, pin, switch=False):
         self.pin = pin
         self.switch = switch

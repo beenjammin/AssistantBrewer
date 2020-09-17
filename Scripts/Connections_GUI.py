@@ -90,7 +90,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
                                                                         'QCBActor':{'widget':cb,'value':None},
                                                                         'QLabelReading':{'widget':rawReading,'value':'none'}}
 
-        self.updateReadings()
+        self.assignProbeReadings()
            
         Actors.setLayout(VLayout)
         VLayoutP.addWidget(Actors)
@@ -196,14 +196,14 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
         #update brewGUI widgets NEED TO MODIFY THE updateTempLabel
         # print('newitem is {} and last item is {} and actor is {} and probe is {}'.format(newitem, lastitem, actor, probe))
         if newitem != 'None':
-            self.parameters.brewGUI[newitem]['object'].actorList[probe].append(actor)
+            self.parameters.brewGUI[newitem]['object'].probes[probe]['actors'].append(actor)
             self.parameters.brewGUI[newitem]['object'].updateTempLabel()
-            print('added {} to {} and list is now {}'.format(actor, newitem, self.parameters.brewGUI[newitem]['object'].actorList[probe]))
+            print('added {} to {} and list is now {}'.format(actor, newitem, self.parameters.brewGUI[newitem]['object'].probes[probe]['actors']))
         if lastitem != 'None':
-            self.parameters.brewGUI[lastitem]['object'].actorList[probe].remove(actor)
+            self.parameters.brewGUI[lastitem]['object'].probes[probe]['actors'].remove(actor)
             self.parameters.brewGUI[lastitem]['object'].updateTempLabel()
-            print('removed {} from {} and list is now {}'.format(actor, lastitem, self.parameters.brewGUI[lastitem]['object'].actorList[probe]))
-
+            print('removed {} from {} and list is now {}'.format(actor, lastitem, self.parameters.brewGUI[lastitem]['object'].probes[probe]['actors']))
+        
         self.parameters.probes[probe]['hw'][self.parameters.probes[probe]['actors'].index(actor)] = newitem
 
 

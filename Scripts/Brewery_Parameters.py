@@ -111,9 +111,14 @@ class Parameters():
         self.colours = ['green','blue','orange','yellow','grey']
         self.plotColours = ['blue','green','red','cyan','magenta','yellow','black']
 
+        self.defaults()
+
     def units(self,variable):
         if variable == 'temperature':
             return 'C'
+
+    def defaults(self):
+        self.tempTol = 1
 
 
 def colourPick(colour,shade):

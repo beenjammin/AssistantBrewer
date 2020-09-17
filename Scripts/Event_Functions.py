@@ -13,8 +13,9 @@ class EventFunctions():
     """A class which contains the function handling for the GUI EventFunctions"""
     def __init__(self):pass
 
-    #update raw temp readings on the connections tab
-    def updateReadings(self):
+    #get the latest probe readings that from the probe dictionary and then assign these as necessary
+    def assignProbeReadings(self):
+        #prob
         for probe in self.parameters.probes.keys():
             for count, actor in enumerate(self.parameters.probes[probe]['actors']):
                 if not self.parameters.probes[probe]['readings']:
@@ -27,8 +28,11 @@ class EventFunctions():
                 except:
                     print("Unexpected error:", sys.exc_info()[0])
                     raise
-            for hw in self.parameters.tempHardware:
-                self.parameters.brewGUI[hw]['object'].updateTempLabel()
+            #for each probe with a hardware assigned, update the temp label of the hardware and check the pin status
+            for hw in self.parameters.probes['temperature']['hw']:
+                if hw and hw != 'None': 
+                    self.parameters.brewGUI[hw]['object'].updateTempLabel()
+                    self.parameters.brewGUI[hw]['object'].checkRelayPinStatus()
 
 
 

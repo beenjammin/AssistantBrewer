@@ -12,7 +12,7 @@ class Functions():
 #        self.parameters = parameters
     def getHWTemp(self, hw):
         try:
-            self.parameters.brewGUI[hw]['object'].getTemp()
+            # self.parameters.brewGUI[hw]['object'].getTemp()
             return self.parameters.brewGUI[hw]['object'].temp
         except KeyError:
             print('cannot adjust for temperature without ph probe being assigned to hardware that also has a temperature probe attached ("connections tab")')        
@@ -25,3 +25,13 @@ class Functions():
         ph = float(ph)
         temp = float(temp)
         return str(ph + abs(ph-7.0)*.03*abs(temp-25)/10)
+class Validate():
+    def __init__(self):pass
+
+    @staticmethod
+    def is_number(s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False

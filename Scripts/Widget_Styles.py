@@ -116,7 +116,7 @@ class groupBox(QGroupBox):
         
 class bodyLabel(QLabel):
     def __init__(self, *args, **kwargs):
-        QLabel.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         #Styling
         self.colour = Parameters().colour
@@ -130,7 +130,7 @@ class bodyLabel(QLabel):
 
 class bodyButton(QPushButton):
     def __init__(self, *args, **kwargs):
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
         #Styling
         self.colour = Parameters().colour
@@ -148,12 +148,18 @@ class bodyButton(QPushButton):
 
 
 class bodyLineEdit(QLineEdit):
+    new_signal = pyqtSignal(str, list)
+
     def __init__(self, *args, **kwargs):
         super().__init__()
-        
-        #Styling
+        self.ls = []
+        self.__dict__.update(kwargs)
+        self.editingFinished.connect(self.onTextChanged)          
         self.colour = Parameters().colour
         self.applyStyle(self.colour)
+
+    def onTextChanged(self):
+        self.new_signal.emit(self.text(), self.ls)
 
     def applyStyle(self,colour):
         stylesheet = """ 
@@ -168,7 +174,6 @@ class bodyComboBox(QComboBox):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        # QComboBox.__init__(self, *args, **kwargs)
         self.ls = []
         self.__dict__.update(kwargs)
         self.lastSelected = "None"

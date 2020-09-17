@@ -66,18 +66,26 @@ class Hardware(TemperatureWidgets,RelayWidgets):
         super().__init__()
         self.parameters = parameters
         self.name = name
-        #list of actors connected to hw
-        self.actorList = {a:[] for a in self.parameters.probes.keys()}
+        #list of actors connected to hw and most recent reading {Type: {actors:[],reading:}}
+        # self.probes = {a:{'name':{'currentValue':None},'allCurrentValues':[]} for a in self.parameters.probes.keys()}
+
+        #list of actors connected to hw and most recent reading {Type: {actors:[],reading:}}
+        self.probes = {a:{'actors':[]} for a in self.parameters.probes.keys()}
         #list of pins connected to hw (relays and float switches)
         self.pinList = {'relay':[],
                         'floatSwitch':[]}
         #staus of hw controls (boolean)
         self.hwStatus={}
-        #the last state of the relay - need this for temp tolerances
-        self.lastRelayState = False
         #functions to be updated
         self.updateFunctions = set()
+        #the curreny status of the hardware, currently can only have one status - could update this
         self.status = False
+        #the last state of the relay - need this for temp tolerances
+        self.lastRelayState = False
+        #controls for switching the relay on and off
+        self.relayControl = {}
+
+
 
     #function to update the temp label associated with the hardware class
     def updateTempLabel(self):

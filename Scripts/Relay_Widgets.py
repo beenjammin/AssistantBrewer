@@ -72,19 +72,11 @@ class RelayWidgets():
             self.checkRelayPinStatus()
             
     def checkRelayPinStatus(self):
-        #ok, for this, can I not just use the class attibutes that are linked to the pin?
         """takes a list of pins and checks their status and status of parent HW switching on and off as required"""
         pins = self.pinList['relay']
         for pin in pins:
-            #check to see if the pin value is true and it has hardware assigned
-#            hw = self.parameters.relayPins[pin][1]
-            #update the status of the hardware - pin may not need switching on
-#            try:
             self.updateStatus()
-#            except:
-            print('no hardware is associated with pin {}, try setting a connection for the pin in the connections tab'.format(pin))
-#            switch = self.parameters.relayPins[pin][0]
-#            if hw in self.parameters.hwList:
+            # print('no hardware is associated with pin {}, try setting a connection for the pin in the connections tab'.format(pin))
             self.setRelay(pin)
        
 
