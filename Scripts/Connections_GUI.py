@@ -14,12 +14,13 @@ import json, ast
 from Widget_Styles import *
 # from Actor_Classes import *
 from Event_Functions import EventFunctions
+from Save_Load_Config import Config
 
-class ConnectionsGUI(QMainWindow,EventFunctions):
+class ConnectionsGUI(QMainWindow,EventFunctions,Config):
     def __init__(self,parameters):
-        print('initiating connections GUI')
-        super().__init__()
+        print('initiating connections GUI')     
         self.parameters = parameters
+        super().__init__()
         # eF = EventFunctions(self.parameters)
         #Settings
         #Give user the option to set connections for relays
@@ -31,7 +32,12 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
         self.bodyFont = QFont()
         self.bodyFont.setPointSize(10)
 
+        #set the pin connections
         self.parameters.connectionsGUI['relayDict'] = {}
+        dall = {}
+        dall.update(self.parameters.relayPins)
+        dall.update(self.parameters.floatPins)
+        print('relay pins in connections are {}'.format(self.parameters.relayPins))
         for label, pins in self.parameters.pins.items():
             lab = bodyLabel(re.sub(r'(?<!^)(?=[A-Z])', ' ', label).lower())
             VLayout.addWidget(lab)
@@ -41,8 +47,15 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
                 pinLabel.setText('Select control for pin {}'.format(pin))
                 cb = bodyComboBox(ls=[label,pin])
                 cb.addItems(['None']+list(self.parameters.relayHardware))
+                if dall[pin][1]:
+                    text = dall[pin][1]
+                    index = cb.findText(text)
+                    cb.setCurrentIndex(index)
+                else:
+                    text = None
+                
                 self.parameters.connectionsGUI ['relayDict'][pin]={  'QLabelRelay':{'widget':pinLabel},
-                                                                    'QCBRelay':{'widget':cb,'value':None}}         
+                                                                    'QCBRelay':{'widget':cb,'value':text}}         
                 cb.new_signal.connect(self.updatePins)
                 HLayout.addWidget(pinLabel)
                 HLayout.addWidget(cb)
@@ -74,6 +87,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
         for probe in self.parameters.probes.keys():
             for count, actor in enumerate(self.parameters.probes[probe]['actors']):
                 label = self.parameters.probes[probe]['dispName'][count]
+                hw = self.parameters.probes[probe]['hw'][count]
                 HLayout = QHBoxLayout()
                 hwLabel = bodyLabel()
                 hwLabel.setText('Select hardware for the {} actor'.format(label))
@@ -82,12 +96,18 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
                 cb = bodyComboBox(ls=[actor,probe])
                 cb.addItems(['None']+list(self.parameters.tempHardware))
                 cb.new_signal.connect(self.updateActors)
+                if hw:
+                    text = hw
+                    index = cb.findText(text)
+                    cb.setCurrentIndex(index)
+                else:
+                    text = None
                 HLayout.addWidget(hwLabel)
                 HLayout.addWidget(cb)
                 HLayout.addWidget(rawReading)
                 VLayout.addLayout(HLayout)
                 self.parameters.connectionsGUI['actorDict'][actor]={    'QLabelActor':{'widget':hwLabel},
-                                                                        'QCBActor':{'widget':cb,'value':None},
+                                                                        'QCBActor':{'widget':cb,'value':text},
                                                                         'QLabelReading':{'widget':rawReading,'value':'none'}}
 
         self.assignProbeReadings()
@@ -108,25 +128,6 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
         pinHW = ls[0] #the hardware that is connected to the Rpi pin
         pin = ls[1] #the pin that it is connected to on the Rpi
 
-
-        #Could change this to just update based on combobox targeted, currently updates all for each focus event
-        #reset pins
-        # for key, value in self.parameters.brewGUI.items():
-        #     # print('key is {}'.format(key))
-        #     # print('value is {}'.format(value))
-        #     try:
-        #         value['relayGroupBox']
-        #         text = 'Relay pins attached --> no relays attached'
-        #         self.parameters.brewGUI[key]['object'].pinList=[]
-        #         self.parameters.brewGUI[key]['relayGroupBox']['QLabelCurrentPins']['widget'].setText(text)
-        #         self.parameters.brewGUI[key]['relayGroupBox']['QLabelCurrentPins']['value']='no relays attached'
-        #     #This hardware has no relay attached so we ignore it
-        #     except KeyError:
-        #         print('{} has no relay'.format(key))        
-        #     except:
-        #         print("Unexpected error:", sys.exc_info()[0])
-        #         raise
-        #updating the brewGUI dictionary
         if newitem != 'None':
             self.parameters.brewGUI[newitem]['object'].pinList[pinHW].append(pin)
             if pinHW == 'relay':
@@ -136,6 +137,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
                     self.parameters.brewGUI[newitem]['relayGroupBox']['QLabelCurrentPins']['widget'].setText('Relay pins attached --> {}'.format(lbl))
             #need to add something here so that float switch control is added to the hardware
             if pinHW == 'floatSwitch':
+                #update hardware entry in float dictionary
                 self.parameters.floatPins[pin][1] = newitem
                 self.parameters.brewGUI[newitem]['object'].hwStatus['floatSwitch']=False
             # print(self.parameters.relayPins)
@@ -153,35 +155,9 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
             if pinHW == 'floatSwitch':             
                 self.parameters.brewGUI[newitem]['object'].hwStatus.pop('floatSwitch', None)
 
-
-            # print('remove {} from {} and list is now {}'.format(actor, lastitem, self.parameters.brewGUI[lastitem]['object'].actorList[probe]))
-
-        # for key, value in self.parameters.connectionsGUI['relayDict'].items():
-        #     #set the relay pin
-        #     pin = key
-        #     #set the combobox in the GUI associated with the pin
-        #     cb = value['QCBRelay']['widget']
-        #     #get the combox value
-        #     hw = cb.currentText()
-        #     #update the dictionary, adding the selected combobox value for the pin
-        #     value['QCBRelay']['value'] = hw
-        #     #going to try and add the associate the pin with the hardware
-        #     self.parameters.relayPins[pin][1] = hw
-        #     try:
-        #         #check if hw is in the list, if not, display default text
-        #         if hw in list(self.parameters.hardware):
-        #             self.parameters.brewGUI[hw]['object'].pinList['relay'].append(pin)
-        #             if self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['value'] == 'no relays attached':
-        #                 self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].setText('Relay pins attached --> no relays attached')
-        #             #add the pin to the dictionary
-        #             text = self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].text()
-        #             #updating the GUI with hardware connected pins
-        #             text +=' {}'.format(pin)
-        #             self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].setText(text)                       
-        #     except:
-        #         print("Unexpected error:", sys.exc_info()[0])
-        #         raise
-        
+        #save the new configuration
+        self.saveConnectionConfig()
+       
 
     def updateActors(self,lastitem, newitem, ls):
         #runs on actor combobox change event - update associated actors, think this can be rewritten to only update relevent info
@@ -205,6 +181,9 @@ class ConnectionsGUI(QMainWindow,EventFunctions):
             print('removed {} from {} and list is now {}'.format(actor, lastitem, self.parameters.brewGUI[lastitem]['object'].probes[probe]['actors']))
         
         self.parameters.probes[probe]['hw'][self.parameters.probes[probe]['actors'].index(actor)] = newitem
+
+        #save the new configuration
+        self.saveConnectionConfig()
 
 
         

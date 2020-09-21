@@ -8,19 +8,19 @@ from Brewery_Functions import Functions
 from time import sleep
 import random
 from threading import Thread
+from Save_Load_Config import Config
 
 
 
-
-class intialiseBrewery(Functions):
+class intialiseBrewery(Functions,Config):
     def __init__(self,parameters):
-        super().__init__()
         print('initialising brewery')
         self.parameters = parameters
+        super().__init__()
         a = Probe_Initialise(self.parameters)
         # self.dataWrite = DatabaseFunctions(self.parameters)
         # self.dataWrite.createFile()
-
+        self.loadConfig()
         print('starting another process')
         if not self.parameters.test:
             p1 = Thread(target=self.outputData)

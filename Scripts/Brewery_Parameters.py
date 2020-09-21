@@ -21,8 +21,11 @@ class Parameters():
     def initialise(self):
         #{pin:last state, Parent} The pin state is boolean and each pin can only have one parent which is the hardware
         # Each pin should have its own class
-        self.relayPins = {17:[False,None],18:[False,None],23:[False,None],22:[False,None]}
-        self.floatPins = {24:[False,None]}
+        self.relayPins = {'17':[False,None],'18':[False,None],'23':[False,None],'22':[False,None]}
+        self.floatPins = {'24':[False,None]}
+        self.pins = {   'relay':list(self.relayPins.keys()),
+                        'floatSwitch':list(self.floatPins.keys())
+                    }
 
         #For relays, we have three types [heat,cool,binary]
         #Add hardware to dictionary to populate GUI {hardware:SimpleTemp,TempTgt,TempTimer,Relays}
@@ -44,8 +47,11 @@ class Parameters():
         self.imageFP = str(self.cwd/'Images')
         name = 'brew_'+str(date.today()).replace('-','_')
         self.brewDayFP = str(Path(self.cwd).parents[0]/'brewDay'/name)
+        self.configFP = str(Path(self.cwd).parents[0]/'configFiles')
         #if folder does not already exist for todays brew then create it
         Path(self.brewDayFP).mkdir(parents=True, exist_ok=True)
+        Path(self.configFP).mkdir(parents=True, exist_ok=True)
+
         # self.database = str(self.cwd/'BrewDay')
 
         self.hwList = list(self.hardware)
@@ -104,14 +110,12 @@ class Parameters():
 #        print(self.cwd)
         
         self.tempDatabaseFP = ''
-        self.pins = {   'relay':list(self.relayPins.keys()),
-                        'floatSwitch':list(self.floatPins.keys())
-                    }
         self.units('temperature')
         self.colours = ['green','blue','orange','yellow','grey']
         self.plotColours = ['blue','green','red','cyan','magenta','yellow','black']
 
         self.defaults()
+
 
     def units(self,variable):
         if variable == 'temperature':

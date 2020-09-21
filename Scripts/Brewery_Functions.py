@@ -8,7 +8,8 @@ Created on Sun Aug 30 09:35:18 2020
 import sys
 
 class Functions():
-    def __init__(self):pass
+    def __init__(self):
+        super().__init__()
 #        self.parameters = parameters
     def getHWTemp(self, hw):
         try:

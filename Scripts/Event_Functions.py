@@ -11,7 +11,8 @@ except:
 
 class EventFunctions():
     """A class which contains the function handling for the GUI EventFunctions"""
-    def __init__(self):pass
+    def __init__(self):
+        super().__init__()
 
     #get the latest probe readings that from the probe dictionary and then assign these as necessary
     def assignProbeReadings(self):

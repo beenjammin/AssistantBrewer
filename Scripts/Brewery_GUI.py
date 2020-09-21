@@ -15,21 +15,23 @@ from Widget_Styles import *
 from Event_Functions import EventFunctions
 from Temperature_Widgets import TemperatureWidgets
 from Relay_Widgets import RelayWidgets
+from Save_Load_Config import Config
 
 class BreweryGUI(QMainWindow):
     def __init__(self,parameters):
         print('initiating brewery GUI')
         super().__init__()
+
         self.parameters = parameters
         # self.parameters.colour = 'blue'
         # self.setDockOptions(self.parameters._DOCK_OPTS)
         VLayoutP = QVBoxLayout()#Delete?
-
+        
         #loop over hardware and set up based on booleans in list
         for key, value in self.parameters.hardware.items():
             self.parameters.brewGUI[key] = {}
             self.parameters.brewGUI[key]['object'] = Hardware(key,self.parameters)
-
+            print (key)
             #create a dockable widget which will contain child widgets only if at least one value
             if any(value):
                 self.dock = dockable(key,objectName = 'childTab')
@@ -38,18 +40,20 @@ class BreweryGUI(QMainWindow):
             #check if we are adding simple temperature functionality to the hardware
             if value['widgets'][0]: 
                 self.parameters.brewGUI[key]['object'].addSimpleTemp(self.dock)
-
+            print ('added temptgt0')
             #check if we are adding target temperature functionality to the hardware
             if value['widgets'][1]:
                 self.parameters.brewGUI[key]['object'].addTempTgt(self.dock)
 
+            print ('added temptgt1')
             #check if we are adding temperature timer functionality to the hardware
             if value['widgets'][2]:
                 self.parameters.brewGUI[key]['object'].addTempTimer(self.dock)
-
+            print ('added temptgt2')
             #check if we are adding relay functionality to the hardware
             if value['widgets'][3]:
                 self.parameters.brewGUI[key]['object'].addRelay(self.dock)
+            print ('added temptgt3')
             #add and set the widget
             self.dock.setCentralWidget()
             self.addDockWidget(Qt.RightDockWidgetArea,self.dock)
@@ -61,10 +65,10 @@ class BreweryGUI(QMainWindow):
 
 
 #a super class that will inherit all properties of probes and relays
-class Hardware(TemperatureWidgets,RelayWidgets):
+class Hardware(TemperatureWidgets,RelayWidgets,Config):
     def __init__(self,name,parameters):
-        super().__init__()
         self.parameters = parameters
+        super().__init__()
         self.name = name
         #list of actors connected to hw and most recent reading {Type: {actors:[],reading:}}
         # self.probes = {a:{'name':{'currentValue':None},'allCurrentValues':[]} for a in self.parameters.probes.keys()}
@@ -84,7 +88,6 @@ class Hardware(TemperatureWidgets,RelayWidgets):
         self.lastRelayState = False
         #controls for switching the relay on and off
         self.relayControl = {}
-
 
 
     #function to update the temp label associated with the hardware class
