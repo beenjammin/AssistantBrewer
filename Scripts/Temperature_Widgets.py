@@ -128,7 +128,7 @@ class TemperatureWidgets():
         self.__tgtTempWithTolerance()
         self.__simpleTempReadout()
         
-        
+
     #update the status (on/off) for the TempTgt widget
     def updateTempTgtStatus(self):
         tgtTemp = self.relayControl['tgtLineTemp']
@@ -144,6 +144,7 @@ class TemperatureWidgets():
         else:
             self.hwStatus['TempTgt']=False
  
+
      # add a temperature timer widget to the GUI    
     def addTempTimer(self,dock):
         self.__updateTempHardware()
@@ -157,27 +158,24 @@ class TemperatureWidgets():
         #initialise set-up, need to add checkboxes, drop down list for selecting profiles etc
         #number of additional points
         self.plotPoints = 0
-        self.holdTemps = True
-        self.warmUp = False
-        self.tempTolerance = self.parameters.tempTol
-        self.plotLiveTemp = False
+        # self.holdTemps = True
+        # self.warmUp = False
+        # self.tempTolerance = self.parameters.tempTol
+        # self.plotLiveTemp = False
         #flat line the temps if true, gradients if false
-        # self.holdTemps = self.parameters.hwValues[self.name]['TempTimer']['holdTemps']
+        self.holdTemps = self.parameters.hwValues[self.name]['TempTimer']['holdTemps']
         #if True, only count the time if the temp is within tolerance of target
-        # self.warmUp = self.parameters.hwValues[self.name]['TempTimer']['warmUp']
+        self.warmUp = self.parameters.hwValues[self.name]['TempTimer']['warmUp']
         #the tolerance for the target temp
-        # self.tempTolerance = self.parameters.hwValues[self.name]['TempTimer']['tol']
+        self.tempTolerance = self.parameters.hwValues[self.name]['TempTimer']['tempTolerance']
         #add the connected live temp
-        # self.plotLiveTemp = self.parameters.hwValues[self.name]['TempTimer']['plotLiveTemp']
+        self.plotLiveTemp = self.parameters.hwValues[self.name]['TempTimer']['plotLiveTemp']
         self.startTime = time.localtime()
-        print('a')
         self.populateWidgets(dock)
-        print('b')
         self.initialisePlot()
-        print('c')
         self.addToolbar()
-        print('d')
         self.valueChange()
+
 
     def initialisePlot(self):
         self.dlg = QDialog()
@@ -185,6 +183,7 @@ class TemperatureWidgets():
         self.ax = self.dlg.canvas.figure.subplots()
         VLayout = self.parameters.brewGUI[self.name]['tempGroupBox']['layout']
         VLayout.addWidget(self.dlg.canvas)
+
 
     def widgetChange(self):
         #function to define what happens when there is a widget change
@@ -533,6 +532,7 @@ class TemperatureWidgets():
 
         tempTolLbl = bodyLabel('Temperature tolerance')
         tempTolerance = bodySpinBox()
+        print(self.tempTolerance)
         tempTolerance.setValue(self.tempTolerance)
         tempTolerance.valueChanged.connect(self.updateTol)
         # HLayout2 = QHBoxLayout()
@@ -547,16 +547,16 @@ class TemperatureWidgets():
     def switchState(self,a):
         if a == 'holdTemps':
             self.holdTemps = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['holdTemps'].isChecked()
-            # self.parameters.hwValues[self.name]['TempTimer']['holdTemps'] = self.holdTemps
+            self.parameters.hwValues[self.name]['TempTimer']['holdTemps'] = self.holdTemps
         elif a == 'warmUp':
             self.warmUp = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['warmUp'].isChecked()
-            # self.parameters.hwValues[self.name]['TempTimer']['warmUp'] = self.warmUp
+            self.parameters.hwValues[self.name]['TempTimer']['warmUp'] = self.warmUp
         elif a == 'plotLiveTemp':
             self.plotLiveTemp = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['plotLiveTemp'].isChecked()
-            # self.parameters.hwValues[self.name]['TempTimer']['plotLiveTemp'] = self.plotLiveTemp
+            self.parameters.hwValues[self.name]['TempTimer']['plotLiveTemp'] = self.plotLiveTemp
         if self.plotLiveTemp:
             self.updateFunctions.add(self.valueChange)
-            # print('updated funcitons {}'.format(self.updateFunctions))
+            print('updated funcitons {}'.format(self.updateFunctions))
         else:
             try:
                 self.updateFunctions.remove(self.valueChange)
@@ -565,13 +565,13 @@ class TemperatureWidgets():
                 print("Unexpected error:", sys.exc_info()[0])
                 raise
 
-        # self.saveBrewdayConfig()
+        self.saveBrewdayConfig()
         self.valueChange()
 
     def updateTol(self):
         self.tempTolerance = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['tempTolerance'].value()
-        # self.parameters.hwValues[self.name]['TempTimer']['tempTolerance'] = self.tempTolerance
-        # self.saveBrewdayConfig()
+        self.parameters.hwValues[self.name]['TempTimer']['tempTolerance'] = self.tempTolerance
+        self.saveBrewdayConfig()
         self.valueChange()
 
     def clearLayout(self,layout):

@@ -1,1 +1,1 @@
-{"HLT": {"TempTgt": {"tgtLineTemp": 15.0, "tempLineTol": 10.0}}, "Mash": {"TempTimer": {"temps": [65, 70], "times": [0, 60], "tol": 1, "holdTemps": true, "warmUp": false, "plotLiveTemp": false}}, "Boil": {"SimpleTemp": null}}
+{"HLT": {"TempTgt": {"tgtLineTemp": "", "tempLineTol": 1}}, "Mash": {"TempTimer": {"temps": [65, 70], "times": [0, 60], "tol": 1, "holdTemps": true, "warmUp": false, "plotLiveTemp": false, "tempTolerance": 5}}, "Boil": {"SimpleTemp": null}}

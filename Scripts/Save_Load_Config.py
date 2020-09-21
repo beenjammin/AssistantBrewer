@@ -36,7 +36,7 @@ class Config():
             if value['widgets'][2]:
                 self.parameters.hwValues[hw] = {'TempTimer':{   'temps':[65,70],
                                                                 'times':[0,60],
-                                                                'tol':self.parameters.tempTol,
+                                                                'tempTolerance':self.parameters.tempTol,
                                                                 'holdTemps':True,
                                                                 'warmUp':False,
                                                                 'plotLiveTemp':False,
