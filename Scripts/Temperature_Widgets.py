@@ -67,9 +67,7 @@ class TemperatureWidgets():
         layout = self.parameters.brewGUI[self.name]['tempGroupBox']['layout']
         #set dictionary values for the hardware relay control
         self.relayControl['tgtLineTemp'] = None
-        print ('added z')
         self.relayControl['tempLineTol'] = self.parameters.tempTol
-        print ('added a')
         HLayout = QHBoxLayout()
         tgtTemp = bodyLabel('Target temperature:')
         tgtLineTemp = bodyLineEdit(ls=['tgtLineTemp'])
@@ -79,28 +77,29 @@ class TemperatureWidgets():
         HLayout.addWidget(tgtTemp)
         HLayout.addWidget(tgtLineTemp)
         layout.addLayout(HLayout)
-        print ('added f')
         HLayout = QHBoxLayout()
         tempTol = bodyLabel('Temperature tolerance:')
-        abd = bodyLineEdit(ls=['tempLineTol'])
-        print ('added aa')
-        print(str(self.parameters.hwValues[self.name]['TempTgt']['tempLineTol']))
-        """FIIIIIIXXXXXXX ERROR"""
-        abd.setText(str(self.parameters.hwValues[self.name]['TempTgt']['tempLineTol']))
-        print ('added aaa')
-        abd.new_signal.connect(self.newTempControl)
-        print ('added zz')
+        tempLineTolerance = bodyLineEdit(ls=['tempLineTol'])
+        # tempLineTolerance.setText(str(self.parameters.tempTol))
+        tempLineTolerance.new_signal.connect(self.newTempControl)
+        # tempLineTolerance = bodyLineEdit(ls=['tempLineTol'])
+        # print ('added aa')
+        # print(self.parameters.hwValues[self.name]['TempTgt'])
+        # """FIIIIIIXXXXXXX ERROR"""
+        tempLineTolerance.setText(str(self.parameters.hwValues[self.name]['TempTgt']['tempLineTol']))
+        # print ('added aaa')
+        # tempLineTolerance.new_signal.connect(self.newTempControl)
+        # print ('added zz')
         HLayout.addWidget(tempTol)
-        HLayout.addWidget(abd)
+        HLayout.addWidget(tempLineTolerance)
         layout.addLayout(HLayout)
-        print ('added e')
         newItems = {    'QLineEditTgtTemp':{'widget':tgtLineTemp,'value':None},
-                        'QLineEditTempTol':{'widget':abd,'value':None},
+                        'QLineEditTempTol':{'widget':tempLineTolerance,'value':None},
                         'QLabelTgtTemp':{'widget':tgtTemp},
                         'QLabelTempTol':{'widget':tempTol}
                     }
         self.parameters.brewGUI[self.name]['tempGroupBox'].update(newItems)
-        print ('added g')
+
 
     def newTempControl(self, value, ls):
         dictKey = ls[0]
@@ -114,24 +113,21 @@ class TemperatureWidgets():
         #we changed a control so check the relay pin status
         self.checkRelayPinStatus()
         
+
     def addSimpleTemp(self, dock):
         self.__updateTempHardware()
         self.__initialiseTempWidget(dock)
         self.__simpleTempReadout()
    
+
     # add a target temperature widget to the GUI
     def addTempTgt(self,dock):
-        print ('added 1')
         self.hwStatus['TempTgt']=False
-        print ('added 2')
         self.__updateTempHardware()
-        print ('added 3')
         self.__initialiseTempWidget(dock)
-        print ('added 4')
         self.__tgtTempWithTolerance()
-        print ('added 5')
         self.__simpleTempReadout()
-        print ('added 6')
+        
         
     #update the status (on/off) for the TempTgt widget
     def updateTempTgtStatus(self):
@@ -151,28 +147,36 @@ class TemperatureWidgets():
      # add a temperature timer widget to the GUI    
     def addTempTimer(self,dock):
         self.__updateTempHardware()
-        self.__initialiseTempWidget(dock)
+        # self.__initialiseTempWidget(dock)
         #add a relay control for the Temp timer
         self.hwStatus['TempTimeTgt']=False
         #initiate relay control dict
         self.relayControl['tgtTemps'] = []
         self.relayControl['tgtTimes'] = []
-        self.relayControl['tempLineTol'] = self.parameters.tempTol
+        self.relayControl['tempLineTol'] = self.parameters.hwValues[self.name]['TempTimer']['tol']
         #initialise set-up, need to add checkboxes, drop down list for selecting profiles etc
         #number of additional points
         self.plotPoints = 0
+        self.holdTemps = True
+        self.warmUp = False
+        self.tempTolerance = self.parameters.tempTol
+        self.plotLiveTemp = False
         #flat line the temps if true, gradients if false
-        self.holdTemps = self.parameters.hwValues[self.name]['TempTimer']['holdTemps']
+        # self.holdTemps = self.parameters.hwValues[self.name]['TempTimer']['holdTemps']
         #if True, only count the time if the temp is within tolerance of target
-        self.warmUp = self.parameters.hwValues[self.name]['TempTimer']['warmUp']
+        # self.warmUp = self.parameters.hwValues[self.name]['TempTimer']['warmUp']
         #the tolerance for the target temp
-        self.tempTolerance = 5#self.parameters.hwValues[self.name]['TempTimer']['tol']
+        # self.tempTolerance = self.parameters.hwValues[self.name]['TempTimer']['tol']
         #add the connected live temp
-        self.plotLiveTemp = self.parameters.hwValues[self.name]['TempTimer']['plotLiveTemp']
+        # self.plotLiveTemp = self.parameters.hwValues[self.name]['TempTimer']['plotLiveTemp']
         self.startTime = time.localtime()
+        print('a')
         self.populateWidgets(dock)
+        print('b')
         self.initialisePlot()
+        print('c')
         self.addToolbar()
+        print('d')
         self.valueChange()
 
     def initialisePlot(self):
@@ -293,11 +297,11 @@ class TemperatureWidgets():
         tempInterp = float(ls_2[indice-1])/2 + float(ls_2[indice])/2
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'].insert(indice,timeInterp)
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'].insert(indice,tempInterp)
-        self.parameters.hwValues[self.name]['TempTimer']['times'].insert(indice,timeInterp)
-        self.parameters.hwValues[self.name]['TempTimer']['temps'].insert(indice,tempInterp)
+        # self.parameters.hwValues[self.name]['TempTimer']['times'].insert(indice,timeInterp)
+        # self.parameters.hwValues[self.name]['TempTimer']['temps'].insert(indice,tempInterp)
         self.clearLayout(self.parameters.brewGUI[self.name]['tempGroupBox']['layout'])
         self.plotPoints += 1
-        self.saveBrewdayConfig()
+        # self.saveBrewdayConfig()
         self.widgetChange()
         
     def removeDataPoint(self,widget):
@@ -305,11 +309,11 @@ class TemperatureWidgets():
         indice = self.parameters.brewGUI[self.name]['tempGroupBox']['QButtonRemove']['widgets'].index(widget)
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'].pop(indice)
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'].pop(indice)
-        self.parameters.hwValues[self.name]['TempTimer']['times'].pop(indice)
-        self.parameters.hwValues[self.name]['TempTimer']['temps'].pop(indice)
+        # self.parameters.hwValues[self.name]['TempTimer']['times'].pop(indice)
+        # self.parameters.hwValues[self.name]['TempTimer']['temps'].pop(indice)
         self.clearLayout(self.parameters.brewGUI[self.name]['tempGroupBox']['layout'])
         self.plotPoints -= 1
-        self.saveBrewdayConfig()
+        # self.saveBrewdayConfig()
         self.widgetChange()
 
     def updateDict(self):
@@ -320,23 +324,23 @@ class TemperatureWidgets():
             ls_2.append(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['widgets'][count].value())
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'] = ls_1
         self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'] = ls_2
-        self.parameters.hwValues[self.name]['TempTimer']['times'] = ls_1
-        self.parameters.hwValues[self.name]['TempTimer']['temps'] = ls_2
+        # self.parameters.hwValues[self.name]['TempTimer']['times'] = ls_1
+        # self.parameters.hwValues[self.name]['TempTimer']['temps'] = ls_2
         self.relayControl['tgtTemps'] = ls_1
         self.relayControl['tgtTimes'] = ls_2
-        self.saveBrewdayConfig()
+        # self.saveBrewdayConfig()
         self.valueChange()
 
     def populateWidgets(self,dock=None):
         #initialise, this always happens
         addRemoveBtnSize = QSize(15, 15)
-        gb = self.parameters.brewGUI[self.name]['tempGroupBox']['widget']
-        VLayout = self.parameters.brewGUI[self.name]['tempGroupBox']['layout']
-        # try:          
-        startTempVal = float(self.parameters.hwValues[self.name]['TempTimer']['temps'][0])
-        endTempVal = float(self.parameters.hwValues[self.name]['TempTimer']['temps'][-1])
-        startTimeVal = float(self.parameters.hwValues[self.name]['TempTimer']['times'][0])
-        endTimeVal = float(self.parameters.hwValues[self.name]['TempTimer']['times'][-1])
+        # gb = self.parameters.brewGUI[self.name]['tempGroupBox']['widget']
+        # VLayout = self.parameters.brewGUI[self.name]['tempGroupBox']['layout']
+        # # try:          
+        # startTempVal = float(self.parameters.hwValues[self.name]['TempTimer']['temps'][0])
+        # endTempVal = float(self.parameters.hwValues[self.name]['TempTimer']['temps'][-1])
+        # startTimeVal = float(self.parameters.hwValues[self.name]['TempTimer']['times'][0])
+        # endTimeVal = float(self.parameters.hwValues[self.name]['TempTimer']['times'][-1])
         # except KeyError:
         #     startTempVal = 65
         #     endTempVal = 70
@@ -345,14 +349,31 @@ class TemperatureWidgets():
         # except:
         #     print("Unexpected error:", sys.exc_info()[0])
         #     raise
-
+        try:
+            gb = self.parameters.brewGUI[self.name]['tempGroupBox']['widget']
+            startTempVal = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'][0])
+            endTempVal = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'][-1])
+            startTimeVal = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'][0])
+            endTimeVal = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'][-1])
+        except KeyError:
+            gb = groupBox('Temperature')
+            startTempVal = 65
+            endTempVal = 70
+            startTimeVal = 0
+            endTimeVal = 60
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            raise
+        print(1)
         tempGroupBox = {}
         startLabel = bodyLabel('Time (min)')
         startLabel2 = bodyLabel('Temp (°{})'.format(self.parameters.units('temperature')))
         startTime = bodySpinBox()
-        startTime.setValue(startTimeVal)
+        print(startTimeVal)
+        # startTime.setValue(10)
         startTime.valueChanged.connect(self.updateDict)
         startTemp = bodySpinBox()
+        print(3)
         startTemp.setValue(startTempVal)
 
         startTemp.valueChanged.connect(self.updateDict)
@@ -374,10 +395,11 @@ class TemperatureWidgets():
                         'QButtonAdd':{'widgets':[None]},
                         'QButtonRemove':{'widgets':[None]},
                         }
-
+        print(6)
 
         #now we add the intermediary steps
         for count in range(self.plotPoints):
+            print('hi')
             VLayout = QVBoxLayout()
             addButton = bodyButton('+')
             addButton.setFixedSize(addRemoveBtnSize)
@@ -390,8 +412,10 @@ class TemperatureWidgets():
             HLayout.addLayout(VLayout)
             #see if we have value already
             try:
-                tempVal = float(self.parameters.hwValues[self.name]['TempTimer']['temps'][count+1])
-                timeVal = float(self.parameters.hwValues[self.name]['TempTimer']['times'][count+1])
+                tempVal = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'][count+1])
+                timeVal = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTimes']['values'][count+1])
+                # tempVal = float(self.parameters.hwValues[self.name]['TempTimer']['temps'][count+1])
+                # timeVal = float(self.parameters.hwValues[self.name]['TempTimer']['times'][count+1])
             #if we don't lets set to empty
             except KeyError:
                 tempVal = None
@@ -417,7 +441,7 @@ class TemperatureWidgets():
             tempGroupBox['QLineEditTgtTemps']['values'].append(tempVal)
             tempGroupBox['QButtonAdd']['widgets'].append(addButton)
             tempGroupBox['QButtonRemove']['widgets'].append(removeButton)
-
+        print(2)
         #add final buttons
         addButton = bodyButton('+')
         addButton.setFixedSize(addRemoveBtnSize)
@@ -456,7 +480,10 @@ class TemperatureWidgets():
         VLayout.addWidget(self.timein)
         VLayout.addWidget(startlbl)
         HLayout.addLayout(VLayout) 
-  
+        try:
+            VLayout = self.parameters.brewGUI[self.name]['tempGroupBox']['layout']
+        except:
+            VLayout = QVBoxLayout()
         currentTemp = bodyLabel('Current temperature --> no reading')
         VLayout.addLayout(HLayout)
         VLayout.addWidget(currentTemp)
@@ -520,13 +547,13 @@ class TemperatureWidgets():
     def switchState(self,a):
         if a == 'holdTemps':
             self.holdTemps = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['holdTemps'].isChecked()
-            self.parameters.hwValues[self.name]['TempTimer']['holdTemps'] = self.holdTemps
+            # self.parameters.hwValues[self.name]['TempTimer']['holdTemps'] = self.holdTemps
         elif a == 'warmUp':
             self.warmUp = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['warmUp'].isChecked()
-            self.parameters.hwValues[self.name]['TempTimer']['warmUp'] = self.warmUp
+            # self.parameters.hwValues[self.name]['TempTimer']['warmUp'] = self.warmUp
         elif a == 'plotLiveTemp':
             self.plotLiveTemp = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['plotLiveTemp'].isChecked()
-            self.parameters.hwValues[self.name]['TempTimer']['plotLiveTemp'] = self.plotLiveTemp
+            # self.parameters.hwValues[self.name]['TempTimer']['plotLiveTemp'] = self.plotLiveTemp
         if self.plotLiveTemp:
             self.updateFunctions.add(self.valueChange)
             # print('updated funcitons {}'.format(self.updateFunctions))
@@ -538,13 +565,13 @@ class TemperatureWidgets():
                 print("Unexpected error:", sys.exc_info()[0])
                 raise
 
-        self.saveBrewdayConfig()
+        # self.saveBrewdayConfig()
         self.valueChange()
 
     def updateTol(self):
         self.tempTolerance = self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar']['tempTolerance'].value()
-        self.parameters.hwValues[self.name]['TempTimer']['tempTolerance'] = self.tempTolerance
-        self.saveBrewdayConfig()
+        # self.parameters.hwValues[self.name]['TempTimer']['tempTolerance'] = self.tempTolerance
+        # self.saveBrewdayConfig()
         self.valueChange()
 
     def clearLayout(self,layout):
