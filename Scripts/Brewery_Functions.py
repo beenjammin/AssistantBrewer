@@ -26,6 +26,7 @@ class Functions():
         ph = float(ph)
         temp = float(temp)
         return str(ph + abs(ph-7.0)*.03*abs(temp-25)/10)
+        
 class Validate():
     def __init__(self):pass
 

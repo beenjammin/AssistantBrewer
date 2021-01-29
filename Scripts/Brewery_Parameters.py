@@ -108,7 +108,6 @@ class Parameters():
 
         self.cwd = os.getcwd()
 #        print(self.cwd)
-        
         self.tempDatabaseFP = ''
         self.units('temperature')
         self.colours = ['green','blue','orange','yellow','grey']

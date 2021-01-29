@@ -131,5 +131,3 @@ class Config():
         if not Path(fp).is_file():
             Path(fp).touch()
             print('created new file --> {}'.format(fp))
-
-

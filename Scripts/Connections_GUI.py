@@ -53,7 +53,8 @@ class ConnectionsGUI(QMainWindow,EventFunctions,Config):
                     cb.setCurrentIndex(index)
                 else:
                     text = None
-                
+                    #todo
+                self.updatePins(lastitem='None', newitem=text, ls=[label,pin])
                 self.parameters.connectionsGUI ['relayDict'][pin]={  'QLabelRelay':{'widget':pinLabel},
                                                                     'QCBRelay':{'widget':cb,'value':text}}         
                 cb.new_signal.connect(self.updatePins)
@@ -65,7 +66,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions,Config):
         
 
         #setting up connections to actors
-#load the actors
+        #load the actors
         VLayout = QVBoxLayout()
         Actors = groupBox("Actors")
         HLayout = QHBoxLayout()    
@@ -102,6 +103,8 @@ class ConnectionsGUI(QMainWindow,EventFunctions,Config):
                     cb.setCurrentIndex(index)
                 else:
                     text = None
+                    #todo
+                self.updateActors(lastitem='None', newitem=text, ls=[actor,probe])
                 HLayout.addWidget(hwLabel)
                 HLayout.addWidget(cb)
                 HLayout.addWidget(rawReading)
@@ -121,14 +124,24 @@ class ConnectionsGUI(QMainWindow,EventFunctions,Config):
         dock.addThisWidget(connections)
         dock.setCentralWidget()
         self.addDockWidget(Qt.RightDockWidgetArea,dock)
+
+        #intiate any connections that are already loaded
+    #     self._initateConnections()
+
+    # def _initateConnections(self):
+    #     for pin in self.parameters.connectionsGUI ['relayDict'].values():
+    #         newitem = pin['QCBRelay']['value']
+
+
     
 
     def updatePins(self,lastitem, newitem, ls):
         #unpack list
         pinHW = ls[0] #the hardware that is connected to the Rpi pin
         pin = ls[1] #the pin that it is connected to on the Rpi
+        # print('new item is {} and pinHW is {} and pin is {}'.format(newitem,pinHW,pin))
 
-        if newitem != 'None':
+        if str(newitem) != 'None' or newitem:
             self.parameters.brewGUI[newitem]['object'].pinList[pinHW].append(pin)
             if pinHW == 'relay':
                     #update hardware entry in pin dictionary
@@ -142,7 +155,7 @@ class ConnectionsGUI(QMainWindow,EventFunctions,Config):
                 self.parameters.brewGUI[newitem]['object'].hwStatus['floatSwitch']=False
             # print(self.parameters.relayPins)
             print('added {} pin {} to {} and connected pins are now {}'.format(pinHW, pin, newitem, self.parameters.brewGUI[newitem]['object'].pinList[pinHW]))
-        if lastitem != 'None':
+        if str(lastitem) != 'None':
             self.parameters.brewGUI[lastitem]['object'].pinList[pinHW].remove(pin)
             #now we check to see if it was a relay and update the widget with the relay text if required
             if pinHW == 'relay':
@@ -165,17 +178,22 @@ class ConnectionsGUI(QMainWindow,EventFunctions,Config):
         #unpack list
         actor = ls[0]
         probe = ls[1]
-        #update plotGUI widgets
-        if self.parameters.plotGUI['checkBoxes'][actor]['widget']: self.parameters.plotGUI['checkBoxes'][actor]['widget'].setText(newitem) 
-        self.parameters.plotGUI['checkBoxes'][actor]['hw']=newitem
+        #update plot #todo GUI widgets, note when we intialise the plotGUI parmaters have not been intialised yet...
+        try:
+            if self.parameters.plotGUI['checkBoxes'][actor]['widget']: self.parameters.plotGUI['checkBoxes'][actor]['widget'].setText(newitem) 
+            self.parameters.plotGUI['checkBoxes'][actor]['hw']=newitem
+        except KeyError:pass
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            raise
 
         #update brewGUI widgets NEED TO MODIFY THE updateTempLabel
         # print('newitem is {} and last item is {} and actor is {} and probe is {}'.format(newitem, lastitem, actor, probe))
-        if newitem != 'None':
+        if str(newitem) != 'None':
             self.parameters.brewGUI[newitem]['object'].probes[probe]['actors'].append(actor)
             self.parameters.brewGUI[newitem]['object'].updateTempLabel()
             print('added {} to {} and list is now {}'.format(actor, newitem, self.parameters.brewGUI[newitem]['object'].probes[probe]['actors']))
-        if lastitem != 'None':
+        if str(lastitem) != 'None':
             self.parameters.brewGUI[lastitem]['object'].probes[probe]['actors'].remove(actor)
             self.parameters.brewGUI[lastitem]['object'].updateTempLabel()
             print('removed {} from {} and list is now {}'.format(actor, lastitem, self.parameters.brewGUI[lastitem]['object'].probes[probe]['actors']))

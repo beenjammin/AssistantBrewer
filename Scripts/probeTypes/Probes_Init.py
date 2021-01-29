@@ -21,6 +21,10 @@ class Probe_Initialise():
         self.parameters.allActors = []
         for key in self.parameters.probes.keys():
             self.parameters.allActors += self.parameters.probes[key]['actors']
+        #set the dictionary for checkboxes and initialise
+        self.parameters.plotGUI['checkBoxes']={}
+        for actor in self.parameters.allActors:
+            self.parameters.plotGUI['checkBoxes'][actor]={'hw':None,'widget':None,'state':True}
 
     def initialiseDatabases(self):
         #initialising databases

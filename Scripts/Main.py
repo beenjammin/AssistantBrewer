@@ -40,7 +40,7 @@ class intialiseBrewery(Functions,Config):
         b = mainGUI(self.parameters)
         print('done')
         p1.join()  
-        p2.join()
+        # p2.join()
     
     def pollFloatSwitch(self):
         lst = [FloatSwitch(pin) for pin in self.parameters.floatPins]

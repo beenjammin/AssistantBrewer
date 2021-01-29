@@ -33,10 +33,10 @@ class PlotWindow(QDialog):
         self.plotSeries = []
         #layout for the checkboxes
         self.cbLayout = QHBoxLayout()
-        #set the dictionary for checkboxes and initialise
-        self.parameters.plotGUI['checkBoxes']={}
-        for actor in self.parameters.allActors:
-            self.parameters.plotGUI['checkBoxes'][actor]={'hw':None,'widget':None,'state':True}
+        # #set the dictionary for checkboxes and initialise
+        # self.parameters.plotGUI['checkBoxes']={}
+        # for actor in self.parameters.allActors:
+        #     self.parameters.plotGUI['checkBoxes'][actor]={'hw':None,'widget':None,'state':True}
 
     def closeEvent(self, evnt):
         if self._want_to_close:

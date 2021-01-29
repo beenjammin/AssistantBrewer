@@ -86,7 +86,7 @@ class RelayWidgets():
         switch = self.status #set the switch status (true = on, false = off)
         if not self.parameters.test:
             GPIO.setmode(GPIO.BCM) 
-            RELAIS_1_GPIO = pin
+            RELAIS_1_GPIO = int(pin)
             GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
         #get the current text of the widget so we can update it
         text=self.parameters.brewGUI[hw]['relayGroupBox']['QLabelCurrentPins']['widget'].text()

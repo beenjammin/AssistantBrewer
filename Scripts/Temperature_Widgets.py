@@ -34,7 +34,7 @@ class TemperatureWidgets():
             self.tempCalc = 'max'
             if self.tempCalc == 'max':
                 self.temp = max(temps)
-                print(self.temp)
+                # print(self.temp)
             elif self.tempCalc == 'min':
                 self.temp = min(temps)
             else:
@@ -154,7 +154,7 @@ class TemperatureWidgets():
         #initiate relay control dict
         self.relayControl['tgtTemps'] = []
         self.relayControl['tgtTimes'] = []
-        self.relayControl['tempLineTol'] = self.parameters.hwValues[self.name]['TempTimer']['tol']
+        self.relayControl['tempLineTol'] = self.parameters.hwValues[self.name]['TempTimer']['tempTolerance']
         #initialise set-up, need to add checkboxes, drop down list for selecting profiles etc
         #number of additional points
         self.plotPoints = 0
@@ -331,23 +331,7 @@ class TemperatureWidgets():
         self.valueChange()
 
     def populateWidgets(self,dock=None):
-        #initialise, this always happens
         addRemoveBtnSize = QSize(15, 15)
-        # gb = self.parameters.brewGUI[self.name]['tempGroupBox']['widget']
-        # VLayout = self.parameters.brewGUI[self.name]['tempGroupBox']['layout']
-        # # try:          
-        # startTempVal = float(self.parameters.hwValues[self.name]['TempTimer']['temps'][0])
-        # endTempVal = float(self.parameters.hwValues[self.name]['TempTimer']['temps'][-1])
-        # startTimeVal = float(self.parameters.hwValues[self.name]['TempTimer']['times'][0])
-        # endTimeVal = float(self.parameters.hwValues[self.name]['TempTimer']['times'][-1])
-        # except KeyError:
-        #     startTempVal = 65
-        #     endTempVal = 70
-        #     startTimeVal = 0
-        #     endTimeVal = 60
-        # except:
-        #     print("Unexpected error:", sys.exc_info()[0])
-        #     raise
         try:
             gb = self.parameters.brewGUI[self.name]['tempGroupBox']['widget']
             startTempVal = float(self.parameters.brewGUI[self.name]['tempGroupBox']['QLineEditTgtTemps']['values'][0])
@@ -538,6 +522,8 @@ class TemperatureWidgets():
         # HLayout2 = QHBoxLayout()
         HLayout.addWidget(tempTolLbl)
         HLayout.addWidget(tempTolerance)
+
+        # profile = bodyComboBox()
 
         toolBar = {'holdTemps':holdTemps,'warmUp':warmUp,'tempTolerance':tempTolerance,'plotLiveTemp':plotLiveTemp}
         self.parameters.brewGUI[self.name]['tempGroupBox']['toolBar'] = toolBar
