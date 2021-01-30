@@ -1,4 +1,4 @@
-from probeTypes.DS18B20 import getActors
+from probeTypes.DS18B20 import getActors, actor_read_raw
 from probeTypes.Atlas import atlas_i2c
 from Database import DatabaseFunctions
 
@@ -38,10 +38,11 @@ class Probe_Initialise():
         for probe, address in self.parameters.I2C.items():
             try:
                 actor = atlas_i2c(address=int(address))
-                print(actor.query("R"))
+#                print(actor.query("R"))
                 self.parameters.probes[probe]['actors'] += [address]
                 #populate field for hardware
                 self.parameters.probes[probe]['hw'] += [None]
+                self.parameters.probes[probe]['readings'] += [actor.query("R").rstrip('\x00')]
                 #add the protocol to the dict
                 self.parameters.probes[probe]['protocol'] += ['Atlas_I2C']
                 self.parameters.probes[probe]['probeClass'] += [actor]
@@ -58,6 +59,7 @@ class Probe_Initialise():
             print('Found {} temp probes using the DS18B20 protocol'.format(len(DS18B20_Probes)))
             #populate field for hardware
             self.parameters.probes['temperature']['hw'] += [None]*len(DS18B20_Probes)
+            self.parameters.probes['temperature']['readings'] += [actor_read_raw(probe+'/w1_slave') for probe in DS18B20_Probes]
             #add the protocol to the dict
             self.parameters.probes['temperature']['protocol'] += ['DS18B20']*len(DS18B20_Probes)
             self.parameters.probes['temperature']['probeClass'] += [None]*len(DS18B20_Probes)

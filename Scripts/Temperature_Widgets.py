@@ -25,10 +25,11 @@ class TemperatureWidgets():
             self.parameters.tempHardware = set()
         self.parameters.tempHardware.add(self.name)
 
-    #get the temperature of the hardware by going to the select actor and 
+    #get the temperature of the hardware by going to the selected actor 
     def getTemp(self):
         if self.probes['temperature']['actors']:
             indices = [self.parameters.probes['temperature']['actors'].index(b) for b in self.probes['temperature']['actors']]
+#            print('indices are {} and readings are {}'.format(indices,self.parameters.probes['temperature']))
             temps = [float(self.parameters.probes['temperature']['readings'][b]) for b in indices]
 #            print('temps for {} is {}'.format(self.name,temps))
             self.tempCalc = 'max'
