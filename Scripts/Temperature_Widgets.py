@@ -235,7 +235,7 @@ class TemperatureWidgets():
                 plotTemp = [tl2[0]]
                 for count in range(len(tl)):
                     #check to make sure it is not the first indice
-                    if count is not 0:
+                    if count != 0:
                         #append a value just before
                         plotTime += [tl[count]-0.01,tl[count]]
                         plotTemp += [tl2[count-1],tl2[count]]
@@ -490,6 +490,7 @@ class TemperatureWidgets():
 
     def __startBrew(self):
         print('starting brew')
+        #we need to get the current time, check if heating time is included, determine if temperature is within range and record the time passed
 
     def __setCurrentTime(self):
         self.timein.setText(time.strftime("%H:%M:%S", time.localtime()))

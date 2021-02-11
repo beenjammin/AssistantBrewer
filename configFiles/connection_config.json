@@ -1,1 +1,1 @@
-{"relay": {"17": [false, "HLT"], "18": [false, "HLT"], "23": [false, "Mash"], "22": [false, "Pump 1"]}, "floatSwitch": {"24": [false, null]}, "hw": [["Boil", "HLT", "Boil", "Mash"], ["Mash"]], "actors": [["/sys/bus/w1/devices/28-00000ac8b7b2", "/sys/bus/w1/devices/28-01131b273536", "/sys/bus/w1/devices/28-01131b2271ea", "102"], ["99"]]}
+{"relay": {"17": [false, "HLT"], "18": [false, "HLT"], "23": [false, "Mash"], "22": [false, "Pump 1"]}, "floatSwitch": {"24": [false, null]}, "hw": [[null, null, null], [null, null]], "actors": [["T1", "T2", "T3"], ["ph1", "ph2"]]}

@@ -125,11 +125,11 @@ class Parameters():
 
 
 def colourPick(colour,shade):
-    colourDict = {  'green':{'light':'#a9d08e','medium':'#548235','dark':'#375623'},
-                    'blue':{'light':'#9bc2e6','medium':'#2f75b5','dark':'#203764'},
-                    'orange':{'light':'#f4b084','medium':'#c65911','dark':'#833c0c'},
-                    'yellow':{'light':'#ffd966','medium':'#bf8f00','dark':'#806000'},
-                    'grey':{'light':'#999999','medium':'#616161','dark':'#383838'}
+    colourDict = {  'green':{'light':'#a9d08e','medium':'#548235','dark':'#375623','button_on':'#de203f','button_off':'#94c925'},
+                    'blue':{'light':'#9bc2e6','medium':'#2f75b5','dark':'#203764','button_on':'#de203f','button_off':'#94c925'},
+                    'orange':{'light':'#f4b084','medium':'#c65911','dark':'#833c0c','button_on':'#de203f','button_off':'#94c925'},
+                    'yellow':{'light':'#ffd966','medium':'#bf8f00','dark':'#806000','button_on':'#de203f','button_off':'#94c925'},
+                    'grey':{'light':'#999999','medium':'#616161','medium-dark':'#4d4d4d','dark':'#383838', 'darker': '#1a1a1a','black':'#000000','button_on':'#de203f','button_off':'#94c925'}
                     }
 
     return colourDict[colour][shade]

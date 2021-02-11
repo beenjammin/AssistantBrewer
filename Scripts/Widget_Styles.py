@@ -26,10 +26,10 @@ def getWidgetStylesheet(self, colour='grey'):
                 QLabel {color : %s}"""%('white')+"""
                 QPushButton {background-color:  %s; 
                             border: 1px solid black;
-                            border-radius: 4px; color : %s}"""%(colourPick(colour,'light'),'black')+"""
+                            border-radius: 4px; color : %s}"""%(colourPick(colour,'light'),colourPick(colour,'button_off'))+"""
                 QPushButton:checked {background-color: %s; 
                                     border: 1px solid black;
-                                    border-radius: 4px;color: %s}"""%(colourPick(colour,'medium'),colourPick(colour,'light'))+"""   
+                                    border-radius: 4px;color: %s}"""%(colourPick(colour,'medium'),colourPick(colour,'button_on'))+"""   
                 QLineEdit {background-color:  %s;
                             border: 1px solid black; 
                             color: %s}"""%(colourPick(colour,'light'),colourPick(colour,'dark'))+"""
@@ -139,11 +139,11 @@ class bodyButton(QPushButton):
     def applyStyle(self,colour):
         stylesheet = """ 
                     QPushButton {background-color:  %s; 
-                                border: 1px solid black;
-                                border-radius: 4px; color : %s}"""%(colourPick(colour,'light'),'black')+"""
+                                border: 1px solid %s;
+                                border-radius: 4px; color : %s}"""%(colourPick(colour,'medium-dark'),colourPick(colour,'button_off'),colourPick(colour,'button_off'))+"""
                     QPushButton:checked {background-color: %s; 
-                                        border: 1px solid black;
-                                        border-radius: 4px;color: %s}"""%(colourPick(colour,'medium'),colourPick(self.colour,'light'))                
+                                        border: 1px solid %s;
+                                        border-radius: 4px;color: %s}"""%(colourPick(colour,'darker'),colourPick(colour,'button_on'),colourPick(self.colour,'button_on'))                
         self.setStyleSheet(stylesheet)
 
 
